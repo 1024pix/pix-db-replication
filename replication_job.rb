@@ -2,7 +2,7 @@ require 'rubygems'
 require 'rufus-scheduler'
 scheduler = Rufus::Scheduler.new
 
-scheduler.cron ENV['SCHEDULE'] do
+scheduler.cron ENV['SCHEDULE'], overlap: false do
   system 'curl -O https://cli-dl.scalingo.io/install && bash install -i "$PWD"'
 
   addonid=`./scalingo addons`.split("\n").grep(/Postg/).first.split("|")[2].strip
