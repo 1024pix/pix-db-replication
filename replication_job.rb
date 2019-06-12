@@ -21,7 +21,11 @@ scheduler.cron ENV['SCHEDULE'], overlap: false do
 
   system "psql \"$DATABASE_URL\" -c 'DROP OWNED BY CURRENT_USER CASCADE'"
 
-  system "tar xvzOf ./backup.tar.gz | pg_restore -v --no-owner -d \"$DATABASE_URL\""
+  system "tar xvzf ./backup.tar.gz"
+
+  backupfile = Dir.glob("*.pgsql").first
+
+  system "pg_restore #{backupfile} --verbose --jobs=4 --no-owner -d \"$DATABASE_URL\""
 end
 
 scheduler.join
