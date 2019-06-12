@@ -11,7 +11,7 @@ scheduler.cron ENV['SCHEDULE'] do
 
   backupid=`./scalingo --addon #{addonid} backups`.split("\n").grep(/done/).first.split("|")[1].strip
 
-  puts "Backup ID: #{addonid}"
+  puts "Backup ID: #{backupid}"
 
   system "./scalingo --addon #{addonid} backup-download --backup #{backupid} -o backup.tar.gz"
 
