@@ -4,6 +4,7 @@ scheduler = Rufus::Scheduler.new
 
 scheduler.cron ENV['SCHEDULE'], overlap: false do
   system 'curl -O https://cli-dl.scalingo.io/install && bash install -i "$PWD"'
+  system 'dbclient-fetcher pgsql 10.4'
 
   addonid=`./scalingo addons`.split("\n").grep(/Postg/).first.split("|")[2].strip
 
