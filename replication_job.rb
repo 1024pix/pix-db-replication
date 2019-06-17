@@ -29,4 +29,10 @@ scheduler.cron ENV['SCHEDULE'], overlap: false do
   system "pg_restore #{backupfile} --verbose --jobs=4 --no-owner -d \"$DATABASE_URL\""
 end
 
+def scheduler.on_error(job, error)
+  super(job, error)
+ensure
+  exit!
+end
+
 scheduler.join
