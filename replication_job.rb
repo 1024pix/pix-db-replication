@@ -26,7 +26,11 @@ scheduler.cron ENV['SCHEDULE'], overlap: false do
 
   backupfile = Dir.glob("*.pgsql").first
 
-  system "pg_restore #{backupfile} --verbose --jobs=4 --no-owner -d \"$DATABASE_URL\""
+  begin
+    system "pg_restore #{backupfile} --verbose --jobs=4 --no-owner -d \"$DATABASE_URL\""
+  ensure
+    File.delete backupfile
+  end
 end
 
 def scheduler.on_error(job, error)
