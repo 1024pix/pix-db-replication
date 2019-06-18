@@ -1,0 +1,19 @@
+{
+  "name": "Pix replication review App",
+  "env": {
+    "REVIEW_APP": {
+      "description": "Indicates that the application is a review app",
+      "value": "true"
+    }
+  },
+  "formation": {
+    "web": {
+      "amount": 0,
+      "size": "S"
+    },
+    "background": {
+      "amount": 1,
+      "size": "S"
+    }
+  }
+}
