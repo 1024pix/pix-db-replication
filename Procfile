@@ -1,2 +1,2 @@
 web: ruby -run -e httpd /dev/null -p $PORT
-background: bundle exec ruby replication_job.rb
+background: node replication_job.js
