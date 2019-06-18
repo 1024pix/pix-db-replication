@@ -1,25 +1,34 @@
 const execa = require('execa');
 const fs = require('fs');
 
+function shellSync(cmdline) {
+  execa.shellSync(cmdline, { stdio: 'inherit' });
+}
+
+function execSync(cmd, args) {
+  execa.sync(cmd, args, { stdio: 'inherit' });
+}
+
+function execSyncStdOut(cmd, args) {
+  return execa.sync(cmd, args, { stderr: 'inherit' }).stdout;
+}
+
 // dbclient-fetch assumes $HOME/bin is in the PATH
 function setupPath() {
-  execa.shellSync('mkdir -p "$HOME/bin"');
+  shellSync('mkdir -p "$HOME/bin"');
   process.env.PATH = process.env.HOME + '/bin' + ':' + process.env.PATH;
 }
 
 function installScalingoCli() {
-  execa.shellSync('curl -Ss -O https://cli-dl.scalingo.io/install && bash install --yes --install-dir "$HOME/bin"',
-                  { stdio: 'inherit' });
+  shellSync('curl -Ss -O https://cli-dl.scalingo.io/install && bash install --yes --install-dir "$HOME/bin"');
 }
 
 function installPostgresClient() {
-  execa.sync('dbclient-fetcher', [ 'pgsql', '10.4' ],
-             { stdio: 'inherit' });
+  execSync('dbclient-fetcher', [ 'pgsql', '10.4' ]);
 }
 
 function getPostgresAddonId() {
-  const addonsOutput = execa.sync('scalingo', [ 'addons' ],
-                                  { stderr: 'inherit' }).stdout;
+  const addonsOutput = execSyncStdOut('scalingo', [ 'addons' ]);
   try {
     const { addonId } = addonsOutput.match(/PostgreSQL\s*\|\s*(?<addonId>\S+)/).groups;
 
@@ -31,8 +40,7 @@ function getPostgresAddonId() {
 }
 
 function getBackupId({ addonId }) {
-  const backupsOutput = execa.sync('scalingo', [ '--addon', addonId, 'backups' ],
-                                   { stderr: 'inherit' }).stdout;
+  const backupsOutput = execSyncStdOut('scalingo', [ '--addon', addonId, 'backups' ]);
   try {
     const { backupId } = backupsOutput.match(/^\|\s*(?<backupId>[^ |]+).*done/m).groups;
 
@@ -45,8 +53,7 @@ function getBackupId({ addonId }) {
 
 function downloadBackup({ addonId, backupId }) {
   const compressedBackup = 'backup.tar.gz';
-  execa.sync('scalingo', [ '--addon', addonId, 'backup-download', '--silent', '--backup', backupId, '-o', compressedBackup ],
-             { stdio: 'inherit' });
+  execSync('scalingo', [ '--addon', addonId, 'backup-download', '--silent', '--backup', backupId, '-o', compressedBackup ]);
 
   if (!fs.existsSync('backup.tar.gz')) {
     throw new Error('Backup download failed');
@@ -56,13 +63,12 @@ function downloadBackup({ addonId, backupId }) {
 }
 
 function dropCurrentObjects() {
-  execa.sync('psql', [ process.env.DATABASE_URL, '-c', 'DROP OWNED BY CURRENT_USER CASCADE' ],
-             { stdio: 'inherit' });
+  execSync('psql', [ process.env.DATABASE_URL, '-c', 'DROP OWNED BY CURRENT_USER CASCADE' ]);
 }
 
 // Omit COMMENT objects from backup as we are not allowed to update comments on extensions
 function createRestoreList({ backupFile }) {
-  const backupObjectList = execa.sync('pg_restore', [ backupFile, '-l' ]).stdout;
+  const backupObjectList = execSyncStdOut('pg_restore', [ backupFile, '-l' ]);
   const backupObjectLines = backupObjectList.split('\n');
   const nonCommentBackupObjectLines = backupObjectLines.filter((line) => !/ COMMENT /.test(line));
   const restoreListFile = 'restore.list';
@@ -71,22 +77,21 @@ function createRestoreList({ backupFile }) {
 }
 
 function restoreBackup({ compressedBackup }) {
-  execa.sync('tar', [ 'xvzf', compressedBackup, '--wildcards', '*.pgsql' ]);
+  execSync('tar', [ 'xvzf', compressedBackup, '--wildcards', '*.pgsql' ]);
   const backupFile = fs.readdirSync('.').find((f) => /.*\.pgsql$/.test(f));
   if (!backupFile) {
     throw new Error(`Could not find .pgsql file in ${compressedBackup}`);
   }
   try {
     const restoreListFile = createRestoreList({ backupFile });
-    execa.sync('pg_restore', [
-                 '--verbose',
-                 '--jobs', 4,
-                 '--no-owner',
-                 '--use-list', restoreListFile,
-                 '-d', process.env.DATABASE_URL,
-                 backupFile
-               ],
-               { stdio: 'inherit' });
+    execSync('pg_restore', [
+               '--verbose',
+               '--jobs', 4,
+               '--no-owner',
+               '--use-list', restoreListFile,
+               '-d', process.env.DATABASE_URL,
+               backupFile
+             ]);
   } finally {
     fs.unlinkSync(backupFile);
   }
