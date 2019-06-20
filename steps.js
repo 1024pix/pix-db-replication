@@ -1,5 +1,6 @@
 const execa = require('execa');
 const fs = require('fs');
+const airtableData = require('./airtable-data');
 
 function shellSync(cmdline) {
   execa.shellSync(cmdline, { stdio: 'inherit' });
@@ -117,6 +118,29 @@ function restoreLatestBackup() {
   restoreBackup({ compressedBackup });
 }
 
+async function fetchAirtableData() {
+  const domains = await airtableData.getDomains();
+  const fetchCompetences = domains.map(domain => airtableData.getCompetences(domain));
+  let competences = await Promise.all(fetchCompetences);
+  competences = _flattenArray(competences);
+  const fetchTubes = competences.map(competence => airtableData.getTubes(competence));
+  let tubes = await Promise.all(fetchTubes);
+  tubes = _flattenArray(tubes);
+  const fetchSkills = tubes.map(tube => airtableData.getSkills(tube));
+  let skills = await Promise.all(fetchSkills);
+  skills = _flattenArray(skills);
+  const fetchChallenges = skills.map(skill => airtableData.getChallenges(skill));
+  let challenges = await Promise.all(fetchChallenges);
+  challenges = _flattenArray(challenges);
+  console.log(challenges);
+}
+
+function _flattenArray(array) {
+  return array.reduce((list, current) => {
+    return list.concat(current);
+  }, []);
+}
+
 module.exports = {
   setupPath,
   installScalingoCli,
@@ -128,4 +152,5 @@ module.exports = {
   createRestoreList,
   restoreBackup,
   restoreLatestBackup,
+  fetchAirtableData
 }
