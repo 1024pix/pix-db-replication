@@ -1,18 +1,28 @@
 const Airtable = require("airtable");
+const { Client } = require('pg');
+const format = require('pg-format');
 let base;
 
-function init() {
+function initAirtable() {
   base = new Airtable({apiKey: process.env.AIRTABLE_KEY}).base(process.env.AIRTABLE_BASE);
 }
 
-function ensureInit() {
+async function getDBClient() {
+  client = new Client({
+    connectionString: process.env.DATABASE_URL
+  });
+  await client.connect();
+  return client;
+}
+
+function ensureInitAirtable() {
   if (!base) {
-    init();
+    initAirtable();
   }
 }
 
 async function getDomains() {
-  ensureInit();
+  ensureInitAirtable();
   let domains = [];
   try {
     await base('Domaines').select({
@@ -32,7 +42,7 @@ async function getDomains() {
 }
 
 async function getCompetences(domain) {
-  ensureInit();
+  ensureInitAirtable();
   let competences = [];
   try {
     await base('Competences').select({
@@ -53,12 +63,12 @@ async function getCompetences(domain) {
 }
 
 async function getTubes(competence) {
-  ensureInit();
+  ensureInitAirtable();
   let tubes = [];
   try {
     await base('Tubes').select({
       fields: ['Nom', 'Titre', 'Description'],
-      filterByFormula: `Competences='${competence.name.replace(/'/g, '\\\'')}'`
+      filterByFormula: `Competences='${_escape(competence.name)}'`
     }).eachPage(function page(records, fetchNextPage) {
       tubes = records.reduce((list, record) => {
         list.push({name:record.get('Nom'),title:record.get('Titre'),description:record.get('Description'), recordId:record.getId(), competenceRecordId:competence.recordId});
@@ -74,7 +84,7 @@ async function getTubes(competence) {
 }
 
 async function getSkills(tube) {
-  ensureInit();
+  ensureInitAirtable();
   let skills = [];
   try {
     await base('Acquis').select({
@@ -95,7 +105,7 @@ async function getSkills(tube) {
 }
 
 async function getChallenges(skill) {
-  ensureInit();
+  ensureInitAirtable();
   let challenges = [];
   try {
     await base('Epreuves').select({
@@ -115,11 +125,82 @@ async function getChallenges(skill) {
   }
 }
 
+async function saveDomains(domains) {
+  try {
+    const client = await getDBClient();
+    await _createTable('domains', {id:'SERIAL PRIMARY KEY', name:'text', recordId:'varchar(17)'}, ['recordId']);
+    await _fillTable('domains', domains);
+    await client.end();
+  } catch (error) {
+    console.error(error);
+    await client.end();
+  }
+}
+
+async function saveCompetences(competences) {
+  try {
+      const client = await getDBClient();
+      await _createTable('competences', {id:'SERIAL PRIMARY KEY', name:'text', code:'varchar(5)', title:'text', recordId:'varchar(17)', domainRecordId:'varchar(17)'}, ['recordId', 'domainRecordId']);
+      await _fillTable('competences', competences);
+      await client.end();
+  } catch (error) {
+    console.error(error);
+    await client.end();
+  }
+}
+
+async function saveTubes(tubes) {
+  const client = await getDBClient();
+  await client.end();
+}
+
+async function saveSkills(skills) {
+  const client = await getDBClient();
+  await client.end();
+}
+
+async function saveChallenges(challenges) {
+  const client = await getDBClient();
+  await client.end();
+}
+
+async function _createTable(tableName, fields, indeces) {
+  const fieldTexts = Object.keys(fields).map(field => `\t"${field}"\t${fields[field]}`);
+  const fieldText = fieldTexts.join(',\n');
+  try {
+    await client.query(`CREATE TABLE "${tableName}" (${fieldText})`)
+    let indexText = '';
+    if (indeces) {
+      indeces.forEach(async index => {
+        await client.query(`CREATE INDEX "${tableName}_${index}_idx" ON "${tableName}" ("${index}")`);
+      })
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function _fillTable(tableName, items) {
+  const fields = Object.keys(items[0]);
+  const fieldText = `"${fields.join('","')}"`;
+  const stackedItems = items.map(item => fields.map(field => item[field]));
+  const query = format(`INSERT INTO "${tableName}" (${fieldText}) VALUES %L `, stackedItems);
+  await client.query(query);
+}
+
+function _escape(text) {
+  return text.replace(/'/g, '\\\'');
+}
+
 module.exports = {
-  init,
   getDomains,
   getCompetences,
   getTubes,
   getSkills,
-  getChallenges
+  getChallenges,
+  saveDomains,
+  saveCompetences,
+  saveTubes,
+  saveSkills,
+  saveChallenges
 }

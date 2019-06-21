@@ -132,7 +132,22 @@ async function fetchAirtableData() {
   const fetchChallenges = skills.map(skill => airtableData.getChallenges(skill));
   let challenges = await Promise.all(fetchChallenges);
   challenges = _flattenArray(challenges);
-  console.log(challenges);
+  return {
+    domains:domains,
+    competences:competences,
+    tubes:tubes,
+    skills:skills,
+    challenges:challenges
+  }
+}
+
+async function saveAirtableData() {
+  console.log('fetch airtable data');
+  const data = await fetchAirtableData();
+  console.log('save domains');
+  await airtableData.saveDomains(data.domains);
+  console.log('save competences');
+  await airtableData.saveCompetences(data.competences);
 }
 
 function _flattenArray(array) {
@@ -152,5 +167,6 @@ module.exports = {
   createRestoreList,
   restoreBackup,
   restoreLatestBackup,
-  fetchAirtableData
+  fetchAirtableData,
+  saveAirtableData
 }
