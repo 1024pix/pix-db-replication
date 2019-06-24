@@ -56,8 +56,7 @@ async function getCompetences(domain) {
       fetchNextPage();
     })
     return competences;
-  }
-  catch (error) {
+  } catch (error) {
     console.error(error);
   }
 }
@@ -77,8 +76,7 @@ async function getTubes(competence) {
       fetchNextPage();
     });
     return tubes;
-  }
-  catch (error) {
+  } catch (error) {
     console.error(error);
   }
 }
@@ -98,8 +96,7 @@ async function getSkills(tube) {
       fetchNextPage();
     });
     return skills;
-  }
-  catch (error) {
+  } catch (error) {
     console.error(error);
   }
 }
@@ -130,21 +127,21 @@ async function saveDomains(domains) {
     const client = await getDBClient();
     await _createTable('domains', {id:'SERIAL PRIMARY KEY', name:'text', recordId:'varchar(17)'}, ['recordId']);
     await _fillTable('domains', domains);
-    await client.end();
   } catch (error) {
     console.error(error);
+  } finally {
     await client.end();
   }
 }
 
 async function saveCompetences(competences) {
   try {
-      const client = await getDBClient();
-      await _createTable('competences', {id:'SERIAL PRIMARY KEY', name:'text', code:'varchar(5)', title:'text', recordId:'varchar(17)', domainRecordId:'varchar(17)'}, ['recordId', 'domainRecordId']);
-      await _fillTable('competences', competences);
-      await client.end();
+    const client = await getDBClient();
+    await _createTable('competences', {id:'SERIAL PRIMARY KEY', name:'text', code:'varchar(5)', title:'text', recordId:'varchar(17)', domainRecordId:'varchar(17)'}, ['recordId', 'domainRecordId']);
+    await _fillTable('competences', competences);
   } catch (error) {
     console.error(error);
+  } finally {
     await client.end();
   }
 }
@@ -154,9 +151,9 @@ async function saveTubes(tubes) {
     const client = await getDBClient();
     await _createTable('tubes', {id:'SERIAL PRIMARY KEY', name:'text', title:'text', description:'text', recordId:'varchar(17)', competenceRecordId:'varchar(17)'}, ['recordId', 'competenceRecordId']);
     await _fillTable('tubes', tubes);
-    await client.end();
   } catch (error) {
     console.error(error);
+  } finally {
     await client.end();
   }
 }
@@ -166,9 +163,9 @@ async function saveSkills(skills) {
     const client = await getDBClient();
     await _createTable('skills', {id:'SERIAL PRIMARY KEY', name:'text', level:'smallint', description:'text', recordId:'varchar(17)', tubeRecordId:'varchar(17)'}, ['recordId', 'tubeRecordId']);
     await _fillTable('skills', skills);
-    await client.end();
   } catch (error) {
     console.error(error);
+  } finally {
     await client.end();
   }
 }
@@ -178,9 +175,23 @@ async function saveChallenges(challenges) {
     const client = await getDBClient();
     await _createTable('challenges', {id:'SERIAL PRIMARY KEY', instructions:'text', recordId:'varchar(17)', skillRecordId:'varchar(17)'}, ['recordId', 'skillRecordId']);
     await _fillTable('challenges', challenges);
-    await client.end();
   } catch (error) {
     console.error(error);
+  } finally {
+    await client.end();
+  }
+}
+
+async function dropTables() {
+  try {
+    const client = await getDBClient();
+    const dropQuery = (['domains', 'competences', 'tubes', 'skills', 'challenges']).reduce((query, tableName) => {
+      return query+`DROP TABLE IF EXISTS "public"."${tableName}" CASCADE;\n`;
+    }, '');
+    await client.query(dropQuery);
+  } catch (error) {
+    console.error(error);
+  } finally {
     await client.end();
   }
 }
@@ -223,5 +234,6 @@ module.exports = {
   saveCompetences,
   saveTubes,
   saveSkills,
-  saveChallenges
+  saveChallenges,
+  dropTables
 }
