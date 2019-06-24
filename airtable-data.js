@@ -150,18 +150,39 @@ async function saveCompetences(competences) {
 }
 
 async function saveTubes(tubes) {
-  const client = await getDBClient();
-  await client.end();
+  try {
+    const client = await getDBClient();
+    await _createTable('tubes', {id:'SERIAL PRIMARY KEY', name:'text', title:'text', description:'text', recordId:'varchar(17)', competenceRecordId:'varchar(17)'}, ['recordId', 'competenceRecordId']);
+    await _fillTable('tubes', tubes);
+    await client.end();
+  } catch (error) {
+    console.error(error);
+    await client.end();
+  }
 }
 
 async function saveSkills(skills) {
-  const client = await getDBClient();
-  await client.end();
+  try {
+    const client = await getDBClient();
+    await _createTable('skills', {id:'SERIAL PRIMARY KEY', name:'text', level:'smallint', description:'text', recordId:'varchar(17)', tubeRecordId:'varchar(17)'}, ['recordId', 'tubeRecordId']);
+    await _fillTable('skills', skills);
+    await client.end();
+  } catch (error) {
+    console.error(error);
+    await client.end();
+  }
 }
 
 async function saveChallenges(challenges) {
-  const client = await getDBClient();
-  await client.end();
+  try {
+    const client = await getDBClient();
+    await _createTable('challenges', {id:'SERIAL PRIMARY KEY', instructions:'text', recordId:'varchar(17)', skillRecordId:'varchar(17)'}, ['recordId', 'skillRecordId']);
+    await _fillTable('challenges', challenges);
+    await client.end();
+  } catch (error) {
+    console.error(error);
+    await client.end();
+  }
 }
 
 async function _createTable(tableName, fields, indeces) {

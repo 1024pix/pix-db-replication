@@ -148,6 +148,12 @@ async function saveAirtableData() {
   await airtableData.saveDomains(data.domains);
   console.log('save competences');
   await airtableData.saveCompetences(data.competences);
+  console.log('save tubes');
+  await airtableData.saveTubes(data.tubes);
+  console.log('save skills');
+  await airtableData.saveSkills(data.skills);
+  console.log('save challenges');
+  await airtableData.saveChallenges(data.challenges);
 }
 
 function _flattenArray(array) {
