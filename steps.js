@@ -100,7 +100,7 @@ function restoreBackup({ compressedBackup }) {
   console.log("Restore done");
 }
 
-function restoreLatestBackup() {
+async function restoreLatestBackup() {
   setupPath();
   installScalingoCli();
   installPostgresClient();
@@ -116,6 +116,8 @@ function restoreLatestBackup() {
   dropCurrentObjects();
 
   restoreBackup({ compressedBackup });
+
+  await saveAirtableData();
 }
 
 async function fetchAirtableData() {

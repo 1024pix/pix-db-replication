@@ -2,9 +2,9 @@ require('dotenv').config();
 const cron = require('node-cron');
 const steps = require('./steps');
 
-cron.schedule(process.env.SCHEDULE, () => {
+cron.schedule(process.env.SCHEDULE, async () => {
   try {
-    steps.restoreLatestBackup();
+    await steps.restoreLatestBackup();
   } catch(e) {
     console.error(e);
     process.exit(1);
