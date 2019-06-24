@@ -148,11 +148,11 @@ async function fetchAirtableData() {
 }
 
 async function saveAirtableData() {
-  /*console.log('fetch airtable data');
-  const data = await fetchAirtableData();*/
+  console.log('fetch airtable data');
+  const data = await fetchAirtableData();
   console.log('drop airtable data tables');
   await airtableData.dropTables();
-  /*console.log('save domains');
+  console.log('save domains');
   await airtableData.saveDomains(data.domains);
   console.log('save competences');
   await airtableData.saveCompetences(data.competences);
@@ -161,7 +161,7 @@ async function saveAirtableData() {
   console.log('save skills');
   await airtableData.saveSkills(data.skills);
   console.log('save challenges');
-  await airtableData.saveChallenges(data.challenges);*/
+  await airtableData.saveChallenges(data.challenges);
 }
 
 function _flattenArray(array) {
