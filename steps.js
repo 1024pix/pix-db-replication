@@ -120,54 +120,8 @@ async function restoreLatestBackup() {
   await saveAirtableData();
 }
 
-async function dropSavedAirtableData() {
-  await airtableData.dropTables();
-}
-
-async function fetchAirtableData() {
-  const domains = await airtableData.getDomains();
-  const fetchCompetences = domains.map(domain => airtableData.getCompetences(domain));
-  let competences = await Promise.all(fetchCompetences);
-  competences = _flattenArray(competences);
-  const fetchTubes = competences.map(competence => airtableData.getTubes(competence));
-  let tubes = await Promise.all(fetchTubes);
-  tubes = _flattenArray(tubes);
-  const fetchSkills = tubes.map(tube => airtableData.getSkills(tube));
-  let skills = await Promise.all(fetchSkills);
-  skills = _flattenArray(skills);
-  const fetchChallenges = skills.map(skill => airtableData.getChallenges(skill));
-  let challenges = await Promise.all(fetchChallenges);
-  challenges = _flattenArray(challenges);
-  return {
-    domains:domains,
-    competences:competences,
-    tubes:tubes,
-    skills:skills,
-    challenges:challenges
-  }
-}
-
 async function saveAirtableData() {
-  console.log('fetch airtable data');
-  const data = await fetchAirtableData();
-  console.log('drop airtable data tables');
-  await airtableData.dropTables();
-  console.log('save domains');
-  await airtableData.saveDomains(data.domains);
-  console.log('save competences');
-  await airtableData.saveCompetences(data.competences);
-  console.log('save tubes');
-  await airtableData.saveTubes(data.tubes);
-  console.log('save skills');
-  await airtableData.saveSkills(data.skills);
-  console.log('save challenges');
-  await airtableData.saveChallenges(data.challenges);
-}
-
-function _flattenArray(array) {
-  return array.reduce((list, current) => {
-    return list.concat(current);
-  }, []);
+  await airtableData.fetchAndSaveData();
 }
 
 module.exports = {
@@ -181,6 +135,5 @@ module.exports = {
   createRestoreList,
   restoreBackup,
   restoreLatestBackup,
-  fetchAirtableData,
   saveAirtableData
 }

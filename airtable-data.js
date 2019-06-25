@@ -1,239 +1,142 @@
 const Airtable = require("airtable");
 const { Client } = require('pg');
 const format = require('pg-format');
-let base;
 
-function initAirtable() {
-  base = new Airtable({apiKey: process.env.AIRTABLE_KEY}).base(process.env.AIRTABLE_BASE);
+const tables = [{
+    name:'domains',
+    airtableName:'Domaines',
+    fields: [
+      {name:'name', type:'text', airtableName:'Nom'}
+    ],
+    indices: []
+  },{
+    name:'competences',
+    airtableName:'Competences',
+    fields: [
+      {name:'name', type:'text', airtableName:'Référence'},
+      {name:'code', type:'varchar(5)', airtableName:'Sous-domaine'},
+      {name:'title', type:'text', airtableName:'Titre'},
+      {name:'domainRecordId', type:'varchar(17)', airtableName:'Domaine', isArray:false}
+    ],
+    indices: ['domainRecordId']
+  },{
+    name:'tubes',
+    airtableName:'Tubes',
+    fields: [
+      {name:'name', type:'text', airtableName:'Nom'},
+      {name:'title', type:'text', airtableName:'Titre'},
+      {name:'competenceRecordId', type:'varchar(17)', airtableName:'Competences', isArray:false}
+    ],
+    indices: ['competenceRecordId']
+  },{
+    name:'skills',
+    airtableName:'Acquis',
+    fields: [
+      {name:'name', type:'text', airtableName:'Nom'},
+      {name:'description', type:'text', airtableName:'Description'},
+      {name:'level', type:'smallint', airtableName:'Level'},
+      {name:'tubeRecordId', type:'varchar(17)', airtableName:'Tube', isArray:false},
+      {name:'status', type:'varchar(20)', airtableName:'Status'}
+    ],
+    indices: ['tubeRecordId']
+  },{
+    name:'challenges',
+    airtableName:'Epreuves',
+    fields: [
+      {name:'instructions', type:'text', airtableName:'Consigne'},
+      {name:'skillRecordId', type:'text []', airtableName:'Acquix', isArray:true}
+    ],
+    indices: ['skillRecordId']
+  }, {
+    name:'tests',
+    airtableName:'Tests',
+    fields: [
+      {name:'name', type:'text', airtableName:'Nom'},
+      {name:'adaptative', type:'boolean', airtableName:'Adaptatif ?'},
+      {name:'competenceRecordId', type:'varchar(17)', airtableName:'Competence', isArray:false}
+    ],
+    indices: ['competenceRecordId']
+  }
+];
+
+async function fetchAndSaveData() {
+  const tableNames = tables.map((table) => table.name);
+  _dropTables(tableNames);
+  for (const table of tables) {
+    const data = await _getItems(table);
+    await _createTable(table);
+    await _saveItems(table, data);
+  }
 }
 
-async function getDBClient() {
-  client = new Client({
+async function _withDBClient(callback) {
+  const client = new Client({
     connectionString: process.env.DATABASE_URL
   });
-  await client.connect();
-  return client;
-}
-
-function ensureInitAirtable() {
-  if (!base) {
-    initAirtable();
-  }
-}
-
-async function getDomains() {
-  ensureInitAirtable();
-  let domains = [];
   try {
-    await base('Domaines').select({
-      fields: ['Nom'],
-      sort: [{field: 'Nom', direction: 'asc'}]
-    }).eachPage(function page(records, fetchNextPage) {
-      domains = records.reduce((list, record) => {
-        list.push({name:record.get('Nom'),recordId:record.getId()});
-        return list;
-      }, domains);
-      fetchNextPage();
-    })
-    return domains;
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-async function getCompetences(domain) {
-  ensureInitAirtable();
-  let competences = [];
-  try {
-    await base('Competences').select({
-      fields: ['Référence', 'Sous-domaine', 'Titre'],
-      filterByFormula: `Domaine='${domain.name}'`
-    }).eachPage(function page(records, fetchNextPage) {
-      competences = records.reduce((list, record) => {
-        list.push({name:record.get('Référence'), code:record.get('Sous-domaine'),title:record.get('Titre'),recordId:record.getId(), domainRecordId:domain.recordId});
-        return list;
-      }, competences);
-      fetchNextPage();
-    })
-    return competences;
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-async function getTubes(competence) {
-  ensureInitAirtable();
-  let tubes = [];
-  try {
-    await base('Tubes').select({
-      fields: ['Nom', 'Titre', 'Description'],
-      filterByFormula: `Competences='${_escape(competence.name)}'`
-    }).eachPage(function page(records, fetchNextPage) {
-      tubes = records.reduce((list, record) => {
-        list.push({name:record.get('Nom'),title:record.get('Titre'),description:record.get('Description'), recordId:record.getId(), competenceRecordId:competence.recordId});
-        return list;
-      }, tubes);
-      fetchNextPage();
-    });
-    return tubes;
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-async function getSkills(tube) {
-  ensureInitAirtable();
-  let skills = [];
-  try {
-    await base('Acquis').select({
-      fields: ['Nom', 'Description', 'Level', 'PixValue'],
-      filterByFormula: `AND(Tube='${tube.name}', Status='actif')`
-    }).eachPage(function page(records, fetchNextPage) {
-      skills = records.reduce((list, record) => {
-        list.push({name:record.get('Nom'),description:record.get('Description'),recordId:record.getId(), tubeRecordId:tube.recordId, level:record.get('Level')});
-        return list;
-      }, skills);
-      fetchNextPage();
-    });
-    return skills;
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-async function getChallenges(skill) {
-  ensureInitAirtable();
-  let challenges = [];
-  try {
-    await base('Epreuves').select({
-      fields: ['Consigne'],
-      filterByFormula: `AND(Acquix='${skill.name}', OR(Statut='pré-validé', Statut='validé sans test', Statut='validé'))`
-    }).eachPage(function page(records, fetchNextPage) {
-      skills = records.reduce((list, record) => {
-        list.push({instructions:record.get('Consigne'),recordId:record.getId(), skillRecordId:skill.recordId});
-        return list;
-      }, challenges);
-      fetchNextPage();
-    });
-    return challenges;
-  }
-  catch (error) {
-    console.error(error);
-  }
-}
-
-async function saveDomains(domains) {
-  try {
-    const client = await getDBClient();
-    await _createTable('domains', {id:'SERIAL PRIMARY KEY', name:'text', recordId:'varchar(17)'}, ['recordId']);
-    await _fillTable('domains', domains);
-  } catch (error) {
-    console.error(error);
+    await client.connect();
+    await callback(client);
   } finally {
     await client.end();
   }
 }
 
-async function saveCompetences(competences) {
-  try {
-    const client = await getDBClient();
-    await _createTable('competences', {id:'SERIAL PRIMARY KEY', name:'text', code:'varchar(5)', title:'text', recordId:'varchar(17)', domainRecordId:'varchar(17)'}, ['recordId', 'domainRecordId']);
-    await _fillTable('competences', competences);
-  } catch (error) {
-    console.error(error);
-  } finally {
-    await client.end();
-  }
-}
-
-async function saveTubes(tubes) {
-  try {
-    const client = await getDBClient();
-    await _createTable('tubes', {id:'SERIAL PRIMARY KEY', name:'text', title:'text', description:'text', recordId:'varchar(17)', competenceRecordId:'varchar(17)'}, ['recordId', 'competenceRecordId']);
-    await _fillTable('tubes', tubes);
-  } catch (error) {
-    console.error(error);
-  } finally {
-    await client.end();
-  }
-}
-
-async function saveSkills(skills) {
-  try {
-    const client = await getDBClient();
-    await _createTable('skills', {id:'SERIAL PRIMARY KEY', name:'text', level:'smallint', description:'text', recordId:'varchar(17)', tubeRecordId:'varchar(17)'}, ['recordId', 'tubeRecordId']);
-    await _fillTable('skills', skills);
-  } catch (error) {
-    console.error(error);
-  } finally {
-    await client.end();
-  }
-}
-
-async function saveChallenges(challenges) {
-  try {
-    const client = await getDBClient();
-    await _createTable('challenges', {id:'SERIAL PRIMARY KEY', instructions:'text', recordId:'varchar(17)', skillRecordId:'varchar(17)'}, ['recordId', 'skillRecordId']);
-    await _fillTable('challenges', challenges);
-  } catch (error) {
-    console.error(error);
-  } finally {
-    await client.end();
-  }
-}
-
-async function dropTables() {
-  try {
-    const client = await getDBClient();
-    const dropQuery = (['domains', 'competences', 'tubes', 'skills', 'challenges']).reduce((query, tableName) => {
-      return query+`DROP TABLE IF EXISTS "public"."${tableName}" CASCADE;\n`;
-    }, '');
+async function _dropTables(tableNames) {
+  await _withDBClient(async (client) => {
+    const dropQuery = tableNames.map((name) => `DROP TABLE IF EXISTS ${format.ident(name)} CASCADE;`).join('\n');
     await client.query(dropQuery);
-  } catch (error) {
-    console.error(error);
-  } finally {
-    await client.end();
-  }
+  });
 }
 
-async function _createTable(tableName, fields, indeces) {
-  const fieldTexts = Object.keys(fields).map(field => `\t"${field}"\t${fields[field]}`);
-  const fieldText = fieldTexts.join(',\n');
-  try {
-    await client.query(`CREATE TABLE "${tableName}" (${fieldText})`)
-    let indexText = '';
-    if (indeces) {
-      indeces.forEach(async index => {
-        await client.query(`CREATE INDEX "${tableName}_${index}_idx" ON "${tableName}" ("${index}")`);
-      })
+async function _createTable(table) {
+  await _withDBClient(async (client) => {
+    const fieldsText = ['"recordId" varchar(17) PRIMARY KEY'].concat(table.fields.map((field) => format('\t%I\t%s', field.name, field.type))).join(',\n');
+    const createQuery = format(`CREATE TABLE %I (%s)`, table.name, fieldsText);
+    await client.query(createQuery)
+    for (const index of table.indices) {
+      const indexQuery = format (`CREATE INDEX %I on %I (%I)`, `${table.name}_${index}_idx`, table.name, index);
+      await client.query(indexQuery);
     }
-  } catch (error) {
-    console.error(error);
-  }
+  });
 }
 
-async function _fillTable(tableName, items) {
-  const fields = Object.keys(items[0]);
-  const fieldText = `"${fields.join('","')}"`;
-  const stackedItems = items.map(item => fields.map(field => item[field]));
-  const query = format(`INSERT INTO "${tableName}" (${fieldText}) VALUES %L `, stackedItems);
-  await client.query(query);
+async function _saveItems(table, items) {
+  await _withDBClient(async (client) => {
+    const fields = ['recordId'].concat(table.fields.map((field) => field.name));
+    const values = items.map((item) => fields.map((field) => item[field]));
+    const saveQuery = format(`INSERT INTO %I (%I) VALUES %L`, table.name, fields, values)
+    await client.query(saveQuery);
+  });
 }
 
-function _escape(text) {
-  return text.replace(/'/g, '\\\'');
+function _initAirtable() {
+  return new Airtable({apiKey: process.env.AIRTABLE_KEY}).base(process.env.AIRTABLE_BASE);
+}
+
+async function _getItems(structure) {
+  const base = _initAirtable();
+  const fields = structure.fields;
+  const airtableFields = fields.map(field => field.airtableName);
+  records = await base(structure.airtableName).select({
+    fields: airtableFields
+  }).all();
+  return records.map(record => {
+    const item = {recordId:record.getId()};
+    fields.forEach(field => {
+      let value = record.get(field.airtableName);
+      if (Array.isArray(value)) {
+        if (!field.isArray) {
+          value = value[0];
+        } else {
+          value = `{${value.map((item) => format.literal(item)).join(',')}}`;
+        }
+      }
+      item[field.name] = value;
+    });
+    return item;
+  });
 }
 
 module.exports = {
-  getDomains,
-  getCompetences,
-  getTubes,
-  getSkills,
-  getChallenges,
-  saveDomains,
-  saveCompetences,
-  saveTubes,
-  saveSkills,
-  saveChallenges,
-  dropTables
+  fetchAndSaveData
 }
