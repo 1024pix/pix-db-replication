@@ -64,11 +64,11 @@ const tables = [{
 async function fetchAndSaveData() {
   const tableNames = tables.map((table) => table.name);
   _dropTables(tableNames);
-  for (const table of tables) {
+  await Promise.all(tables.map(async (table) => {
     const data = await _getItems(table);
     await _createTable(table);
     await _saveItems(table, data);
-  }
+  }));
 }
 
 async function _withDBClient(callback) {
