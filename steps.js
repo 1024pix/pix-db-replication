@@ -30,6 +30,12 @@ function installPostgresClient() {
   execSync('dbclient-fetcher', [ 'pgsql', '10.4' ]);
 }
 
+function scalingoSetup() {
+  setupPath();
+  installScalingoCli();
+  installPostgresClient();
+}
+
 function getPostgresAddonId() {
   const addonsOutput = execSyncStdOut('scalingo', [ 'addons' ]);
   try {
@@ -102,11 +108,7 @@ function restoreBackup({ compressedBackup }) {
   console.log("Restore done");
 }
 
-async function restoreLatestBackup() {
-  setupPath();
-  installScalingoCli();
-  installPostgresClient();
-
+function downloadAndRestoreLatestBackup() {
   const addonId = getPostgresAddonId();
   console.log("Add-on ID:", addonId);
 
@@ -118,12 +120,18 @@ async function restoreLatestBackup() {
   dropCurrentObjects();
 
   restoreBackup({ compressedBackup });
-
-  await importAirtableData();
 }
 
 async function importAirtableData() {
   await airtableData.fetchAndSaveData();
+}
+
+async function fullReplicationAndEnrichment() {
+  downloadAndRestoreLatestBackup();
+
+  await importAirtableData();
+
+  console.log("Full replication and enrichment done");
 }
 
 module.exports = {
@@ -136,6 +144,7 @@ module.exports = {
   dropCurrentObjects,
   createRestoreList,
   restoreBackup,
-  restoreLatestBackup,
+  downloadAndRestoreLatestBackup,
   importAirtableData,
+  fullReplicationAndEnrichment,
 }
