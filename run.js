@@ -1,7 +1,8 @@
 require('dotenv').config();
 const steps = require('./steps');
 
-steps.restoreLatestBackup()
+steps.scalingoSetup();
+steps.fullReplicationAndEnrichment()
 .then(() => {
   process.exit(0);
 })
