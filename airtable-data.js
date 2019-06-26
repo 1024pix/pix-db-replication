@@ -52,7 +52,7 @@ const tables = [{
     airtableName:'Tests',
     fields: [
       {name:'name', type:'text', airtableName:'Nom'},
-      {name:'adaptative', type:'boolean', airtableName:'Adaptatif ?'},
+      {name:'adaptive', type:'boolean', airtableName:'Adaptatif ?'},
       {name:'competenceId', type:'text', airtableName:'Competence', isArray:false}
     ],
     indices: ['competenceId']
