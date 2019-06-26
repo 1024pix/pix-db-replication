@@ -91,10 +91,10 @@ async function _dropTables(tableNames) {
 async function _createTable(table) {
   await _withDBClient(async (client) => {
     const fieldsText = ['"id" text PRIMARY KEY'].concat(table.fields.map((field) => format('\t%I\t%s', field.name, field.type))).join(',\n');
-    const createQuery = format(`CREATE TABLE %I (%s)`, table.name, fieldsText);
+    const createQuery = format('CREATE TABLE %I (%s)', table.name, fieldsText);
     await client.query(createQuery)
     for (const index of table.indices) {
-      const indexQuery = format (`CREATE INDEX %I on %I (%I)`, `${table.name}_${index}_idx`, table.name, index);
+      const indexQuery = format ('CREATE INDEX %I on %I (%I)', `${table.name}_${index}_idx`, table.name, index);
       await client.query(indexQuery);
     }
   });
@@ -104,7 +104,7 @@ async function _saveItems(table, items) {
   await _withDBClient(async (client) => {
     const fields = ['id'].concat(table.fields.map((field) => field.name));
     const values = items.map((item) => fields.map((field) => item[field]));
-    const saveQuery = format(`INSERT INTO %I (%I) VALUES %L`, table.name, fields, values)
+    const saveQuery = format('INSERT INTO %I (%I) VALUES %L', table.name, fields, values)
     await client.query(saveQuery);
   });
 }
