@@ -117,10 +117,10 @@ async function restoreLatestBackup() {
 
   restoreBackup({ compressedBackup });
 
-  await saveAirtableData();
+  await importAirtableData();
 }
 
-async function saveAirtableData() {
+async function importAirtableData() {
   await airtableData.fetchAndSaveData();
 }
 
@@ -135,5 +135,5 @@ module.exports = {
   createRestoreList,
   restoreBackup,
   restoreLatestBackup,
-  saveAirtableData
+  importAirtableData,
 }
