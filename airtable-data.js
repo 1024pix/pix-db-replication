@@ -16,18 +16,18 @@ const tables = [{
       {name:'name', type:'text', airtableName:'Référence'},
       {name:'code', type:'text', airtableName:'Sous-domaine'},
       {name:'title', type:'text', airtableName:'Titre'},
-      {name:'domainRecordId', type:'text', airtableName:'Domaine', isArray:false}
+      {name:'domainId', type:'text', airtableName:'Domaine', isArray:false}
     ],
-    indices: ['domainRecordId']
+    indices: ['domainId']
   },{
     name:'tubes',
     airtableName:'Tubes',
     fields: [
       {name:'name', type:'text', airtableName:'Nom'},
       {name:'title', type:'text', airtableName:'Titre'},
-      {name:'competenceRecordId', type:'text', airtableName:'Competences', isArray:false}
+      {name:'competenceId', type:'text', airtableName:'Competences', isArray:false}
     ],
-    indices: ['competenceRecordId']
+    indices: ['competenceId']
   },{
     name:'skills',
     airtableName:'Acquis',
@@ -35,27 +35,27 @@ const tables = [{
       {name:'name', type:'text', airtableName:'Nom'},
       {name:'description', type:'text', airtableName:'Description'},
       {name:'level', type:'smallint', airtableName:'Level'},
-      {name:'tubeRecordId', type:'text', airtableName:'Tube', isArray:false},
+      {name:'tubeId', type:'text', airtableName:'Tube', isArray:false},
       {name:'status', type:'text', airtableName:'Status'}
     ],
-    indices: ['tubeRecordId']
+    indices: ['tubeId']
   },{
     name:'challenges',
     airtableName:'Epreuves',
     fields: [
       {name:'instructions', type:'text', airtableName:'Consigne'},
-      {name:'skillRecordIds', type:'text []', airtableName:'Acquix', isArray:true}
+      {name:'skillIds', type:'text []', airtableName:'Acquix', isArray:true}
     ],
-    indices: ['skillRecordIds']
+    indices: ['skillIds']
   }, {
     name:'tests',
     airtableName:'Tests',
     fields: [
       {name:'name', type:'text', airtableName:'Nom'},
       {name:'adaptative', type:'boolean', airtableName:'Adaptatif ?'},
-      {name:'competenceRecordId', type:'text', airtableName:'Competence', isArray:false}
+      {name:'competenceId', type:'text', airtableName:'Competence', isArray:false}
     ],
-    indices: ['competenceRecordId']
+    indices: ['competenceId']
   }
 ];
 
@@ -90,7 +90,7 @@ async function _dropTables(tableNames) {
 
 async function _createTable(table) {
   await _withDBClient(async (client) => {
-    const fieldsText = ['"recordId" text PRIMARY KEY'].concat(table.fields.map((field) => format('\t%I\t%s', field.name, field.type))).join(',\n');
+    const fieldsText = ['"id" text PRIMARY KEY'].concat(table.fields.map((field) => format('\t%I\t%s', field.name, field.type))).join(',\n');
     const createQuery = format(`CREATE TABLE %I (%s)`, table.name, fieldsText);
     await client.query(createQuery)
     for (const index of table.indices) {
@@ -102,7 +102,7 @@ async function _createTable(table) {
 
 async function _saveItems(table, items) {
   await _withDBClient(async (client) => {
-    const fields = ['recordId'].concat(table.fields.map((field) => field.name));
+    const fields = ['id'].concat(table.fields.map((field) => field.name));
     const values = items.map((item) => fields.map((field) => item[field]));
     const saveQuery = format(`INSERT INTO %I (%I) VALUES %L`, table.name, fields, values)
     await client.query(saveQuery);
@@ -121,7 +121,7 @@ async function _getItems(structure) {
     fields: airtableFields
   }).all();
   return records.map(record => {
-    const item = {recordId:record.getId()};
+    const item = {id:record.getId()};
     fields.forEach(field => {
       let value = record.get(field.airtableName);
       if (Array.isArray(value)) {
