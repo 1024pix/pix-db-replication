@@ -44,9 +44,9 @@ const tables = [{
     airtableName:'Epreuves',
     fields: [
       {name:'instructions', type:'text', airtableName:'Consigne'},
-      {name:'skillRecordId', type:'text []', airtableName:'Acquix', isArray:true}
+      {name:'skillRecordIds', type:'text []', airtableName:'Acquix', isArray:true}
     ],
-    indices: ['skillRecordId']
+    indices: ['skillRecordIds']
   }, {
     name:'tests',
     airtableName:'Tests',
