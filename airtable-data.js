@@ -128,7 +128,7 @@ async function _getItems(structure) {
         if (!field.isArray) {
           value = value[0];
         } else {
-          value = `{${value.map((item) => format.literal(item)).join(',')}}`;
+          value = `{${value.join(',')}}`;
         }
       }
       item[field.name] = value;
