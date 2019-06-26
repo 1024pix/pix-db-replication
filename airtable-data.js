@@ -50,7 +50,7 @@ const tables = [{
     ],
     indices: ['skillIds']
   }, {
-    name:'tests',
+    name:'courses',
     airtableName:'Tests',
     fields: [
       {name:'name', type:'text', airtableName:'Nom'},
