@@ -1,3 +1,5 @@
+"use strict";
+
 const Airtable = require("airtable");
 const { Client } = require('pg');
 const format = require('pg-format');
@@ -117,7 +119,7 @@ async function _getItems(structure) {
   const base = _initAirtable();
   const fields = structure.fields;
   const airtableFields = fields.map(field => field.airtableName);
-  records = await base(structure.airtableName).select({
+  const records = await base(structure.airtableName).select({
     fields: airtableFields
   }).all();
   return records.map(record => {

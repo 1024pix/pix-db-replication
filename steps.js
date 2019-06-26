@@ -1,3 +1,5 @@
+"use strict";
+
 const execa = require('execa');
 const fs = require('fs');
 const airtableData = require('./airtable-data');
