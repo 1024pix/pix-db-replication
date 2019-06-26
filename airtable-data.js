@@ -14,9 +14,9 @@ const tables = [{
     airtableName:'Competences',
     fields: [
       {name:'name', type:'text', airtableName:'Référence'},
-      {name:'code', type:'varchar(5)', airtableName:'Sous-domaine'},
+      {name:'code', type:'text', airtableName:'Sous-domaine'},
       {name:'title', type:'text', airtableName:'Titre'},
-      {name:'domainRecordId', type:'varchar(17)', airtableName:'Domaine', isArray:false}
+      {name:'domainRecordId', type:'text', airtableName:'Domaine', isArray:false}
     ],
     indices: ['domainRecordId']
   },{
@@ -25,7 +25,7 @@ const tables = [{
     fields: [
       {name:'name', type:'text', airtableName:'Nom'},
       {name:'title', type:'text', airtableName:'Titre'},
-      {name:'competenceRecordId', type:'varchar(17)', airtableName:'Competences', isArray:false}
+      {name:'competenceRecordId', type:'text', airtableName:'Competences', isArray:false}
     ],
     indices: ['competenceRecordId']
   },{
@@ -35,8 +35,8 @@ const tables = [{
       {name:'name', type:'text', airtableName:'Nom'},
       {name:'description', type:'text', airtableName:'Description'},
       {name:'level', type:'smallint', airtableName:'Level'},
-      {name:'tubeRecordId', type:'varchar(17)', airtableName:'Tube', isArray:false},
-      {name:'status', type:'varchar(20)', airtableName:'Status'}
+      {name:'tubeRecordId', type:'text', airtableName:'Tube', isArray:false},
+      {name:'status', type:'text', airtableName:'Status'}
     ],
     indices: ['tubeRecordId']
   },{
@@ -53,7 +53,7 @@ const tables = [{
     fields: [
       {name:'name', type:'text', airtableName:'Nom'},
       {name:'adaptative', type:'boolean', airtableName:'Adaptatif ?'},
-      {name:'competenceRecordId', type:'varchar(17)', airtableName:'Competence', isArray:false}
+      {name:'competenceRecordId', type:'text', airtableName:'Competence', isArray:false}
     ],
     indices: ['competenceRecordId']
   }
@@ -90,7 +90,7 @@ async function _dropTables(tableNames) {
 
 async function _createTable(table) {
   await _withDBClient(async (client) => {
-    const fieldsText = ['"recordId" varchar(17) PRIMARY KEY'].concat(table.fields.map((field) => format('\t%I\t%s', field.name, field.type))).join(',\n');
+    const fieldsText = ['"recordId" text PRIMARY KEY'].concat(table.fields.map((field) => format('\t%I\t%s', field.name, field.type))).join(',\n');
     const createQuery = format(`CREATE TABLE %I (%s)`, table.name, fieldsText);
     await client.query(createQuery)
     for (const index of table.indices) {
