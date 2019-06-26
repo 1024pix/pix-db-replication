@@ -6,7 +6,7 @@ const _ = require('lodash');
 const format = require('pg-format');
 
 const tables = [{
-    name:'domains',
+    name:'areas',
     airtableName:'Domaines',
     fields: [
       {name:'name', type:'text', airtableName:'Nom'}
@@ -19,9 +19,9 @@ const tables = [{
       {name:'name', type:'text', airtableName:'Référence'},
       {name:'code', type:'text', airtableName:'Sous-domaine'},
       {name:'title', type:'text', airtableName:'Titre'},
-      {name:'domainId', type:'text', airtableName:'Domaine', isArray:false}
+      {name:'areaId', type:'text', airtableName:'Domaine', isArray:false}
     ],
-    indices: ['domainId']
+    indices: ['areaId']
   },{
     name:'tubes',
     airtableName:'Tubes',
