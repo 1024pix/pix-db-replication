@@ -67,10 +67,9 @@ const tables = [{
 ];
 
 async function fetchAndSaveData() {
-  const tableNames = tables.map((table) => table.name);
-  _dropTables(tableNames);
   await Promise.all(tables.map(async (table) => {
     const data = await _getItems(table);
+    await _dropTable(table.name);
     await _createTable(table);
     await _saveItems(table, data);
   }));
@@ -88,9 +87,9 @@ async function _withDBClient(callback) {
   }
 }
 
-async function _dropTables(tableNames) {
-  await _withDBClient(async (client) => {
-    const dropQuery = tableNames.map((name) => `DROP TABLE IF EXISTS ${format.ident(name)} CASCADE;`).join('\n');
+async function _dropTable(tableName) {
+  return _withDBClient(async (client) => {
+    const dropQuery = `DROP TABLE IF EXISTS ${format.ident(tableName)} CASCADE`;
     await client.query(dropQuery);
   });
 }
