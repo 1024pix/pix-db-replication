@@ -2,6 +2,7 @@
 
 const Airtable = require("airtable");
 const { Client } = require('pg');
+const _ = require('lodash');
 const format = require('pg-format');
 
 const tables = [{
@@ -46,9 +47,13 @@ const tables = [{
     airtableName:'Epreuves',
     fields: [
       {name:'instructions', type:'text', airtableName:'Consigne'},
-      {name:'skillIds', type:'text []', airtableName:'Acquix', isArray:true}
+      {name:'skillIds', type:'text []', airtableName:'Acquix', isArray:true},
+      {name:'skillCount', type:'smallint', extractor: (record) => _.size(record.get('Acquix')) },
+      {name:'firstSkillId', type:'text', extractor: (record) => _.get(record.get('Acquix'), 0) },
+      {name:'secondSkillId', type:'text', extractor: (record) => _.get(record.get('Acquix'), 1) },
+      {name:'thirdSkillId', type:'text', extractor: (record) => _.get(record.get('Acquix'), 2) },
     ],
-    indices: ['skillIds']
+    indices: ['firstSkillId']
   }, {
     name:'courses',
     airtableName:'Tests',
@@ -120,14 +125,14 @@ function _initAirtable() {
 async function _getItems(structure) {
   const base = _initAirtable();
   const fields = structure.fields;
-  const airtableFields = fields.map(field => field.airtableName);
+  const airtableFields = _.compact(fields.map(field => field.airtableName));
   const records = await base(structure.airtableName).select({
     fields: airtableFields
   }).all();
   return records.map(record => {
     const item = {id:record.getId()};
     fields.forEach(field => {
-      let value = record.get(field.airtableName);
+      let value = field.extractor ? field.extractor(record) : record.get(field.airtableName);
       if (Array.isArray(value)) {
         if (!field.isArray) {
           value = value[0];
