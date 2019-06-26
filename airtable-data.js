@@ -92,7 +92,9 @@ async function _dropTables(tableNames) {
 
 async function _createTable(table) {
   await _withDBClient(async (client) => {
-    const fieldsText = ['"id" text PRIMARY KEY'].concat(table.fields.map((field) => format('\t%I\t%s', field.name, field.type))).join(',\n');
+    const fieldsText = ['"id" text PRIMARY KEY'].concat(table.fields.map((field) => {
+      return format('\t%I\t%s', field.name, field.type + (field.type === 'boolean' ? ' NOT NULL':''));
+    })).join(',\n');
     const createQuery = format('CREATE TABLE %I (%s)', table.name, fieldsText);
     await client.query(createQuery)
     for (const index of table.indices) {
@@ -132,6 +134,9 @@ async function _getItems(structure) {
         } else {
           value = `{${value.join(',')}}`;
         }
+      }
+      if (field.type === 'boolean') {
+        value = Boolean(value);
       }
       item[field.name] = value;
     });
