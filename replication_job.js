@@ -2,9 +2,11 @@ require('dotenv').config();
 const cron = require('node-cron');
 const steps = require('./steps');
 
-cron.schedule(process.env.SCHEDULE, () => {
+steps.scalingoSetup();
+
+cron.schedule(process.env.SCHEDULE, async () => {
   try {
-    steps.restoreLatestBackup();
+    await steps.fullReplicationAndEnrichment();
   } catch(e) {
     console.error(e);
     process.exit(1);

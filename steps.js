@@ -1,5 +1,8 @@
+"use strict";
+
 const execa = require('execa');
 const fs = require('fs');
+const airtableData = require('./airtable-data');
 
 function shellSync(cmdline) {
   execa.shellSync(cmdline, { stdio: 'inherit' });
@@ -25,6 +28,12 @@ function installScalingoCli() {
 
 function installPostgresClient() {
   execSync('dbclient-fetcher', [ 'pgsql', '10.4' ]);
+}
+
+function scalingoSetup() {
+  setupPath();
+  installScalingoCli();
+  installPostgresClient();
 }
 
 function getPostgresAddonId() {
@@ -99,11 +108,7 @@ function restoreBackup({ compressedBackup }) {
   console.log("Restore done");
 }
 
-function restoreLatestBackup() {
-  setupPath();
-  installScalingoCli();
-  installPostgresClient();
-
+function downloadAndRestoreLatestBackup() {
   const addonId = getPostgresAddonId();
   console.log("Add-on ID:", addonId);
 
@@ -117,6 +122,18 @@ function restoreLatestBackup() {
   restoreBackup({ compressedBackup });
 }
 
+async function importAirtableData() {
+  await airtableData.fetchAndSaveData();
+}
+
+async function fullReplicationAndEnrichment() {
+  downloadAndRestoreLatestBackup();
+
+  await importAirtableData();
+
+  console.log("Full replication and enrichment done");
+}
+
 module.exports = {
   setupPath,
   installScalingoCli,
@@ -127,5 +144,7 @@ module.exports = {
   dropCurrentObjects,
   createRestoreList,
   restoreBackup,
-  restoreLatestBackup,
+  downloadAndRestoreLatestBackup,
+  importAirtableData,
+  fullReplicationAndEnrichment,
 }

@@ -20,8 +20,11 @@
   },
   "homepage": "https://github.com/1024pix/pix-db-replication#readme",
   "dependencies": {
+    "airtable": "^0.6.0",
     "dotenv": "^8.0.0",
     "execa": "^1.0.0",
-    "node-cron": "^2.0.3"
+    "node-cron": "^2.0.3",
+    "pg": "^7.11.0",
+    "pg-format": "^1.0.4"
   }
 }
