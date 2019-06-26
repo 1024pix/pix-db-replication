@@ -138,6 +138,7 @@ module.exports = {
   setupPath,
   installScalingoCli,
   installPostgresClient,
+  scalingoSetup,
   getPostgresAddonId,
   getBackupId,
   downloadBackup,
