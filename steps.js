@@ -62,7 +62,7 @@ function getBackupId({ addonId }) {
 
 function downloadBackup({ addonId, backupId }) {
   const compressedBackup = 'backup.tar.gz';
-  execSync('scalingo', [ '--addon', addonId, 'backup-download', '--silent', '--backup', backupId, '-o', compressedBackup ]);
+  execSync('scalingo', [ '--addon', addonId, 'backups-download', '--silent', '--backup', backupId, '--output', compressedBackup ]);
 
   if (!fs.existsSync('backup.tar.gz')) {
     throw new Error('Backup download failed');
