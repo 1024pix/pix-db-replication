@@ -1,5 +1,7 @@
 "use strict";
 
+const PG_CLIENT_VERSION = process.env.PG_CLIENT_VERSION || '10.4';
+const PG_RESTORE_JOBS = parseInt(process.env.PG_RESTORE_JOBS, 10) || 4;
 const execa = require('execa');
 const fs = require('fs');
 const airtableData = require('./airtable-data');
@@ -27,7 +29,7 @@ function installScalingoCli() {
 }
 
 function installPostgresClient() {
-  execSync('dbclient-fetcher', [ 'pgsql', '10.4' ]);
+  execSync('dbclient-fetcher', [ 'pgsql', PG_CLIENT_VERSION ]);
 }
 
 function scalingoSetup() {
@@ -95,7 +97,7 @@ function restoreBackup({ compressedBackup }) {
     const restoreListFile = createRestoreList({ backupFile });
     execSync('pg_restore', [
                '--verbose',
-               '--jobs', 4,
+               '--jobs', PG_RESTORE_JOBS,
                '--no-owner',
                '--use-list', restoreListFile,
                '-d', process.env.DATABASE_URL,
