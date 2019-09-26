@@ -39,7 +39,8 @@ const tables = [{
       {name:'description', type:'text', airtableName:'Description'},
       {name:'level', type:'smallint', airtableName:'Level'},
       {name:'tubeId', type:'text', airtableName:'Tube', isArray:false},
-      {name:'status', type:'text', airtableName:'Status'}
+      {name:'status', type:'text', airtableName:'Status'},
+      {name:'pixValue', type:'numeric(6,5)', airtableName:'PixValue'}
     ],
     indices: ['tubeId']
   },{
