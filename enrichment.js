@@ -16,7 +16,9 @@ async function _withDBClient(callback) {
 
 async function add() {
   return _withDBClient(async (client) => {
-    const query = `CREATE INDEX "knowledge-elements_createdAt_idx" on "knowledge-elements" (cast("createdAt" AT TIME ZONE 'UTC+1' as date) DESC)`;
+    let query = `CREATE INDEX "knowledge-elements_createdAt_idx" on "knowledge-elements" (cast("createdAt" AT TIME ZONE 'UTC+1' as date) DESC)`;
+    await client.query(query);
+    query = `CREATE INDEX "users_createdAt_idx" on "users" (cast("createdAt" AT TIME ZONE 'UTC+1' as date) DESC)`;
     await client.query(query);
   });
 }
