@@ -1,9 +1,9 @@
 "use strict";
 
 const Airtable = require("airtable");
-const { Client } = require('pg');
 const _ = require('lodash');
 const format = require('pg-format');
+const { runDBOperation } = require('./db-connection');
 
 const tables = [{
     name:'areas',
@@ -77,27 +77,15 @@ async function fetchAndSaveData() {
   }));
 }
 
-async function _withDBClient(callback) {
-  const client = new Client({
-    connectionString: process.env.DATABASE_URL
-  });
-  try {
-    await client.connect();
-    await callback(client);
-  } finally {
-    await client.end();
-  }
-}
-
 async function _dropTable(tableName) {
-  return _withDBClient(async (client) => {
+  return runDBOperation(async (client) => {
     const dropQuery = `DROP TABLE IF EXISTS ${format.ident(tableName)} CASCADE`;
     await client.query(dropQuery);
   });
 }
 
 async function _createTable(table) {
-  await _withDBClient(async (client) => {
+  await runDBOperation(async (client) => {
     const fieldsText = ['"id" text PRIMARY KEY'].concat(table.fields.map((field) => {
       return format('\t%I\t%s', field.name, field.type + (field.type === 'boolean' ? ' NOT NULL':''));
     })).join(',\n');
@@ -111,7 +99,7 @@ async function _createTable(table) {
 }
 
 async function _saveItems(table, items) {
-  await _withDBClient(async (client) => {
+  await runDBOperation(async (client) => {
     const fields = ['id'].concat(table.fields.map((field) => field.name));
     const values = items.map((item) => fields.map((field) => item[field]));
     const saveQuery = format('INSERT INTO %I (%I) VALUES %L', table.name, fields, values)
