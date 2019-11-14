@@ -5,6 +5,7 @@ const PG_RESTORE_JOBS = parseInt(process.env.PG_RESTORE_JOBS, 10) || 4;
 const execa = require('execa');
 const fs = require('fs');
 const airtableData = require('./airtable-data');
+const enrichment = require('./enrichment');
 
 function shellSync(cmdline) {
   execa.shellSync(cmdline, { stdio: 'inherit' });
@@ -128,10 +129,16 @@ async function importAirtableData() {
   await airtableData.fetchAndSaveData();
 }
 
+async function addEnrichment() {
+  await enrichment.add();
+}
+
 async function fullReplicationAndEnrichment() {
   downloadAndRestoreLatestBackup();
 
   await importAirtableData();
+
+  await addEnrichment();
 
   console.log("Full replication and enrichment done");
 }
@@ -149,5 +156,6 @@ module.exports = {
   restoreBackup,
   downloadAndRestoreLatestBackup,
   importAirtableData,
+  addEnrichment,
   fullReplicationAndEnrichment,
 }
