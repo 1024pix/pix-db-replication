@@ -49,6 +49,8 @@ const tables = [{
     fields: [
       {name:'instructions', type:'text', airtableName:'Consigne'},
       {name:'status', type:'text', airtableName:'Statut'},
+      {name:'type', type:'text', airtableName:'Type d\'épreuve'},
+      {name:'timer', type:'smallint', airtableName:'Timer'},
       {name:'skillIds', type:'text []', airtableName:'Acquix', isArray:true},
       {name:'skillCount', type:'smallint', extractor: (record) => _.size(record.get('Acquix')) },
       {name:'firstSkillId', type:'text', extractor: (record) => _.get(record.get('Acquix'), 0) },
