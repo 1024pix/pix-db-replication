@@ -11,6 +11,7 @@ const tables = [{
     fields: [
       {name:'name', type:'text', airtableName:'Nom'}
     ],
+    airtableId:'id persistant',
     indices: []
   },{
     name:'competences',
@@ -21,6 +22,7 @@ const tables = [{
       {name:'title', type:'text', airtableName:'Titre'},
       {name:'areaId', type:'text', airtableName:'Domaine', isArray:false}
     ],
+    airtableId:'id persistant',
     indices: ['areaId']
   },{
     name:'tubes',
@@ -30,6 +32,7 @@ const tables = [{
       {name:'title', type:'text', airtableName:'Titre'},
       {name:'competenceId', type:'text', airtableName:'Competences', isArray:false}
     ],
+    airtableId:'id persistant',
     indices: ['competenceId']
   },{
     name:'skills',
@@ -42,6 +45,7 @@ const tables = [{
       {name:'status', type:'text', airtableName:'Status'},
       {name:'pixValue', type:'numeric(6,5)', airtableName:'PixValue'}
     ],
+    airtableId:'id persistant',
     indices: ['tubeId']
   },{
     name:'challenges',
@@ -57,6 +61,7 @@ const tables = [{
       {name:'secondSkillId', type:'text', extractor: (record) => _.get(record.get('Acquix'), 1) },
       {name:'thirdSkillId', type:'text', extractor: (record) => _.get(record.get('Acquix'), 2) },
     ],
+    airtableId:'id persistant',
     indices: ['firstSkillId']
   }, {
     name:'courses',
@@ -66,7 +71,8 @@ const tables = [{
       {name:'adaptive', type:'boolean', airtableName:'Adaptatif ?'},
       {name:'competenceId', type:'text', airtableName:'Competence', isArray:false}
     ],
-    indices: ['competenceId']
+    airtableId:'id persistant',
+    indices: ['competenceId'],
   }
 ];
 
@@ -117,11 +123,14 @@ async function _getItems(structure) {
   const base = _initAirtable();
   const fields = structure.fields;
   const airtableFields = _.compact(fields.map(field => field.airtableName));
+  if (structure.airtableId) {
+    airtableFields.push(structure.airtableId);
+  }
   const records = await base(structure.airtableName).select({
     fields: airtableFields
   }).all();
   return records.map(record => {
-    const item = {id:record.getId()};
+    const item = {id:record.get(structure.airtableId)||record.getId()};
     fields.forEach(field => {
       let value = field.extractor ? field.extractor(record) : record.get(field.airtableName);
       if (Array.isArray(value)) {
