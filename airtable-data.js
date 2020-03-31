@@ -130,7 +130,7 @@ async function _getItems(structure) {
     fields: airtableFields
   }).all();
   return records.map(record => {
-    const item = {id:structure.airtableId ? record.get(structure.airtableId) : record.getId()};
+    const item = {id:record.get(structure.airtableId)||record.getId()};
     fields.forEach(field => {
       let value = field.extractor ? field.extractor(record) : record.get(field.airtableName);
       if (Array.isArray(value)) {
@@ -146,7 +146,7 @@ async function _getItems(structure) {
       item[field.name] = value;
     });
     return item;
-  }).filter(item => item.id != null);
+  });
 }
 
 module.exports = {
