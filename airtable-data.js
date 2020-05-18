@@ -79,13 +79,9 @@ const tables = [{
     fields: [
       {name:'title', type:'text', airtableName:'Titre'},
       {name:'link', type:'text', airtableName:'Lien'},
-      {name:'solutionFirstSkillId', type:'text', extractor: (record) => _.get(record.get('Solution à'), 0) },
-      {name:'solutionSecondSkillId', type:'text', extractor: (record) => _.get(record.get('Solution à'), 1) },
-      {name:'moreTutoFirstSkillId', type:'text', extractor: (record) => _.get(record.get('En savoir plus'), 0) },
-      {name:'moreTutoSecondSkillId', type:'text', extractor: (record) => _.get(record.get('En savoir plus'), 1) },
     ],
     airtableId:'id persistant',
-    indices: ['solutionFirstSkillId'],
+    indices: ['title'],
   }
 ];
 
