@@ -73,6 +73,15 @@ const tables = [{
     ],
     airtableId:'id persistant',
     indices: ['competenceId'],
+  }, {
+    name:'tutorials',
+    airtableName:'Tutoriels',
+    fields: [
+      {name:'title', type:'text', airtableName:'Titre'},
+      {name:'link', type:'text', airtableName:'Lien'},
+    ],
+    airtableId:'id persistant',
+    indices: ['title'],
   }
 ];
 
