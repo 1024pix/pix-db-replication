@@ -20,7 +20,7 @@ const tables = [{
       {name:'name', type:'text', airtableName:'Référence'},
       {name:'code', type:'text', airtableName:'Sous-domaine'},
       {name:'title', type:'text', airtableName:'Titre'},
-      {name:'areaId', type:'text', airtableName:'Domaine', isArray:false}
+      {name:'areaId', type:'text', airtableName:'Domaine (id persistant)', isArray:false}
     ],
     airtableId:'id persistant',
     indices: ['areaId']
@@ -30,7 +30,7 @@ const tables = [{
     fields: [
       {name:'name', type:'text', airtableName:'Nom'},
       {name:'title', type:'text', airtableName:'Titre'},
-      {name:'competenceId', type:'text', airtableName:'Competences', isArray:false}
+      {name:'competenceId', type:'text', airtableName:'Competences (id persistant)', isArray:false}
     ],
     airtableId:'id persistant',
     indices: ['competenceId']
@@ -41,7 +41,7 @@ const tables = [{
       {name:'name', type:'text', airtableName:'Nom'},
       {name:'description', type:'text', airtableName:'Description'},
       {name:'level', type:'smallint', airtableName:'Level'},
-      {name:'tubeId', type:'text', airtableName:'Tube', isArray:false},
+      {name:'tubeId', type:'text', airtableName:'Tube (id persistant)', isArray:false},
       {name:'status', type:'text', airtableName:'Status'},
       {name:'pixValue', type:'numeric(6,5)', airtableName:'PixValue'}
     ],
@@ -56,10 +56,10 @@ const tables = [{
       {name:'type', type:'text', airtableName:'Type d\'épreuve'},
       {name:'timer', type:'smallint', airtableName:'Timer'},
       {name:'skillIds', type:'text []', airtableName:'Acquix', isArray:true},
-      {name:'skillCount', type:'smallint', extractor: (record) => _.size(record.get('Acquix')) },
-      {name:'firstSkillId', type:'text', extractor: (record) => _.get(record.get('Acquix'), 0) },
-      {name:'secondSkillId', type:'text', extractor: (record) => _.get(record.get('Acquix'), 1) },
-      {name:'thirdSkillId', type:'text', extractor: (record) => _.get(record.get('Acquix'), 2) },
+      {name:'skillCount', type:'smallint', extractor: (record) => _.size(record.get('Acquix (id persistant)')) },
+      {name:'firstSkillId', type:'text', extractor: (record) => _.get(record.get('Acquix (id persistant)'), 0) },
+      {name:'secondSkillId', type:'text', extractor: (record) => _.get(record.get('Acquix (id persistant)'), 1) },
+      {name:'thirdSkillId', type:'text', extractor: (record) => _.get(record.get('Acquix (id persistant)'), 2) },
     ],
     airtableId:'id persistant',
     indices: ['firstSkillId']
@@ -69,7 +69,7 @@ const tables = [{
     fields: [
       {name:'name', type:'text', airtableName:'Nom'},
       {name:'adaptive', type:'boolean', airtableName:'Adaptatif ?'},
-      {name:'competenceId', type:'text', airtableName:'Competence', isArray:false}
+      {name:'competenceId', type:'text', airtableName:'Competence (id persistant)', isArray:false}
     ],
     airtableId:'id persistant',
     indices: ['competenceId'],
