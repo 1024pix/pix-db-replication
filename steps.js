@@ -4,6 +4,7 @@ const PG_CLIENT_VERSION = process.env.PG_CLIENT_VERSION || '10.4';
 const PG_RESTORE_JOBS = parseInt(process.env.PG_RESTORE_JOBS, 10) || 4;
 const execa = require('execa');
 const fs = require('fs');
+const retry = require('p-retry');
 const airtableData = require('./airtable-data');
 const enrichment = require('./enrichment');
 
@@ -17,6 +18,15 @@ function execSync(cmd, args) {
 
 function execSyncStdOut(cmd, args) {
   return execa.sync(cmd, args, { stderr: 'inherit' }).stdout;
+}
+
+function retryFunction(fn) {
+  return retry(fn, {
+    onFailedAttempt: error => {
+      console.error(error);
+    },
+    retries: 5
+  });
 }
 
 // dbclient-fetch assumes $HOME/bin is in the PATH
@@ -111,14 +121,14 @@ function restoreBackup({ compressedBackup }) {
   console.log("Restore done");
 }
 
-function downloadAndRestoreLatestBackup() {
-  const addonId = getPostgresAddonId();
+async function downloadAndRestoreLatestBackup() {
+  const addonId = await retryFunction(getPostgresAddonId);
   console.log("Add-on ID:", addonId);
 
-  const backupId = getBackupId({ addonId });
+  const backupId = await retryFunction(() => getBackupId({ addonId }));
   console.log("Backup ID:", backupId);
 
-  const compressedBackup = downloadBackup({ addonId, backupId });
+  const compressedBackup = await retryFunction(() => downloadBackup({ addonId, backupId }));
 
   dropCurrentObjects();
 
@@ -134,7 +144,7 @@ async function addEnrichment() {
 }
 
 async function fullReplicationAndEnrichment() {
-  downloadAndRestoreLatestBackup();
+  await downloadAndRestoreLatestBackup();
 
   await importAirtableData();
 
