@@ -107,9 +107,7 @@ function createRestoreList({ backupFile }) {
   return restoreListFile;
 }
 
-function restoreBackup({ compressedBackup }) {
-  const backupFile = extractBackup({ compressedBackup });
-
+function restoreBackup({ backupFile }) {
   try {
     const restoreListFile = createRestoreList({ backupFile });
     execSync('pg_restore', [
@@ -138,7 +136,8 @@ async function downloadAndRestoreLatestBackup() {
 
   dropCurrentObjects();
 
-  restoreBackup({ compressedBackup });
+  const backupFile = extractBackup({ compressedBackup });
+  restoreBackup({ backupFile });
 }
 
 async function importAirtableData() {
