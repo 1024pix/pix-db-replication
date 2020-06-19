@@ -132,8 +132,10 @@ async function downloadAndRestoreLatestBackup() {
   const backupId = await retryFunction(() => getBackupId({ addonId }));
   console.log("Backup ID:", backupId);
 
-  const compressedBackup = await retryFunction(() => downloadBackup({ addonId, backupId }));
-  const backupFile = extractBackup({ compressedBackup });
+  const backupFile = await retryFunction(() => {
+    const compressedBackup = downloadBackup({ addonId, backupId });
+    return extractBackup({ compressedBackup });
+  });
 
   dropCurrentObjects();
 
