@@ -84,6 +84,15 @@ function downloadBackup({ addonId, backupId }) {
   return compressedBackup;
 }
 
+function extractBackup({ compressedBackup }) {
+  execSync('tar', [ 'xvzf', compressedBackup, '--wildcards', '*.pgsql' ]);
+  const backupFile = fs.readdirSync('.').find((f) => /.*\.pgsql$/.test(f));
+  if (!backupFile) {
+    throw new Error(`Could not find .pgsql file in ${compressedBackup}`);
+  }
+  return backupFile;
+}
+
 function dropCurrentObjects() {
   execSync('psql', [ process.env.DATABASE_URL, '-c', 'DROP OWNED BY CURRENT_USER CASCADE' ]);
 }
@@ -99,11 +108,8 @@ function createRestoreList({ backupFile }) {
 }
 
 function restoreBackup({ compressedBackup }) {
-  execSync('tar', [ 'xvzf', compressedBackup, '--wildcards', '*.pgsql' ]);
-  const backupFile = fs.readdirSync('.').find((f) => /.*\.pgsql$/.test(f));
-  if (!backupFile) {
-    throw new Error(`Could not find .pgsql file in ${compressedBackup}`);
-  }
+  const backupFile = extractBackup({ compressedBackup });
+
   try {
     const restoreListFile = createRestoreList({ backupFile });
     execSync('pg_restore', [
@@ -161,6 +167,7 @@ module.exports = {
   getPostgresAddonId,
   getBackupId,
   downloadBackup,
+  extractBackup,
   dropCurrentObjects,
   createRestoreList,
   restoreBackup,
