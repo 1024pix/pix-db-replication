@@ -4,6 +4,7 @@ const PG_CLIENT_VERSION = process.env.PG_CLIENT_VERSION || '10.4';
 const PG_RESTORE_JOBS = parseInt(process.env.PG_RESTORE_JOBS, 10) || 4;
 const execa = require('execa');
 const fs = require('fs');
+const retry = require('p-retry');
 const airtableData = require('./airtable-data');
 const enrichment = require('./enrichment');
 
@@ -17,6 +18,15 @@ function execSync(cmd, args) {
 
 function execSyncStdOut(cmd, args) {
   return execa.sync(cmd, args, { stderr: 'inherit' }).stdout;
+}
+
+function retryFunction(fn) {
+  return retry(fn, {
+    onFailedAttempt: error => {
+      console.error(error);
+    },
+    retries: process.env.MAX_RETRY_NUMBER || 10
+  });
 }
 
 // dbclient-fetch assumes $HOME/bin is in the PATH
@@ -74,6 +84,15 @@ function downloadBackup({ addonId, backupId }) {
   return compressedBackup;
 }
 
+function extractBackup({ compressedBackup }) {
+  execSync('tar', [ 'xvzf', compressedBackup, '--wildcards', '*.pgsql' ]);
+  const backupFile = fs.readdirSync('.').find((f) => /.*\.pgsql$/.test(f));
+  if (!backupFile) {
+    throw new Error(`Could not find .pgsql file in ${compressedBackup}`);
+  }
+  return backupFile;
+}
+
 function dropCurrentObjects() {
   execSync('psql', [ process.env.DATABASE_URL, '-c', 'DROP OWNED BY CURRENT_USER CASCADE' ]);
 }
@@ -88,12 +107,7 @@ function createRestoreList({ backupFile }) {
   return restoreListFile;
 }
 
-function restoreBackup({ compressedBackup }) {
-  execSync('tar', [ 'xvzf', compressedBackup, '--wildcards', '*.pgsql' ]);
-  const backupFile = fs.readdirSync('.').find((f) => /.*\.pgsql$/.test(f));
-  if (!backupFile) {
-    throw new Error(`Could not find .pgsql file in ${compressedBackup}`);
-  }
+function restoreBackup({ backupFile }) {
   try {
     const restoreListFile = createRestoreList({ backupFile });
     execSync('pg_restore', [
@@ -111,18 +125,19 @@ function restoreBackup({ compressedBackup }) {
   console.log("Restore done");
 }
 
-function downloadAndRestoreLatestBackup() {
-  const addonId = getPostgresAddonId();
+async function downloadAndRestoreLatestBackup() {
+  const addonId = await getPostgresAddonId();
   console.log("Add-on ID:", addonId);
 
   const backupId = getBackupId({ addonId });
   console.log("Backup ID:", backupId);
 
   const compressedBackup = downloadBackup({ addonId, backupId });
+  const backupFile = extractBackup({ compressedBackup });
 
   dropCurrentObjects();
 
-  restoreBackup({ compressedBackup });
+  restoreBackup({ backupFile });
 }
 
 async function importAirtableData() {
@@ -133,8 +148,8 @@ async function addEnrichment() {
   await enrichment.add();
 }
 
-async function fullReplicationAndEnrichment() {
-  downloadAndRestoreLatestBackup();
+async function fullReplicationAndEnrichment(downloadAndRestoreLatestBackup = downloadAndRestoreLatestBackup) {
+  await retryFunction(downloadAndRestoreLatestBackup);
 
   await importAirtableData();
 
@@ -151,6 +166,7 @@ module.exports = {
   getPostgresAddonId,
   getBackupId,
   downloadBackup,
+  extractBackup,
   dropCurrentObjects,
   createRestoreList,
   restoreBackup,
