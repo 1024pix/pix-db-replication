@@ -126,16 +126,14 @@ function restoreBackup({ backupFile }) {
 }
 
 async function downloadAndRestoreLatestBackup() {
-  const addonId = await retryFunction(getPostgresAddonId);
+  const addonId = await getPostgresAddonId();
   console.log("Add-on ID:", addonId);
 
-  const backupId = await retryFunction(() => getBackupId({ addonId }));
+  const backupId = getBackupId({ addonId });
   console.log("Backup ID:", backupId);
 
-  const backupFile = await retryFunction(() => {
-    const compressedBackup = downloadBackup({ addonId, backupId });
-    return extractBackup({ compressedBackup });
-  });
+  const compressedBackup = downloadBackup({ addonId, backupId });
+  const backupFile = extractBackup({ compressedBackup });
 
   dropCurrentObjects();
 
@@ -150,8 +148,8 @@ async function addEnrichment() {
   await enrichment.add();
 }
 
-async function fullReplicationAndEnrichment() {
-  await downloadAndRestoreLatestBackup();
+async function fullReplicationAndEnrichment(downloadAndRestoreLatestBackup = downloadAndRestoreLatestBackup) {
+  await retryFunction(downloadAndRestoreLatestBackup);
 
   await importAirtableData();
 
