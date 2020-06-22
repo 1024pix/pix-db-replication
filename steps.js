@@ -25,7 +25,7 @@ function retryFunction(fn) {
     onFailedAttempt: error => {
       console.error(error);
     },
-    retries: 5
+    retries: process.env.MAX_RETRY_NUMBER || 10
   });
 }
 
