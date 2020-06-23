@@ -148,7 +148,7 @@ async function addEnrichment() {
   await enrichment.add();
 }
 
-async function fullReplicationAndEnrichment(downloadAndRestoreLatestBackup = downloadAndRestoreLatestBackup) {
+async function fullReplicationAndEnrichment() {
   await retryFunction(downloadAndRestoreLatestBackup);
 
   await importAirtableData();
