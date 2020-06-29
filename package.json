@@ -7,7 +7,8 @@
     "node": "10.15.3"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "eslint .",
+    "test": "NODE_ENV=test mocha --exit --recursive --reporter=dot"
   },
   "repository": {
     "type": "git",
@@ -20,12 +21,20 @@
   },
   "homepage": "https://github.com/1024pix/pix-db-replication#readme",
   "dependencies": {
-    "airtable": "^0.6.0",
+    "airtable": "^0.8.1",
+    "bunyan": "^1.8.14",
     "dotenv": "^8.0.0",
     "execa": "^1.0.0",
     "node-cron": "^2.0.3",
     "p-retry": "4.2.0",
     "pg": "^7.11.0",
     "pg-format": "^1.0.4"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "eslint": "^7.3.1",
+    "eslint-plugin-mocha": "^7.0.1",
+    "mocha": "^8.0.1",
+    "sinon": "^9.0.2"
   }
 }
