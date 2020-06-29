@@ -2,11 +2,15 @@
 
 const PG_CLIENT_VERSION = process.env.PG_CLIENT_VERSION || '10.4';
 const PG_RESTORE_JOBS = parseInt(process.env.PG_RESTORE_JOBS, 10) || 4;
+const MAX_RETRY_COUNT = parseInt(process.env.MAX_RETRY_COUNT, 10) || 10;
+
 const execa = require('execa');
 const fs = require('fs');
 const retry = require('p-retry');
+
 const airtableData = require('./airtable-data');
 const enrichment = require('./enrichment');
+const logger = require('./logger');
 
 function shellSync(cmdline) {
   execa.shellSync(cmdline, { stdio: 'inherit' });
@@ -20,12 +24,12 @@ function execSyncStdOut(cmd, args) {
   return execa.sync(cmd, args, { stderr: 'inherit' }).stdout;
 }
 
-function retryFunction(fn) {
+function retryFunction(fn, maxRetryCount) {
   return retry(fn, {
     onFailedAttempt: error => {
-      console.error(error);
+      logger.error(error);
     },
-    retries: process.env.MAX_RETRY_NUMBER || 10
+    retries: maxRetryCount
   });
 }
 
@@ -55,9 +59,9 @@ function getPostgresAddonId() {
     const { addonId } = addonsOutput.match(/PostgreSQL\s*\|\s*(?<addonId>\S+)/).groups;
 
     return addonId;
-  } catch(e) {
-    console.error("Could not extract add-on ID from:\n", addonsOutput);
-    throw e;
+  } catch(error) {
+    logger.error({ output: addonsOutput, err: error }, 'Could not extract add-on ID from "scalingo addons" output');
+    throw error;
   }
 }
 
@@ -67,9 +71,9 @@ function getBackupId({ addonId }) {
     const { backupId } = backupsOutput.match(/^\|\s*(?<backupId>[^ |]+).*done/m).groups;
 
     return backupId;
-  } catch(e) {
-    console.error("Could not extract backup ID from:\n", backupsOutput);
-    throw e;
+  } catch(error) {
+    logger.error({ output: backupsOutput, err: error }, 'Could not extract backup ID from "scalingo backups" output');
+    throw error;
   }
 }
 
@@ -122,15 +126,15 @@ function restoreBackup({ backupFile }) {
     fs.unlinkSync(backupFile);
   }
 
-  console.log("Restore done");
+  logger.info('Restore done');
 }
 
 async function downloadAndRestoreLatestBackup() {
   const addonId = await getPostgresAddonId();
-  console.log("Add-on ID:", addonId);
+  logger.info('Add-on ID: ' + addonId);
 
   const backupId = getBackupId({ addonId });
-  console.log("Backup ID:", backupId);
+  logger.info('Backup ID: ' + backupId);
 
   const compressedBackup = downloadBackup({ addonId, backupId });
   const backupFile = extractBackup({ compressedBackup });
@@ -149,29 +153,30 @@ async function addEnrichment() {
 }
 
 async function fullReplicationAndEnrichment() {
-  await retryFunction(downloadAndRestoreLatestBackup);
+  await retryFunction(downloadAndRestoreLatestBackup, MAX_RETRY_COUNT);
 
   await importAirtableData();
 
   await addEnrichment();
 
-  console.log("Full replication and enrichment done");
+  loger.info('Full replication and enrichment done');
 }
 
 module.exports = {
-  setupPath,
-  installScalingoCli,
-  installPostgresClient,
-  scalingoSetup,
-  getPostgresAddonId,
-  getBackupId,
-  downloadBackup,
-  extractBackup,
-  dropCurrentObjects,
-  createRestoreList,
-  restoreBackup,
-  downloadAndRestoreLatestBackup,
-  importAirtableData,
   addEnrichment,
+  createRestoreList,
+  downloadAndRestoreLatestBackup,
+  downloadBackup,
+  dropCurrentObjects,
+  extractBackup,
   fullReplicationAndEnrichment,
+  getBackupId,
+  getPostgresAddonId,
+  importAirtableData,
+  installPostgresClient,
+  installScalingoCli,
+  restoreBackup,
+  retryFunction,
+  setupPath,
+  scalingoSetup,
 }
