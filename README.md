@@ -14,13 +14,15 @@ Pour satisfaire les contraintes de déploiement Scalingo, le `Procfile` déclare
 
 ### Environnement
 
- * `SCALINGO_APP`: cette variable est utilisée automatiquement par l'outil CLI de Scalingo, et doit contenir le nom de l'application portant la base de données _source_ (`pix-api-production` typiquement).
+ * `SCALINGO_APP` : cette variable est utilisée automatiquement par l'outil CLI de Scalingo, et doit contenir le nom de l'application portant la base de données _source_ (`pix-api-production` typiquement).
 
- * `SCALINGO_API_TOKEN`: cette variable est utilisée automatiquement par l'outil CLI de Scalingo pour l'authentification, et doit être renseignée avec un _token_ d'utilisateur Scalingo étant collaborateur de l'application désignée par `SCALINGO_APP`.
+ * `SCALINGO_API_TOKEN` : cette variable est utilisée automatiquement par l'outil CLI de Scalingo pour l'authentification, et doit être renseignée avec un _token_ d'utilisateur Scalingo étant collaborateur de l'application désignée par `SCALINGO_APP`.
 
- * `SCHEDULE`: une chaîne au format `cron` (interprétée par https://www.npmjs.com/package/node-cron) qui spécifie la fréquence à laquelle l'opération de réplication doit être exécutée. Exemple : `10 5 * * *` correspond à une exécution quotidienne à 5h10 UTC.
+ * `SCHEDULE` : une chaîne au format `cron` (interprétée par https://www.npmjs.com/package/node-cron) qui spécifie la fréquence à laquelle l'opération de réplication doit être exécutée. Exemple : `10 5 * * *` correspond à une exécution quotidienne à 5h10 UTC.
 
-  * `DATABASE_URL`: URL d'accès à la base _cible_ qui sera écrasée et alimentée depuis le _backup_ à chaque exécution. Cette variable est en principe automatiquement alimentée par Scalingo lors de l'ajout d'une base PostgreSQL.
+ * `DATABASE_URL` : URL d'accès à la base _cible_ qui sera écrasée et alimentée depuis le _backup_ à chaque exécution. Cette variable est en principe automatiquement alimentée par Scalingo lors de l'ajout d'une base PostgreSQL.
+  
+ * `MAX_RETRY_COUNT` : cette variable est utilisée pour indiquer le nombre maximum de tentative de rejout.
 
 ### Exécution individuelle
 
