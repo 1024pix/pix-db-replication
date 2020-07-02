@@ -159,7 +159,7 @@ async function fullReplicationAndEnrichment() {
 
   await addEnrichment();
 
-  loger.info('Full replication and enrichment done');
+  logger.info('Full replication and enrichment done');
 }
 
 module.exports = {
