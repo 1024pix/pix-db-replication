@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 const { runDBOperation } = require('./db-connection');
 
@@ -12,4 +12,4 @@ async function add() {
 
 module.exports = {
   add
-}
+};

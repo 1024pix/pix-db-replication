@@ -6,10 +6,10 @@ const steps = require('./steps');
 steps.scalingoSetup();
 
 steps.fullReplicationAndEnrichment()
-.then(() => {
-  process.exit(0);
-})
-.catch((error) => {
-  logger.error(error);
-  process.exit(1);
-});
+  .then(() => {
+    process.exit(0);
+  })
+  .catch((error) => {
+    logger.error(error);
+    process.exit(1);
+  });

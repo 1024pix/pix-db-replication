@@ -9,7 +9,7 @@ steps.scalingoSetup();
 cron.schedule(process.env.SCHEDULE, async () => {
   try {
     await steps.fullReplicationAndEnrichment();
-  } catch(error) {
+  } catch (error) {
     logger.error(error);
     process.exit(1);
   }
