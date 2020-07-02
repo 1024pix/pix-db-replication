@@ -6,5 +6,4 @@ const logger = bunyan.createLogger({
   level: 'info'
 });
 
-
 module.exports = logger;

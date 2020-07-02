@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 const PG_CLIENT_VERSION = process.env.PG_CLIENT_VERSION || '10.4';
 const PG_RESTORE_JOBS = parseInt(process.env.PG_RESTORE_JOBS, 10) || 4;
@@ -26,7 +26,7 @@ function execSyncStdOut(cmd, args) {
 
 function retryFunction(fn, maxRetryCount) {
   return retry(fn, {
-    onFailedAttempt: error => {
+    onFailedAttempt: (error) => {
       logger.error(error);
     },
     retries: maxRetryCount
@@ -59,7 +59,7 @@ function getPostgresAddonId() {
     const { addonId } = addonsOutput.match(/PostgreSQL\s*\|\s*(?<addonId>\S+)/).groups;
 
     return addonId;
-  } catch(error) {
+  } catch (error) {
     logger.error({ output: addonsOutput, err: error }, 'Could not extract add-on ID from "scalingo addons" output');
     throw error;
   }
@@ -71,7 +71,7 @@ function getBackupId({ addonId }) {
     const { backupId } = backupsOutput.match(/^\|\s*(?<backupId>[^ |]+).*done/m).groups;
 
     return backupId;
-  } catch(error) {
+  } catch (error) {
     logger.error({ output: backupsOutput, err: error }, 'Could not extract backup ID from "scalingo backups" output');
     throw error;
   }
@@ -115,13 +115,13 @@ function restoreBackup({ backupFile }) {
   try {
     const restoreListFile = createRestoreList({ backupFile });
     execSync('pg_restore', [
-               '--verbose',
-               '--jobs', PG_RESTORE_JOBS,
-               '--no-owner',
-               '--use-list', restoreListFile,
-               '-d', process.env.DATABASE_URL,
-               backupFile
-             ]);
+      '--verbose',
+      '--jobs', PG_RESTORE_JOBS,
+      '--no-owner',
+      '--use-list', restoreListFile,
+      '-d', process.env.DATABASE_URL,
+      backupFile
+    ]);
   } finally {
     fs.unlinkSync(backupFile);
   }
@@ -179,4 +179,4 @@ module.exports = {
   retryFunction,
   setupPath,
   scalingoSetup,
-}
+};

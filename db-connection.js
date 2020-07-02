@@ -14,4 +14,4 @@ async function runDBOperation(callback) {
 
 module.exports = {
   runDBOperation
-}
+};
