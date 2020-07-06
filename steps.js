@@ -3,6 +3,7 @@
 const PG_CLIENT_VERSION = process.env.PG_CLIENT_VERSION || '10.4';
 const PG_RESTORE_JOBS = parseInt(process.env.PG_RESTORE_JOBS, 10) || 4;
 const MAX_RETRY_COUNT = parseInt(process.env.MAX_RETRY_COUNT, 10) || 10;
+const RETRIES_TIMEOUT_MINUTES = parseInt(process.env.RETRIES_TIMEOUT_MINUTES, 10) || 180;
 
 const execa = require('execa');
 const fs = require('fs');
@@ -22,6 +23,13 @@ function execSync(cmd, args) {
 
 function execSyncStdOut(cmd, args) {
   return execa.sync(cmd, args, { stderr: 'inherit' }).stdout;
+}
+
+function setRetriesTimeout(maxMinutes) {
+  const milliseconds = maxMinutes * 60000;
+  return setTimeout(() => {
+    logger.warn('Les tentatives de réplication ont dépassé %d minutes !', maxMinutes);
+  }, milliseconds);
 }
 
 function retryFunction(fn, maxRetryCount) {
@@ -112,6 +120,8 @@ function createRestoreList({ backupFile }) {
 }
 
 function restoreBackup({ backupFile }) {
+  logger.info('Start restore');
+
   try {
     const restoreListFile = createRestoreList({ backupFile });
     execSync('pg_restore', [
@@ -153,7 +163,15 @@ async function addEnrichment() {
 }
 
 async function fullReplicationAndEnrichment() {
-  await retryFunction(downloadAndRestoreLatestBackup, MAX_RETRY_COUNT);
+  logger.info('Start replication and enrichment');
+
+  let retriesAlarm;
+  try {
+    retriesAlarm = setRetriesTimeout(RETRIES_TIMEOUT_MINUTES);
+    await retryFunction(downloadAndRestoreLatestBackup, MAX_RETRY_COUNT);
+  } finally {
+    clearTimeout(retriesAlarm);
+  }
 
   await importAirtableData();
 
