@@ -28,7 +28,7 @@ Pour satisfaire les contraintes de déploiement Scalingo, le `Procfile` déclare
 
 En cas de besoin, une opération de réplication peut être lancée immédiatement en exécutant le script `run.js` dans un conteneur individuel Scalingo :
 
-    $ scalingo run --region osc-fr1 -a pix-production-db-replication --size S --detached node run.js
+    $ scalingo run --region osc-secnum-fr1 -a pix-production-db-replication --size M --detached node run.js
 
 ## Développement et exécution en local
 
