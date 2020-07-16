@@ -55,6 +55,7 @@ const tables = [{
     { name:'status', type:'text', airtableName:'Statut' },
     { name:'type', type:'text', airtableName:'Type d\'épreuve' },
     { name:'timer', type:'smallint', airtableName:'Timer' },
+    { name:'autoReply', type:'boolean', airtableName:'Réponse automatique' },
     { name:'skillIds', type:'text []', airtableName:'Acquix (id persistant)', isArray:true },
     { name:'skillCount', type:'smallint', extractor: (record) => _.size(record.get('Acquix (id persistant)')) },
     { name:'firstSkillId', type:'text', extractor: (record) => _.get(record.get('Acquix (id persistant)'), 0) },
