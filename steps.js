@@ -1,6 +1,6 @@
 'use strict';
 
-const PG_CLIENT_VERSION = process.env.PG_CLIENT_VERSION || '10.4';
+const PG_CLIENT_VERSION = process.env.PG_CLIENT_VERSION || '12';
 const PG_RESTORE_JOBS = parseInt(process.env.PG_RESTORE_JOBS, 10) || 4;
 const MAX_RETRY_COUNT = parseInt(process.env.MAX_RETRY_COUNT, 10) || 10;
 const RETRIES_TIMEOUT_MINUTES = parseInt(process.env.RETRIES_TIMEOUT_MINUTES, 10) || 180;
@@ -109,29 +109,35 @@ function dropCurrentObjects() {
   execSync('psql', [ process.env.DATABASE_URL, '-c', 'DROP OWNED BY CURRENT_USER CASCADE' ]);
 }
 
-// Omit COMMENT objects from backup as we are not allowed to update comments on extensions
-function createRestoreList({ backupFile }) {
-  const backupObjectList = execSyncStdOut('pg_restore', [ backupFile, '-l' ]);
-  const backupObjectLines = backupObjectList.split('\n');
-  const nonCommentBackupObjectLines = backupObjectLines.filter((line) => !/ COMMENT /.test(line));
-  const restoreListFile = 'restore.list';
-  fs.writeFileSync(restoreListFile, nonCommentBackupObjectLines.join('\n'));
-  return restoreListFile;
+function _pg_restore({ backupFile, sections }) {
+  execSync('pg_restore', [
+    '--verbose',
+    '--jobs', PG_RESTORE_JOBS,
+    '--no-owner',
+    '--no-comments',
+    '--schema', 'public',
+    ...(sections.map((s) => `--section=${s}`)),
+    '-d', process.env.DATABASE_URL,
+    backupFile
+  ]);
+}
+
+function _makeAllTablesUnlogged() {
+  execSync('psql', [ process.env.DATABASE_URL,
+    '-c', '\\gexec', '-c',
+    `SELECT format('ALTER TABLE %I SET UNLOGGED', table_name)
+     FROM information_schema.tables
+     WHERE table_schema='public' AND table_type='BASE TABLE'`
+  ]);
 }
 
 function restoreBackup({ backupFile }) {
   logger.info('Start restore');
 
   try {
-    const restoreListFile = createRestoreList({ backupFile });
-    execSync('pg_restore', [
-      '--verbose',
-      '--jobs', PG_RESTORE_JOBS,
-      '--no-owner',
-      '--use-list', restoreListFile,
-      '-d', process.env.DATABASE_URL,
-      backupFile
-    ]);
+    _pg_restore({ backupFile, sections: ['pre-data'] });
+    _makeAllTablesUnlogged();
+    _pg_restore({ backupFile, sections: ['data', 'post-data'] });
   } finally {
     fs.unlinkSync(backupFile);
   }
@@ -182,7 +188,6 @@ async function fullReplicationAndEnrichment() {
 
 module.exports = {
   addEnrichment,
-  createRestoreList,
   downloadAndRestoreLatestBackup,
   downloadBackup,
   dropCurrentObjects,
