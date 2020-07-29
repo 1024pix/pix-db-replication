@@ -69,21 +69,16 @@ describe('restoreBackup', function() {
     process.env.DATABASE_URL = TEST_DB_URL;
   });
 
-  context('when restoring', function() {
-    let walUsage;
-
+  context('when restoring to logged tables', function() {
     before(async function() {
       await createDb();
-      walUsage = await monitorWalUsage(() => steps.restoreBackup({ backupFile }));
+      process.env.USE_UNLOGGED_TABLES = 'false';
+      await steps.restoreBackup({ backupFile });
     });
 
-    it('restores to unlogged tables', async function() {
+    it('restores to logged tables', async function() {
       const persistence = await runSql(`SELECT relpersistence FROM pg_class WHERE oid='${TEST_TABLE_NAME}'::regclass`);
-      expect(persistence).to.equal('u');
-    });
-
-    it('does not consume more WAL than necessary for the schema', async function() {
-      expect(walUsage).to.be.at.most(1.5 * expectedWalUsageForSchemaOnly);
+      expect(persistence).to.equal('p');
     });
 
     it('restores the data', async function() {
@@ -94,6 +89,25 @@ describe('restoreBackup', function() {
     it('does not restore comments', async function() {
       const restoredComment = await runSql(`SELECT obj_description('${TEST_TABLE_NAME}'::regclass, 'pg_class')`);
       expect(restoredComment).to.be.empty;
+    });
+  });
+
+  context('when restoring to unlogged tables', function() {
+    let walUsage;
+
+    before(async function() {
+      await createDb();
+      process.env.USE_UNLOGGED_TABLES = 'true';
+      walUsage = await monitorWalUsage(() => steps.restoreBackup({ backupFile }));
+    });
+
+    it('makes restored tables unlogged', async function() {
+      const persistence = await runSql(`SELECT relpersistence FROM pg_class WHERE oid='${TEST_TABLE_NAME}'::regclass`);
+      expect(persistence).to.equal('u');
+    });
+
+    it('does not consume more WAL than necessary for the schema', async function() {
+      expect(walUsage).to.be.at.most(1.5 * expectedWalUsageForSchemaOnly);
     });
   });
 });

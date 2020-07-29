@@ -134,13 +134,11 @@ function _makeAllTablesUnlogged() {
 function restoreBackup({ backupFile }) {
   logger.info('Start restore');
 
-  try {
-    _pg_restore({ backupFile, sections: ['pre-data'] });
+  _pg_restore({ backupFile, sections: ['pre-data'] });
+  if (process.env.USE_UNLOGGED_TABLES === 'true') {
     _makeAllTablesUnlogged();
-    _pg_restore({ backupFile, sections: ['data', 'post-data'] });
-  } finally {
-    fs.unlinkSync(backupFile);
   }
+  _pg_restore({ backupFile, sections: ['data', 'post-data'] });
 
   logger.info('Restore done');
 }
@@ -157,7 +155,11 @@ async function downloadAndRestoreLatestBackup() {
 
   dropCurrentObjects();
 
-  restoreBackup({ backupFile });
+  try {
+    restoreBackup({ backupFile });
+  } finally {
+    fs.unlinkSync(backupFile);
+  }
 }
 
 async function importAirtableData() {
