@@ -114,8 +114,9 @@ function createRestoreList({ backupFile }) {
   const backupObjectList = execSyncStdOut('pg_restore', [ backupFile, '-l' ]);
   const backupObjectLines = backupObjectList.split('\n');
   const nonCommentBackupObjectLines = backupObjectLines.filter((line) => !/ COMMENT /.test(line));
+  const withoutKnowledgeElementSnapshotObjectLines = nonCommentBackupObjectLines.filter((line) => !/ knowledge-element-snapshots /.test(line));
   const restoreListFile = 'restore.list';
-  fs.writeFileSync(restoreListFile, nonCommentBackupObjectLines.join('\n'));
+  fs.writeFileSync(restoreListFile, withoutKnowledgeElementSnapshotObjectLines.join('\n'));
   return restoreListFile;
 }
 
