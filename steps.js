@@ -13,6 +13,8 @@ const airtableData = require('./airtable-data');
 const enrichment = require('./enrichment');
 const logger = require('./logger');
 
+const RESTORE_LIST_FILENAME = 'restore.list';
+
 function shellSync(cmdline) {
   execa.shellSync(cmdline, { stdio: 'inherit' });
 }
@@ -109,27 +111,23 @@ function dropCurrentObjects() {
   execSync('psql', [ process.env.DATABASE_URL, '-c', 'DROP OWNED BY CURRENT_USER CASCADE' ]);
 }
 
-// Omit COMMENT objects from backup as we are not allowed to update comments on extensions
-function createRestoreList({ backupFile }) {
+function writeListFileForReplication({ backupFile }) {
   const backupObjectList = execSyncStdOut('pg_restore', [ backupFile, '-l' ]);
   const backupObjectLines = backupObjectList.split('\n');
-  const nonCommentBackupObjectLines = backupObjectLines.filter((line) => !/ COMMENT /.test(line));
-  const withoutKnowledgeElementSnapshotObjectLines = nonCommentBackupObjectLines.filter((line) => !/ knowledge-element-snapshots /.test(line));
-  const restoreListFile = 'restore.list';
-  fs.writeFileSync(restoreListFile, withoutKnowledgeElementSnapshotObjectLines.join('\n'));
-  return restoreListFile;
+  const filteredObjectLines = _filterObjectLines(backupObjectLines);
+  fs.writeFileSync(RESTORE_LIST_FILENAME, filteredObjectLines.join('\n'));
 }
 
 function restoreBackup({ backupFile }) {
   logger.info('Start restore');
 
   try {
-    const restoreListFile = createRestoreList({ backupFile });
+    writeListFileForReplication({ backupFile });
     execSync('pg_restore', [
       '--verbose',
       '--jobs', PG_RESTORE_JOBS,
       '--no-owner',
-      '--use-list', restoreListFile,
+      '--use-list', RESTORE_LIST_FILENAME,
       '-d', process.env.DATABASE_URL,
       backupFile
     ]);
@@ -179,6 +177,12 @@ async function fullReplicationAndEnrichment() {
   await addEnrichment();
 
   logger.info('Full replication and enrichment done');
+}
+
+function _filterObjectLines(objectLines) {
+  return objectLines
+      .filter((line) => !/ COMMENT /.test(line))
+      .filter((line) => !/knowledge-element-snapshots/.test(line));
 }
 
 module.exports = {
