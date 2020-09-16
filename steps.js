@@ -182,7 +182,8 @@ async function fullReplicationAndEnrichment() {
 function _filterObjectLines(objectLines) {
   return objectLines
       .filter((line) => !/ COMMENT /.test(line))
-      .filter((line) => !/ knowledge-element-snapshots /.test(line));
+      .filter((line) => !/ knowledge-element-snapshots /.test(line))
+      .filter((line) => !/ [0-9]* CONSTRAINT /.test(line));
 }
 
 module.exports = {
