@@ -187,7 +187,6 @@ function _filterObjectLines(objectLines) {
 
 module.exports = {
   addEnrichment,
-  createRestoreList,
   downloadAndRestoreLatestBackup,
   downloadBackup,
   dropCurrentObjects,
