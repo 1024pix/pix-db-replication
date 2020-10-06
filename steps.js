@@ -180,9 +180,15 @@ async function fullReplicationAndEnrichment() {
 }
 
 function _filterObjectLines(objectLines) {
-  return objectLines
+  const restoreFkConstraints = process.env.RESTORE_FK_CONSTRAINTS === 'true';
+  let filteredObjectLines = objectLines
       .filter((line) => !/ COMMENT /.test(line))
       .filter((line) => !/knowledge-element-snapshots/.test(line));
+  if(!restoreFkConstraints) {
+    filteredObjectLines = filteredObjectLines.filter((line) => !/FK CONSTRAINT/.test(line));
+  }
+
+  return filteredObjectLines;
 }
 
 module.exports = {
