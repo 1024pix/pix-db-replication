@@ -9,7 +9,8 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
-    "test": "NODE_ENV=test mocha --exit --recursive --reporter=dot"
+    "test": "NODE_ENV=test mocha --exit --recursive --reporter=dot",
+    "test:ci": "NODE_ENV=test mocha --exit --recursive --reporter=dot ./test/unit"
   },
   "repository": {
     "type": "git",

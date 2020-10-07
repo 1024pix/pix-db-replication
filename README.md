@@ -42,7 +42,25 @@ Certaines étapes de la procédure de réplication sont spécifiques à l'enviro
 
 ### Tests
 
-#### Intégration
+#### Manuels sur Scalingo
+
+Application Scalingo hors osc-secnum-fr1 pour éviter les considérations de sécurité des données 
+
+Vérifier les données présentes dans la BDD à exporter
+$ scalingo -a pix-api-review-pr1973 pgsql-console
+
+Lancer un backup (ou ne rien faire, le dernier est utilisé par défaut)
+
+Lancer l'import du backup 
+$ scalingo run --region osc-fr1 --app pix-db-replication --size S --detached node run.js
+
+Vérifier le résultat
+$ scalingo -a pix-db-replication pgsql-console
+`SELECT id, email FROM "users" LIMIT 5;`
+
+#### Automatisés
+
+##### Intégration
  
 Déroulement : 
 - une BDD est créé en local sur l'URL $TEST_POSTGRES_URL (défaut: `postgres://postgres@localhost`), instance `pix_replication_test`
@@ -55,3 +73,6 @@ Note: le dump Scalingo est créé avec des options `pg_dump` [différentes](http
 
 Se connecter à la BDD de test 
 ```psql postgres://postgres@localhost/pix_replication_test```
+
+Les tests d'intégration sortent en erreur sur CircleCI avec le message suivant 
+`Error: spawn psql ENOENT`

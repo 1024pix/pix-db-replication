@@ -1,0 +1,79 @@
+# .circleci/config.yml
+#
+# This file configures the CircleCI 2.0 build.
+#
+# Documentation:
+# - Overview: https://circleci.com/docs/2.0/workflows/
+# - Caching: https://circleci.com/docs/2.0/caching/
+#
+# Things to know:
+# - every job is a container
+# - cache is used for data that can potentially be reused between builds, provided we can
+#   be sure it will not influence the build result other than by speeding it up.
+# - cache is immutable. Sometimes we need to flush the cache, but we can't. That's why there is this
+#   `v1-` at the beginning. Increment it when you need to change the cache content.
+# - because we use `npm ci`, we cache the `~/.npm` directory and not `node_modules` which
+#   is erased by `npm ci`.
+# - to make sure the cache is indexed by the `package.json` and `package-lock.json` files,
+#   we concatenate them into a temporary file whose checksum we use as part of the cache key.
+# - for data that is specific to a build (commit), like the source code downloaded from github,
+#   we use Circle CI's workspace feature to transport it between jobs.
+
+version: 2.0
+
+workflows:
+  version: 2
+  build-test-and-deploy:
+    jobs:
+      - checkout:
+          filters:
+            branches:
+              ignore:
+                - master
+
+      - build_and_test:
+          requires:
+            - checkout
+
+jobs:
+  checkout:
+    docker:
+      - image: circleci/node:10.15.3
+    working_directory: ~/db-replication
+    steps:
+      - checkout
+      - run:
+          command: |
+            npm ci
+            rm -rf .git/
+      - persist_to_workspace:
+          root: ~/db-replication
+          paths:
+            - .
+
+  build_and_test:
+    docker:
+      - image: circleci/node:10.15.3
+      - image: postgres:12.3-alpine
+        environment:
+          POSTGRES_USER: circleci
+          POSTGRES_HOST_AUTH_METHOD: trust
+    working_directory: ~/db-replication
+    steps:
+      - attach_workspace:
+          at: ~/db-replication
+      - run: cat package*.json > cachekey
+      - restore_cache:
+          keys:
+            - v1-api-npm-{{ checksum "cachekey" }}
+      - run: npm ci
+      - save_cache:
+          key: v1-api-npm-{{ checksum "cachekey" }}
+          paths:
+            - ~/.npm
+      - run:
+          command: |
+            npm run lint
+            npm run test:ci
+          environment:
+            TEST_DATABASE_URL: postgres://circleci@localhost:5432/circleci
