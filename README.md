@@ -21,8 +21,12 @@ Pour satisfaire les contraintes de déploiement Scalingo, le `Procfile` déclare
  * `SCHEDULE` : une chaîne au format `cron` (interprétée par https://www.npmjs.com/package/node-cron) qui spécifie la fréquence à laquelle l'opération de réplication doit être exécutée. Exemple : `10 5 * * *` correspond à une exécution quotidienne à 5h10 UTC.
 
  * `DATABASE_URL` : URL d'accès à la base _cible_ qui sera écrasée et alimentée depuis le _backup_ à chaque exécution. Cette variable est en principe automatiquement alimentée par Scalingo lors de l'ajout d'une base PostgreSQL.
-  
+
  * `MAX_RETRY_COUNT` : cette variable est utilisée pour indiquer le nombre maximum de tentative de rejout.
+
+ * `RESTORE_FK_CONSTRAINTS` : restaurer ou non les contraintes de clés étrangères. Si non renseignée, les contraintes de clés étrangères ne sont pas restaurées. Si "true", les contraintes de clés étrangères sont restaurées.
+
+ * `RESTORE_ANSWERS_AND_KES` : restaurer ou non les tables `answers` et `knowledge-elements`. Si non renseignée, ces tables ne sont pas restaurées. Si "true", ces tables sont restaurées.
 
 ### Exécution individuelle
 
