@@ -106,3 +106,51 @@ Se connecter à la BDD de test
 
 Les tests d'intégration sortent en erreur sur CircleCI avec le message suivant 
 `Error: spawn psql ENOENT`
+
+## Parser les logs
+
+L'analyse de ce qui prend du temps est complexe sur les logs brutes s'il y a: 
+- plusieurs jobs de restauration (variable d'environnement`PG_RESTORE_JOBS`);
+- beaucoup de tables.
+
+Pour faciliter l'analyse, utilisez le script d'analyse de log. 
+
+Etapes:
+* récupérer les logs `scalingo --region osc-secnum-fr1 --app <NOM_APPLICATION> logs --lines 100000 > logs.txt`
+* déterminer la date d'exécutionau format YYYY-MM-DDDD, ex: 2020-10-13
+* exécuter `node utils/parse-replication-logs.js ./logs.txt <DATE_EXECUTION>`
+
+Exemples de résultat sur `pix-datawarehouse-production` le 22/10/2020 
+``` 
+$ node utils/parse-replication-logs.js ./logs.txt 2020-10-22                                                                                                                                                                                               1 ↵
+Durée de récupération du backup: 1h 27min 42s
+Durée de réplication: 8h 51min 17s
+Durée de l'enrichissement: 1h 39min 42s
+Durée totale: 11h 58min 41s
+FK CONSTRAINT total duration : 7h 57min 25s
+	FK CONSTRAINT schooling-registrations students_organizationid_foreign : 2h 11min 4s
+	FK CONSTRAINT competence-evaluations competence_evaluations_assessmentid_foreign : 2h 10min 41s
+	FK CONSTRAINT knowledge-elements knowledge_elements_answerid_foreign : 0h 58min 52s
+CONSTRAINT total duration : 2h 49min 60s
+	CONSTRAINT answers answers_pkey : 1h 26min 32s
+	CONSTRAINT knowledge-elements knowledge-elements_pkey : 1h 13min 36s
+	CONSTRAINT knowledge-element-snapshots knowledge-element-snapshots_pkey : 0h 2min 59s
+INDEX total duration : 10h 21min 34s
+	INDEX knowledge-elements_assessmentId_idx : 4h 16min 55s
+	INDEX knowledge_elements_userid_index : 3h 49min 46s
+	INDEX answers_assessmentid_index : 2h 7min 20s
+SEQUENCE total duration : 0h 0min 28s
+	SEQUENCE SET assessments_id_seq : 0h 0min 4s
+	SEQUENCE SET user-orga-settings_id_seq : 0h 0min 3s
+	SEQUENCE SET assessment-results_id_seq : 0h 0min 3s
+TABLE DATA total duration : 4h 8min 7s
+	TABLE DATA knowledge-element-snapshots : 1h 51min 60s
+	TABLE DATA knowledge-elements : 1h 11min 25s
+	TABLE DATA answers : 0h 46min 55s
+```
+
+S'il y a eu 
+- plusieurs exécutions le même jour
+- une exécution incomplète (pas de message `Start restore` ou `Restore done`)
+
+Alors vous obtiendrez le message suivant `TypeError: Cannot read property '0' of null`
