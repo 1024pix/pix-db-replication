@@ -39,3 +39,19 @@ En cas de besoin, une opération de réplication peut être lancée immédiateme
 Certaines étapes de la procédure de réplication sont spécifiques à l'environnement Scalingo et pas pertinentes à exécuter en local lors du développement sur le script. Un exemple d'exécution d'une partie des étapes, en supposant un _backup_ déjà téléchargé et un serveur PostgreSQL disponible en local:
 
     $ DATABASE_URL=postgres://postgres@localhost/pix_restore node -e "steps=require('./steps'); steps.dropCurrentObjects(); steps.restoreBackup({compressedBackup:'backup.tar.gz'})"
+
+### Tests
+
+#### Intégration
+ 
+Déroulement : 
+- une BDD est créé en local sur l'URL $TEST_POSTGRES_URL (défaut: `postgres://postgres@localhost`), instance `pix_replication_test`
+- la table `test_table` est créée et chargée avec 100 000 enregistrements (1 colonne, PK)
+- un export est effectué par `pg_dump --c` dans un dossier temporaire 
+- la restauration à tester est appelée depuis steps.js/restoreBackup
+- les assertions SQL sont effectuées par un `runSql`, un wrapper autour de `psql` 
+
+Note: le dump Scalingo est créé avec des options `pg_dump` [différentes](https://doc.scalingo.com/databases/postgresql/dump-restore)
+
+Se connecter à la BDD de test 
+```psql postgres://postgres@localhost/pix_replication_test```
