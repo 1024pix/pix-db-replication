@@ -1,5 +1,9 @@
 'use strict';
 
+// As early as possible in your application, require and configure dotenv.
+// https://www.npmjs.com/package/dotenv#usage
+require('dotenv').config();
+
 const PG_CLIENT_VERSION = process.env.PG_CLIENT_VERSION || '10.4';
 const PG_RESTORE_JOBS = parseInt(process.env.PG_RESTORE_JOBS, 10) || 4;
 const MAX_RETRY_COUNT = parseInt(process.env.MAX_RETRY_COUNT, 10) || 10;
