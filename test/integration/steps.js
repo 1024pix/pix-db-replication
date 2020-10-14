@@ -37,6 +37,10 @@ async function createTablesThatMayNotBeRestored() {
   await runSql('CREATE INDEX "knowledge_elements_userid_index" ON "knowledge-elements" ("userId")');
 }
 
+async function createTableWithForeignKey() {
+  await runSql(`CREATE TABLE referencing (id INTEGER REFERENCES ${TEST_TABLE_NAME})`);
+}
+
 async function fillTables() {
   await runSql(
     `INSERT INTO ${TEST_TABLE_NAME}(id) SELECT x FROM generate_series(1, ${TEST_TABLE_ROWS}) s(x)`
@@ -84,32 +88,89 @@ describe('restoreBackup', function() {
 
   });
 
-  context('when some table restoration is disabled', ()=> {
+  context('according to environment variables', ()=>{
 
-    before(async function() {
-      process.env.DATABASE_URL = TEST_DB_URL;
-      await createDb();
-      await createTables();
-      await fillTables();
-      await createTablesThatMayNotBeRestored();
-      backupFile = await createBackup();
+    context('when some table restoration is disabled', ()=> {
+
+      before(async function() {
+        process.env.DATABASE_URL = TEST_DB_URL;
+        await createDb();
+        await createTables();
+        await fillTables();
+        await createTablesThatMayNotBeRestored();
+        backupFile = await createBackup();
+      });
+
+      before(async function() {
+        process.env.DATABASE_URL = TEST_DB_URL;
+        await createDb();
+        await steps.restoreBackup({ backupFile });
+      });
+
+      it('does not restore these tables', async function() {
+
+        const isAnswersRestored = await runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'answers\'');
+        expect(isAnswersRestored).to.equal('0');
+
+        const isKnowledgeElementsRestored = await runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-elements\'');
+        expect(isKnowledgeElementsRestored).to.equal('0');
+      });
+
     });
 
-    before(async function() {
-      process.env.DATABASE_URL = TEST_DB_URL;
-      await createDb();
-      await steps.restoreBackup({ backupFile });
+    context('when foreign key constraints restoration is enabled', ()=> {
+
+      before(async function() {
+        process.env.DATABASE_URL = TEST_DB_URL;
+        await createDb();
+        await createTables();
+        await fillTables();
+        await createTableWithForeignKey();
+        backupFile = await createBackup();
+      });
+
+      before(async function() {
+        process.env.DATABASE_URL = TEST_DB_URL;
+        process.env.RESTORE_FK_CONSTRAINTS = 'true';
+        await createDb();
+        await steps.restoreBackup({ backupFile });
+      });
+
+      it('does restore these constraints', async function() {
+
+        const areForeignKeysRestored = await runSql('SELECT COUNT(1) FROM pg_constraint pgc  WHERE pgc.contype = \'f\'');
+        expect(areForeignKeysRestored).to.equal('1');
+
+      });
+
     });
 
-    it('does not restore these tables', async function() {
+    context('when foreign key constraints restoration is disabled', ()=> {
 
-      const isAnswersRestored = await runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'answers\'');
-      expect(isAnswersRestored).to.equal('0');
+      before(async function() {
+        process.env.DATABASE_URL = TEST_DB_URL;
+        await createDb();
+        await createTables();
+        await fillTables();
+        await createTableWithForeignKey();
+        backupFile = await createBackup();
+      });
 
-      const isKnowledgeElementsRestored = await runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-elements\'');
-      expect(isKnowledgeElementsRestored).to.equal('0');
+      before(async function() {
+        process.env.DATABASE_URL = TEST_DB_URL;
+        process.env.RESTORE_FK_CONSTRAINTS = 'false';
+        await createDb();
+        await steps.restoreBackup({ backupFile });
+      });
+
+      it('does not restore foreign keys constraints', async function() {
+
+        const areForeignKeysRestored = await runSql('SELECT COUNT(1) FROM pg_constraint pgc  WHERE pgc.contype = \'f\'');
+        expect(areForeignKeysRestored).to.equal('0');
+
+      });
+
     });
-
   });
 
 });
