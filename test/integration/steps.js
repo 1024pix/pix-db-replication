@@ -31,6 +31,12 @@ async function createTables() {
   );
 }
 
+async function createTablesThatMayNotBeRestored() {
+  await runSql('CREATE TABLE answers (id int NOT NULL PRIMARY KEY)');
+  await runSql('CREATE TABLE "knowledge-elements" (id int NOT NULL PRIMARY KEY, "userId" INTEGER)');
+  await runSql('CREATE INDEX "knowledge_elements_userid_index" ON "knowledge-elements" ("userId")');
+}
+
 async function fillTables() {
   await runSql(
     `INSERT INTO ${TEST_TABLE_NAME}(id) SELECT x FROM generate_series(1, ${TEST_TABLE_ROWS}) s(x)`
@@ -50,26 +56,60 @@ async function createBackup() {
 describe('restoreBackup', function() {
   let backupFile;
 
-  before(async function() {
-    await createDb();
-    await createTables();
-    await fillTables();
-    backupFile = await createBackup();
-    process.env.DATABASE_URL = TEST_DB_URL;
+  context('whatever options are provided', ()=> {
+
+    before(async function() {
+      process.env.DATABASE_URL = TEST_DB_URL;
+      await createDb();
+      await createTables();
+      await fillTables();
+      backupFile = await createBackup();
+    });
+
+    before(async function() {
+      process.env.DATABASE_URL = TEST_DB_URL;
+      await createDb();
+      await steps.restoreBackup({ backupFile });
+    });
+
+    it('restores the data', async function() {
+      const restoredRowCount = parseInt(await runSql(`SELECT COUNT(*) FROM ${TEST_TABLE_NAME}`));
+      expect(restoredRowCount).to.equal(TEST_TABLE_ROWS);
+    });
+
+    it('does not restore comments', async function() {
+      const restoredComment = await runSql(`SELECT obj_description('${TEST_TABLE_NAME}'::regclass, 'pg_class')`);
+      expect(restoredComment).to.be.empty;
+    });
+
   });
 
-  before(async function() {
-    await createDb();
-    await steps.restoreBackup({ backupFile });
+  context('when some table restoration is disabled', ()=> {
+
+    before(async function() {
+      process.env.DATABASE_URL = TEST_DB_URL;
+      await createDb();
+      await createTables();
+      await fillTables();
+      await createTablesThatMayNotBeRestored();
+      backupFile = await createBackup();
+    });
+
+    before(async function() {
+      process.env.DATABASE_URL = TEST_DB_URL;
+      await createDb();
+      await steps.restoreBackup({ backupFile });
+    });
+
+    it('does not restore these tables', async function() {
+
+      const isAnswersRestored = await runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'answers\'');
+      expect(isAnswersRestored).to.equal('0');
+
+      const isKnowledgeElementsRestored = await runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-elements\'');
+      expect(isKnowledgeElementsRestored).to.equal('0');
+    });
+
   });
 
-  it('restores the data', async function() {
-    const restoredRowCount = parseInt(await runSql(`SELECT COUNT(*) FROM ${TEST_TABLE_NAME}`));
-    expect(restoredRowCount).to.equal(TEST_TABLE_ROWS);
-  });
-
-  it('does not restore comments', async function() {
-    const restoredComment = await runSql(`SELECT obj_description('${TEST_TABLE_NAME}'::regclass, 'pg_class')`);
-    expect(restoredComment).to.be.empty;
-  });
 });
