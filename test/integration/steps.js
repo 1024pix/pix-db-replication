@@ -57,23 +57,33 @@ async function createBackup() {
   return path;
 }
 
+async function createFillBackupAndRestoreDatabase({ createTablesNotToBeImported = false, createForeignKeys = false }) {
+  process.env.DATABASE_URL = TEST_DB_URL;
+  await createAndFillDatabase({ createTablesNotToBeImported, createForeignKeys });
+  const backupFile = await createBackup();
+  await createDb();
+  await steps.restoreBackup({ backupFile });
+}
+
+async function createAndFillDatabase({ createTablesNotToBeImported = false, createForeignKeys = false }) {
+  await createDb();
+  await createTables();
+  await fillTables();
+  if (createTablesNotToBeImported) {
+    await createTablesThatMayNotBeRestored();
+  }
+  if (createForeignKeys) {
+    await createTableWithForeignKey();
+  }
+  return await createBackup();
+}
+
 describe('restoreBackup', function() {
-  let backupFile;
 
   context('whatever options are provided', ()=> {
 
     before(async function() {
-      process.env.DATABASE_URL = TEST_DB_URL;
-      await createDb();
-      await createTables();
-      await fillTables();
-      backupFile = await createBackup();
-    });
-
-    before(async function() {
-      process.env.DATABASE_URL = TEST_DB_URL;
-      await createDb();
-      await steps.restoreBackup({ backupFile });
+      await createFillBackupAndRestoreDatabase;
     });
 
     it('restores the data', async function() {
@@ -93,18 +103,7 @@ describe('restoreBackup', function() {
     context('when some table restoration is disabled', ()=> {
 
       before(async function() {
-        process.env.DATABASE_URL = TEST_DB_URL;
-        await createDb();
-        await createTables();
-        await fillTables();
-        await createTablesThatMayNotBeRestored();
-        backupFile = await createBackup();
-      });
-
-      before(async function() {
-        process.env.DATABASE_URL = TEST_DB_URL;
-        await createDb();
-        await steps.restoreBackup({ backupFile });
+        await createFillBackupAndRestoreDatabase({ createTablesNotToBeImported : true });
       });
 
       it('does not restore these tables', async function() {
@@ -121,19 +120,8 @@ describe('restoreBackup', function() {
     context('when foreign key constraints restoration is enabled', ()=> {
 
       before(async function() {
-        process.env.DATABASE_URL = TEST_DB_URL;
-        await createDb();
-        await createTables();
-        await fillTables();
-        await createTableWithForeignKey();
-        backupFile = await createBackup();
-      });
-
-      before(async function() {
-        process.env.DATABASE_URL = TEST_DB_URL;
         process.env.RESTORE_FK_CONSTRAINTS = 'true';
-        await createDb();
-        await steps.restoreBackup({ backupFile });
+        await createFillBackupAndRestoreDatabase({ createForeignKeys : true });
       });
 
       it('does restore these constraints', async function() {
@@ -148,19 +136,8 @@ describe('restoreBackup', function() {
     context('when foreign key constraints restoration is disabled', ()=> {
 
       before(async function() {
-        process.env.DATABASE_URL = TEST_DB_URL;
-        await createDb();
-        await createTables();
-        await fillTables();
-        await createTableWithForeignKey();
-        backupFile = await createBackup();
-      });
-
-      before(async function() {
-        process.env.DATABASE_URL = TEST_DB_URL;
         process.env.RESTORE_FK_CONSTRAINTS = 'false';
-        await createDb();
-        await steps.restoreBackup({ backupFile });
+        await createFillBackupAndRestoreDatabase({ createForeignKeys : true });
       });
 
       it('does not restore foreign keys constraints', async function() {
