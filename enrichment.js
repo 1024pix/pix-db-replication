@@ -11,6 +11,8 @@ async function add() {
     }
     await client.query('CREATE INDEX "users_createdAt_idx" on "users" (cast("createdAt" AT TIME ZONE \'UTC+1\' as date) DESC)');
     await client.query('CREATE VIEW students AS SELECT * FROM "schooling-registrations"');
+    await client.query('CREATE MATERIALIZED VIEW metabase-answers AS SELECT * FROM "answers" WHERE "createdAt" >= (now() + INTERVAL \'-15 days\')');
+    await client.query('CREATE INDEX "answers_challenges_idx" ON "metabase-answers" ("challengeId")');
   });
 }
 
