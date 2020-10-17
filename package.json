@@ -25,21 +25,21 @@
   "homepage": "https://github.com/1024pix/pix-db-replication#readme",
   "main": "replication_job.js",
   "dependencies": {
-    "airtable": "^0.8.1",
+    "airtable": "^0.10.0",
     "bunyan": "^1.8.14",
     "dotenv": "^8.2.0",
-    "execa": "^1.0.0",
+    "execa": "^4.0.3",
     "node-cron": "^2.0.3",
     "p-retry": "4.2.0",
-    "pg": "^7.11.0",
+    "pg": "^8.4.1",
     "pg-format": "^1.0.4"
   },
   "devDependencies": {
     "chai": "^4.2.0",
-    "eslint": "^7.3.1",
-    "eslint-plugin-mocha": "^7.0.1",
-    "mocha": "^8.0.1",
-    "sinon": "^9.0.2",
+    "eslint": "^7.11.0",
+    "eslint-plugin-mocha": "^8.0.0",
+    "mocha": "^8.2.0",
+    "sinon": "^9.2.0",
     "tmp-promise": "^3.0.2"
   }
 }
