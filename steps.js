@@ -14,7 +14,7 @@ const enrichment = require('./enrichment');
 const logger = require('./logger');
 
 function shellSync(cmdline) {
-  execa.shellSync(cmdline, { stdio: 'inherit' });
+  execa.shell(cmdline, { stdio: 'inherit' });
 }
 
 function execSync(cmd, args) {
