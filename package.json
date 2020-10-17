@@ -1,10 +1,13 @@
 {
   "name": "pix-db-replication",
   "version": "1.0.0",
-  "description": "",
-  "main": "replication_job.js",
+  "private": true,
+  "description": "Import de backup PostgreSQL depuis un dépôt de backup distant",
+  "license": "AGPL-3.0",
+  "author": "GIP Pix",
   "engines": {
-    "node": "10.15.3"
+    "node": "12.18.x",
+    "npm": "6.14.x"
   },
   "scripts": {
     "lint": "eslint .",
@@ -16,12 +19,11 @@
     "type": "git",
     "url": "git+https://github.com/1024pix/pix-db-replication.git"
   },
-  "author": "",
-  "license": "ISC",
   "bugs": {
     "url": "https://github.com/1024pix/pix-db-replication/issues"
   },
   "homepage": "https://github.com/1024pix/pix-db-replication#readme",
+  "main": "replication_job.js",
   "dependencies": {
     "airtable": "^0.8.1",
     "bunyan": "^1.8.14",
