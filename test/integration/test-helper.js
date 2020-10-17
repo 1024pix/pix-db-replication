@@ -31,13 +31,21 @@ async function createTables() {
 }
 
 async function createTablesThatMayNotBeRestored() {
-  await runSql('CREATE TABLE answers (id int NOT NULL PRIMARY KEY)');
-  await runSql('CREATE TABLE "knowledge-elements" (id int NOT NULL PRIMARY KEY, "userId" INTEGER)');
+  await runSql('CREATE TABLE answers (id int NOT NULL PRIMARY KEY, "challengeId" CHARACTER VARYING(255) )');
+  await runSql('CREATE TABLE "knowledge-elements" (id int NOT NULL PRIMARY KEY, "userId" INTEGER, "createdAt" TIMESTAMP WITH TIME ZONE)');
   await runSql('CREATE INDEX "knowledge_elements_userid_index" ON "knowledge-elements" ("userId")');
 }
 
 async function createTableWithForeignKey() {
   await runSql(`CREATE TABLE referencing (id INTEGER REFERENCES ${TEST_TABLE_NAME})`);
+}
+
+async function createTableToBeIndexed() {
+  await runSql('CREATE TABLE users (id INT NOT NULL PRIMARY KEY, "createdAt" TIMESTAMP WITH TIME ZONE)');
+}
+
+async function createTableToBeBaseForView() {
+  await runSql('CREATE TABLE "schooling-registrations" (id INT NOT NULL PRIMARY KEY)');
 }
 
 async function fillTables() {
@@ -68,8 +76,8 @@ async function createAndFillDatabase({ createTablesNotToBeImported = false, crea
   await createDb();
   await createTables();
   await fillTables();
-  // await createTableToBeIndexed();
-  // await createTableToBeBaseForView();
+  await createTableToBeIndexed();
+  await createTableToBeBaseForView();
 
   if (createTablesNotToBeImported) {
     await createTablesThatMayNotBeRestored();
