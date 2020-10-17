@@ -33,7 +33,7 @@ describe('Integration | steps.js', () => {
 
         before(async function() {
           // given
-          process.env.RESTORE_ANSWERS_AND_KES = undefined
+          process.env.RESTORE_ANSWERS_AND_KES = undefined;
 
           // when
           await createFillBackupAndRestoreDatabase({ createTablesNotToBeImported : true });
