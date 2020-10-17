@@ -183,15 +183,15 @@ function _filterObjectLines(objectLines) {
   const restoreFkConstraints = process.env.RESTORE_FK_CONSTRAINTS === 'true';
   const restoreAnswersAndKes = process.env.RESTORE_ANSWERS_AND_KES === 'true';
   let filteredObjectLines = objectLines
-      .filter((line) => !/ COMMENT /.test(line));
-  if(!restoreFkConstraints) {
+    .filter((line) => !/ COMMENT /.test(line));
+  if (!restoreFkConstraints) {
     filteredObjectLines = filteredObjectLines.filter((line) => !/FK CONSTRAINT/.test(line));
   }
-  if(!restoreAnswersAndKes) {
+  if (!restoreAnswersAndKes) {
     filteredObjectLines = filteredObjectLines
-        .filter((line) => !/answers/.test(line))
-        .filter((line) => !/knowledge-elements/.test(line))
-        .filter((line) => !/knowledge_elements/.test(line));
+      .filter((line) => !/answers/.test(line))
+      .filter((line) => !/knowledge-elements/.test(line))
+      .filter((line) => !/knowledge_elements/.test(line));
   }
 
   return filteredObjectLines;

@@ -1,6 +1,6 @@
 const { expect } = require('chai');
 
-const { retryFunction } = require('../steps');
+const { retryFunction } = require('../../steps');
 
 function catchErr(promiseFn, ctx) {
   return async (...args) => {
