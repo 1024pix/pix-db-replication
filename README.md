@@ -51,8 +51,11 @@ $ scalingo -a pix-api-review-pr1973 pgsql-console
 
 Lancer un backup (ou ne rien faire, le dernier est utilisé par défaut)
 
-Lancer l'import du backup 
-$ scalingo run --region osc-fr1 --app pix-db-replication --size S --detached node run.js
+Lancer l'import du backup avec 
+* la configuration standard (même import que sur pix-production-db-replication)
+`scalingo run --region osc-fr1 --app pix-db-replication --size S --detached node run.js`
+* la configuration externe (même import que sur pix-db-replication-fork)
+`scalingo run --region osc-fr1 --app pix-db-replication-externe --size S --detached node run.js`
 
 Vérifier le résultat
 $ scalingo -a pix-db-replication pgsql-console
