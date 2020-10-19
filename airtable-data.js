@@ -5,6 +5,8 @@ const _ = require('lodash');
 const format = require('pg-format');
 const { runDBOperation } = require('./db-connection');
 
+const logger = require('./logger');
+
 const tables = [{
   name:'areas',
   airtableName:'Domaines',
@@ -139,6 +141,8 @@ async function _getItems(structure) {
   const records = await base(structure.airtableName).select({
     fields: airtableFields
   }).all();
+
+  throw new Error('Error in _getItems');
   return records.map((record) => {
     const item = { id:record.get(structure.airtableId) || record.getId() };
     fields.forEach((field) => {

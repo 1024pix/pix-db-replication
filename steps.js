@@ -158,6 +158,7 @@ async function downloadAndRestoreLatestBackup() {
 }
 
 async function importAirtableData() {
+  logger.info('importAirtableData...');
   await airtableData.fetchAndSaveData();
 }
 
