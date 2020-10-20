@@ -51,6 +51,14 @@ Variables d'environnement :
  * `RESTORE_FK_CONSTRAINTS` : restaurer ou non les contraintes de clés étrangères. Si non renseignée, les contraintes de clés étrangères ne sont pas restaurées. Si "true", les contraintes de clés étrangères sont restaurées.
 
  * `RESTORE_ANSWERS_AND_KES` : restaurer ou non les tables `answers` et `knowledge-elements`. Si non renseignée, ces tables ne sont pas restaurées. Si "true", ces tables sont restaurées.
+ 
+  * `RESTORE_ANSWERS_AND_KES_INCREMENTALLY` : restaurer ou non les tables `answers` et `knowledge-elements` par incrément.
+   Si non renseignée ou false, ces tables sont supprimées à chaque restauration de dump.
+   Si renseignée à true, ces tables 
+    - ne sont supprimées à chaque restauration de dump.
+    - sont restaurées par incrément en recopiant les données via une connexion à la BDD source via COPY FROM/TO
+   
+  * `SOURCE_DATABASE_URL` : Si `RESTORE_ANSWERS_AND_KES_INCREMENTALLY = true`, URL de la BDD depuis laquelle seront récupérées les données 
 
 
 ## Exécution hors tâche planifiée
