@@ -2,3 +2,4 @@
 .env
 .idea
 restore.list
+backup.tar.gz
