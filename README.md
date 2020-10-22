@@ -115,7 +115,7 @@ ALTER TABLE "knowledge-elements" DROP CONSTRAINT "knowledge_elements_userid_fore
 
 ## Tests
 
-### Manuels sur Scalingo
+### Manuels sur RA Scalingo
 
 Application Scalingo hors osc-secnum-fr1 pour éviter les considérations de sécurité des données 
 
@@ -128,10 +128,10 @@ Déterminer le nom de l'application, ex.pix-datawarehouse-pr47
 NOM_APPLICATION=pix-datawarehouse-pr47
 
 Lancer l'import du backup 
-$ scalingo run --region osc-fr1 --app $NOM_APPLICATION --size S --detached node run.js
+$ scalingo run --region osc-fr1 --app pix-datawarehouse-pr<NUMERO-PR> --size S --detached node run.js
 
 Vérifier le résultat
-$ scalingo --app $NOM_APPLICATION pgsql-console
+$ scalingo -a pix-datawarehouse-pr<NUMERO-PR> pgsql-console
 `SELECT id, email FROM "users" LIMIT 5;`
 
 ### Automatisés
