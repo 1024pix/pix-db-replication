@@ -1,8 +1,10 @@
 const { expect } = require('chai');
-const steps = require('../../steps');
 const { createBackupAndCreateEmptyDatabase, createBackup } = require('./test-helper');
 const Database = require('../utils/database');
 const pgUrlParser = require('pg-connection-string').parse;
+const nock = require('nock');
+
+const steps = require('../../steps');
 
 describe('Integration | steps.js', () => {
 
@@ -393,4 +395,63 @@ describe('Integration | steps.js', () => {
 
   });
 
+  describe('#importAirtableData', () => {
+
+    let targetDatabaseConfig;
+    before(async() => {
+
+      // CircleCI set up environment variables to access DB, so we need to read them here
+      // eslint-disable-next-line no-process-env
+      const TARGET_DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://pix@localhost:5432/replication_target';
+      const rawTargetDataBaseConfig = pgUrlParser(TARGET_DATABASE_URL);
+
+      targetDatabaseConfig = {
+        serverUrl: `postgres://${rawTargetDataBaseConfig.user}@${rawTargetDataBaseConfig.host}:${rawTargetDataBaseConfig.port}`,
+        databaseName: rawTargetDataBaseConfig.database,
+        tableName: 'test_table',
+        tableRowCount: 100000,
+      };
+
+      targetDatabaseConfig.databaseUrl = `${targetDatabaseConfig.serverUrl}/${targetDatabaseConfig.databaseName}`;
+
+      await Database.create(targetDatabaseConfig);
+    });
+
+    context('according to AirTable API status', () => {
+
+      it('when API is unavailable, should retry at most the expected time', async function() {
+
+        // given
+        process.env.DATABASE_URL = targetDatabaseConfig.databaseUrl;
+        process.env.AIRTABLE_KEY = 'key8BhNMj8YDSHTpa';
+        process.env.AIRTABLE_BASE = 'appHAIFk9u1qqglhX';
+
+        const baseUrl = 'https://api.airtable.com';
+        const path = '/v0/appHAIFk9u1qqglhX/Domaines?fields%5B%5D=Nom&fields%5B%5D=id+persistant';
+        const UNAVAILABLE_STATUS_CODE = 503;
+
+        const RETRIES_TIMEOUT_MINUTES = 1;
+
+        const domainesAirtableCall = nock(baseUrl,  { allowUnmocked: true })
+          .get(path)
+          .reply(UNAVAILABLE_STATUS_CODE, {});
+
+        // when
+        const startedAt = new Date();
+        await steps.importAirtableData({ max_retry_count: 1000 , retries_timeout_minutes: RETRIES_TIMEOUT_MINUTES });
+        const endedAt = new Date();
+        const elapsedTime = Math.round((endedAt - startedAt) / 1000 / 60);
+
+        // then
+        expect(domainesAirtableCall.isDone()).to.be.true;
+        expect(elapsedTime).to.be.at.least(RETRIES_TIMEOUT_MINUTES - 1);
+        expect(elapsedTime).to.be.at.most(RETRIES_TIMEOUT_MINUTES);
+
+      });
+
+    });
+
+  });
+
 });
+

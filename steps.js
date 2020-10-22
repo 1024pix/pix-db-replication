@@ -29,6 +29,13 @@ function setRetriesTimeout(maxMinutes) {
   }, milliseconds);
 }
 
+function setAirTableRetriesTimeout(maxMinutes) {
+  const milliseconds = maxMinutes * 60000;
+  return setTimeout(() => {
+    logger.warn('Les tentatives de réplication AirTable ont dépassé %d minutes !', maxMinutes);
+  }, milliseconds);
+}
+
 function retryFunction(fn, maxRetryCount) {
   return retry(fn, {
     onFailedAttempt: (error) => {
@@ -166,10 +173,35 @@ function dropObjectAndRestoreBackup(backupFile, configuration) {
   restoreBackup({ backupFile, databaseUrl: configuration.DATABASE_URL, configuration });
 }
 
-async function importAirtableData(configuration) {
+async function importAirtableData({ max_retry_count, retries_timeout_minutes }) {
+
+  const wrappedCall = async function() {
+    try {
+      await airtableData.fetchAndSaveData();
+    } catch (error) {
+      // An AirTableError is throw => {
+      //   "error": "SERVICE_UNAVAILABLE",
+      //   "message": "The service is temporarily unavailable. Please retry shortly.",
+      //   "statusCode": 503
+      // }
+      // If let as-is, it will be intercepted by p-retry which performs a type check
+      // It must be Error, otherwise an error is thrown instead of retrying the action (its actual purpose)
+      // https://github.com/sindresorhus/p-retry/blob/master/index.js#L44
+      // To avoid this, we create a brand-new error with the right type and throw it to p-retry
+      throw new Error(error.statusCode + error.error + error.message);
+    }
+  };
+
+  let airtableRetriesAlarm;
   logger.info('airtableData.fetchAndSaveData - Started');
-  await airtableData.fetchAndSaveData(configuration);
+  try {
+    airtableRetriesAlarm = setAirTableRetriesTimeout(retries_timeout_minutes);
+    await retryFunction(wrappedCall, max_retry_count);
+  } finally {
+    clearTimeout(airtableRetriesAlarm);
+  }
   logger.info('airtableData.fetchAndSaveData - Ended');
+
 }
 
 async function addEnrichment(configuration) {
@@ -179,9 +211,9 @@ async function addEnrichment(configuration) {
 }
 
 async function fullReplicationAndEnrichment(configuration) {
-
   logger.info('Start replication and enrichment');
 
+  logger.info('Download and restore backup');
   let retriesAlarm;
   try {
     retriesAlarm = setRetriesTimeout(configuration.RETRIES_TIMEOUT_MINUTES);
@@ -193,11 +225,14 @@ async function fullReplicationAndEnrichment(configuration) {
     clearTimeout(retriesAlarm);
   }
 
-  await importAirtableData(configuration);
+  logger.info('Retrieve AirTable data to database ');
+  await importAirtableData({ max_retry_count: configuration.MAX_RETRY_COUNT, retries_timeout_minutes: configuration.RETRIES_TIMEOUT_MINUTES });
 
+  logger.info('Enrich');
   await addEnrichment(configuration);
 
   logger.info('Full replication and enrichment done');
+
 }
 
 function _filterObjectLines(objectLines, configuration) {
