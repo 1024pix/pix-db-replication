@@ -115,6 +115,11 @@ ALTER TABLE "knowledge-elements" DROP CONSTRAINT "knowledge_elements_userid_fore
 
 ## Tests
 
+### Manuels en local
+
+Récupérer les données Airtable
+`node -e "steps=require('./steps'); steps.importAirtableData();"`
+
 ### Manuels sur RA Scalingo
 
 Application Scalingo hors osc-secnum-fr1 pour éviter les considérations de sécurité des données 
