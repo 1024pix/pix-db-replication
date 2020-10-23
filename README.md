@@ -63,6 +63,8 @@ Variables d'environnement :
 
 ## Exécution hors tâche planifiée
 
+### réplication complète
+
 Une opération de réplication peut être lancée immédiatement (hors tâche planifiée) en exécutant le script `run.js` dans un conteneur individuel Scalingo :
 
 Sur la BDD destinée aux internes
@@ -71,12 +73,21 @@ Sur la BDD destinée aux internes
 Sur la BDD destinée aux externes
     $ scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-ex-production --size M --detached node run.js
     
+### réplication incrémentale
+`scalingo run --region osc-secnum-fr1 -a <NOM_APPLICATION> --size M --detached node ./src/run-replicate-incrementally.js`    
+    
 ## Développement et exécution en local
+### réplication complète
 
 Certaines étapes de la procédure de réplication sont spécifiques à l'environnement Scalingo et pas pertinentes à exécuter en local lors du développement sur le script. 
 Un exemple d'exécution d'une partie des étapes, en supposant un _backup_ déjà téléchargé et un serveur PostgreSQL disponible en local:
 
     $ DATABASE_URL=postgres://postgres@localhost/pix_restore node -e "steps=require('./steps'); steps.dropCurrentObjects(); steps.restoreBackup({compressedBackup:'backup.tar.gz'})"
+
+### réplication incrémentale
+
+`node -e "runner=require('./src/replicate-incrementally'); runner.run();"`
+
 
 ## Tests
 
