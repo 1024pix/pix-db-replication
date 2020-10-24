@@ -20,7 +20,7 @@ const logger = require('./logger');
 const RESTORE_LIST_FILENAME = 'restore.list';
 
 function shellSync(cmdline) {
-  execa.shellSync(cmdline, { stdio: 'inherit' });
+  execa.sync(cmdline, { stdio: 'inherit', shell: true });
 }
 
 function execSync(cmd, args) {
