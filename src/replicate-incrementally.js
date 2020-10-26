@@ -20,14 +20,15 @@ function run() {
 
   logger.info('Start incremental replication');
 
-  let answersLastRecordIndexTarget = parseInt(execSyncStdOut('psql', [ targetDatabaseURL, '--tuples-only', '--command', 'SELECT MAX(id) FROM answers']));
-  answersLastRecordIndexTarget = isNaN(answersLastRecordIndexTarget) ? 0 : answersLastRecordIndexTarget;
+  const answersLastRecordIndexTarget = parseInt(execSyncStdOut('psql', [targetDatabaseURL, '--tuples-only', '--command', 'SELECT MAX(id) FROM answers']));
+  if (isNaN(answersLastRecordIndexTarget)) {
+    throw new Error('Answers table must not be empty on target database');
+  }
 
-  let kELastRecordIndexTarget = parseInt(execSyncStdOut('psql', [ targetDatabaseURL, '--tuples-only', '--command', 'SELECT MAX(id) FROM "knowledge-elements"']));
-  kELastRecordIndexTarget = isNaN(kELastRecordIndexTarget) ? 0 : kELastRecordIndexTarget;
-
-  logger.info('Target - answers last record at ' + answersLastRecordIndexTarget);
-  logger.info('Target - KE last record at ' + kELastRecordIndexTarget);
+  const kELastRecordIndexTarget = parseInt(execSyncStdOut('psql', [targetDatabaseURL, '--tuples-only', '--command', 'SELECT MAX(id) FROM "knowledge-elements"']));
+  if (isNaN(kELastRecordIndexTarget)) {
+    throw new Error('Knowledge-elements table must not be empty on target database');
+  }
 
   logger.info('Start COPY FROM/TO through STDIN/OUT');
 
@@ -40,7 +41,7 @@ function run() {
         --command "\\copy answers from stdin"`;
 
   const answersCopyMessage = execSync(answersSqlCopyCommand);
-  logger.info('answers copy returned: ' + answersCopyMessage);
+  logger.info('Answers table copy returned: ' + answersCopyMessage);
 
   const kesSqlCopyCommand = `
     psql \\
@@ -51,7 +52,7 @@ function run() {
         --command "\\copy \\"knowledge-elements\\" from stdin"`;
 
   const kECopyMessage = execSync(kesSqlCopyCommand);
-  logger.info('KE copy returned: ' + kECopyMessage);
+  logger.info('Knowledge-elements table copy returned: ' + kECopyMessage);
 
   logger.info('Incremental replication done');
 }
