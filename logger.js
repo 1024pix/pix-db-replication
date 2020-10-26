@@ -1,7 +1,9 @@
 const bunyan = require('bunyan');
+const repositoryName = 'pix-db-replication';
+const loggedApplicationName = process.env.APP || repositoryName;
 
 const logger = bunyan.createLogger({
-  name: 'pix-db-replication',
+  name: loggedApplicationName,
   stream: process.stdout,
   level: 'info'
 });
