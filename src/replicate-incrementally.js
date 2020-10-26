@@ -20,14 +20,17 @@ async function run() {
 
   logger.info('Start incremental replication');
 
-  let answersLastRecordIndexTarget = parseInt(execSyncStdOut('psql', [ targetDatabaseURL, '--tuples-only', '--command', 'SELECT MAX(id) FROM answers']));
-  answersLastRecordIndexTarget = isNaN(answersLastRecordIndexTarget) ? 0 : answersLastRecordIndexTarget;
+  const answersLastRecordIndexTarget = parseInt(execSyncStdOut('psql', [targetDatabaseURL, '--tuples-only', '--command', 'SELECT MAX(id) FROM answers']));
+  if (isNaN(answersLastRecordIndexTarget)) {
+    logger.error('Answers must not be empty');
+    process.exit(1);
+  }
 
-  let kELastRecordIndexTarget = parseInt(execSyncStdOut('psql', [ targetDatabaseURL, '--tuples-only', '--command', 'SELECT MAX(id) FROM "knowledge-elements"']));
-  kELastRecordIndexTarget = isNaN(kELastRecordIndexTarget) ? 0 : kELastRecordIndexTarget;
-
-  logger.info('Target - answers last record at ' + answersLastRecordIndexTarget);
-  logger.info('Target - KE last record at ' + kELastRecordIndexTarget);
+  const kELastRecordIndexTarget = parseInt(execSyncStdOut('psql', [targetDatabaseURL, '--tuples-only', '--command', 'SELECT MAX(id) FROM "knowledge-elements"']));
+  if (isNaN(kELastRecordIndexTarget)) {
+    logger.error('KnowledgeElements must not be empty');
+    process.exit(1);
+  }
 
   logger.info('Start COPY FROM/TO through STDIN/OUT');
 
