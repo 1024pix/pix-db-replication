@@ -128,6 +128,7 @@ function writeListFileForReplication({ backupFile }) {
   fs.writeFileSync(RESTORE_LIST_FILENAME, filteredObjectLines.join('\n'));
 }
 
+// TODO: injecter l'URL de la database en argument
 function restoreBackup({ backupFile }) {
   logger.info('Start restore');
 
@@ -164,7 +165,7 @@ async function downloadAndRestoreLatestBackup() {
   } else {
     dropCurrentObjects();
   }
-  
+
   restoreBackup({ backupFile });
 }
 

@@ -1,92 +1,132 @@
 const { expect } = require('chai');
-
-const { createFillBackupAndRestoreDatabase, runSql, TEST_TABLE_NAME, TEST_TABLE_ROWS } = require('./test-helper');
+const steps = require('../../steps');
+const { createBackupAndCreateEmptyDatabase } = require('./test-helper');
+const Database = require('../utils/database');
 
 describe('Integration | steps.js', () => {
 
-  describe('restoreBackup', function() {
+  const databaseConfig = {
+    serverUrl: process.env.TEST_POSTGRES_URL || 'postgres://postgres@localhost',
+    databaseName: 'pix_replication_test',
+    tableName: 'test_table',
+    tableRowCount: 100000,
+  }
 
-    context('whatever options are provided', ()=> {
+  process.env.DATABASE_URL = `${databaseConfig.serverUrl}/${databaseConfig.databaseName}`;
 
-      before(async function() {
+  context('whatever options are provided', ()=> {
+    let database;
+    let backupFile;
+
+    before(async function() {
+      // given
+      database = await Database.create(databaseConfig);
+      backupFile = await createBackupAndCreateEmptyDatabase(database, {});
+
       // when
-        await createFillBackupAndRestoreDatabase({});
-      });
-
-      it('restores the data', async function() {
-      // then
-        const restoredRowCount = parseInt(await runSql(`SELECT COUNT(*) FROM ${TEST_TABLE_NAME}`));
-        expect(restoredRowCount).to.equal(TEST_TABLE_ROWS);
-      });
-
-      it('does not restore comments', async function() {
-      // then
-        const restoredComment = await runSql(`SELECT obj_description('${TEST_TABLE_NAME}'::regclass, 'pg_class')`);
-        expect(restoredComment).to.be.empty;
-      });
-
+      await steps.restoreBackup({ backupFile });
     });
 
-    context('according to environment variables', ()=>{
+    after(function() {
+      database.dropDatabase();
+    });
 
-      context('when some table restoration is disabled', ()=> {
+    it('restores the data', async function() {
+      // then
+      const restoredRowCount = parseInt(await database.runSql(`SELECT COUNT(*) FROM ${databaseConfig.tableName}`));
+      expect(restoredRowCount).to.equal(databaseConfig.tableRowCount);
+    });
 
-        before(async function() {
-          // given
-          process.env.RESTORE_ANSWERS_AND_KES = undefined;
-
-          // when
-          await createFillBackupAndRestoreDatabase({ createTablesNotToBeImported : true });
-        });
-
-        it('does not restore these tables', async function() {
-        // then
-          const isAnswersRestored = parseInt(await runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'answers\''));
-          expect(isAnswersRestored).to.equal(0);
-
-          // then
-          const isKnowledgeElementsRestored = parseInt(await runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-elements\''));
-          expect(isKnowledgeElementsRestored).to.equal(0);
-        });
-
-      });
-
-      context('when foreign key constraints restoration is enabled', ()=> {
-
-        before(async function() {
-          // given
-          process.env.RESTORE_FK_CONSTRAINTS = 'true';
-          // when
-          await createFillBackupAndRestoreDatabase({ createForeignKeys : true });
-        });
-
-        it('does restore these constraints', async function() {
-        // then
-          const areForeignKeysRestored = parseInt(await runSql('SELECT COUNT(1) FROM pg_constraint pgc  WHERE pgc.contype = \'f\''));
-          expect(areForeignKeysRestored).to.equal(1);
-        });
-
-      });
-
-      context('when foreign key constraints restoration is disabled', ()=> {
-
-        before(async function() {
-        // given
-          process.env.RESTORE_FK_CONSTRAINTS = 'false';
-          // when
-          await createFillBackupAndRestoreDatabase({ createForeignKeys : true });
-        });
-
-        it('does not restore foreign keys constraints', async function() {
-        // then
-          const areForeignKeysRestored = parseInt(await runSql('SELECT COUNT(1) FROM pg_constraint pgc  WHERE pgc.contype = \'f\''));
-          expect(areForeignKeysRestored).to.equal(0);
-        });
-
-      });
-
+    it('does not restore comments', async function() {
+      // then
+      const restoredComment = await database.runSql(`SELECT obj_description('${databaseConfig.tableName}'::regclass, 'pg_class')`);
+      expect(restoredComment).to.be.empty;
     });
 
   });
 
+  context('according to environment variables', ()=>{
+
+    context('when some table restoration is disabled', ()=> {
+
+      let database;
+      let backupFile;
+
+      before(async function() {
+        process.env.RESTORE_ANSWERS_AND_KES = undefined;
+        // given
+        database = await Database.create(databaseConfig);
+        backupFile = await createBackupAndCreateEmptyDatabase(database, {});
+
+        // when
+        await steps.restoreBackup({ backupFile });
+      });
+
+      after(function() {
+        database.dropDatabase();
+      });
+
+      it('does not restore these tables', async function() {
+        // then
+        const isAnswersRestored = parseInt(await database.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'answers\''));
+        expect(isAnswersRestored).to.equal(0);
+
+        // then
+        const isKnowledgeElementsRestored = parseInt(await database.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-elements\''));
+        expect(isKnowledgeElementsRestored).to.equal(0);
+      });
+
+    });
+
+    context('when foreign key constraints restoration is enabled', () => {
+      let database;
+      let backupFile;
+
+      before(async function() {
+        // given
+        process.env.RESTORE_FK_CONSTRAINTS = 'true';
+        database = await Database.create(databaseConfig);
+        backupFile = await createBackupAndCreateEmptyDatabase(database, { createForeignKeys: true });
+      });
+
+      after(function() {
+        database.dropDatabase();
+      });
+
+      it('does restore these constraints', async function() {
+        // when
+        await steps.restoreBackup({ backupFile });
+
+        // then
+        const areForeignKeysRestored = parseInt(await database.runSql('SELECT COUNT(1) FROM pg_constraint pgc  WHERE pgc.contype = \'f\''));
+        expect(areForeignKeysRestored).to.equal(1);
+      });
+
+    });
+
+    context('when foreign key constraints restoration is disabled', ()=> {
+      let database;
+      let backupFile;
+
+      before(async function() {
+        // given
+        process.env.RESTORE_FK_CONSTRAINTS = 'false';
+        database = await Database.create(databaseConfig);
+        backupFile = await createBackupAndCreateEmptyDatabase(database, {});
+
+        // when
+        await steps.restoreBackup({ backupFile });
+      });
+
+      after(function() {
+        database.dropDatabase();
+      });
+
+      it('does not restore foreign keys constraints', async function() {
+        // then
+        const areForeignKeysRestored = parseInt(await database.runSql('SELECT COUNT(1) FROM pg_constraint pgc  WHERE pgc.contype = \'f\''));
+        expect(areForeignKeysRestored).to.equal(0);
+      });
+    });
+  });
 });
