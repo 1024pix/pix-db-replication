@@ -53,7 +53,7 @@ Variables d'environnement :
  * `RESTORE_ANSWERS_AND_KES` : restaurer ou non les tables `answers` et `knowledge-elements`. Si non renseignée, ces tables ne sont pas restaurées. Si "true", ces tables sont restaurées.
  
   * `RESTORE_ANSWERS_AND_KES_INCREMENTALLY` : restaurer ou non les tables `answers` et `knowledge-elements` par incrément.
-   Si non renseignée ou false, ces tables sont supprimées à chaque restauration de dump.
+   Si non renseignée ou false, ces tables sont restaurées entièrement à chaque restauration de dump.
    Si renseignée à true, ces tables 
     - ne sont supprimées à chaque restauration de dump.
     - sont restaurées par incrément en recopiant les données via une connexion à la BDD source via COPY FROM/TO
@@ -162,3 +162,27 @@ S'il y a eu
 - une exécution incomplète (pas de message `Start restore` ou `Restore done`)
 
 Alors vous obtiendrez le message suivant `TypeError: Cannot read property '0' of null`
+
+
+## TODO
+
+Pour importer les dumps du répertoire `./data` :
+
+```
+pg_restore --verbose --no-owner -d postgresql://postgres@localhost:5431/replication_source ./data/source.pgsql
+pg_restore --verbose --no-owner -d postgresql://postgres@localhost:5432/replication_target ./data/target.pgsql
+```
+
+Penser à supprimer les contraintes sur les tables `answers` et `knowledge-elements` :
+
+```
+psql postgresql://postgres@localhost:5432/replication_target
+ALTER TABLE answers DROP CONSTRAINT answers_assessmentid_foreign;
+ALTER TABLE "knowledge-elements" DROP CONSTRAINT knowledge_elements_answerid_foreign;
+ALTER TABLE "knowledge-elements" DROP CONSTRAINT knowledge_elements_assessmentid_foreign;
+ALTER TABLE "knowledge-elements" DROP CONSTRAINT knowledge_elements_userid_foreign;
+```
+
+```
+node ./src/run-replicate-incrementally.js
+```
