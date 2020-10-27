@@ -149,16 +149,18 @@ function restoreBackup({ backupFile, databaseUrl }) {
   logger.info('Restore done');
 }
 
-async function downloadAndRestoreLatestBackup() {
+async function getScalingoBackup() {
   const addonId = await getPostgresAddonId();
   logger.info('Add-on ID: ' + addonId);
 
-  const backupId = getBackupId({ addonId });
+  const backupId = getBackupId({addonId});
   logger.info('Backup ID: ' + backupId);
 
-  const compressedBackup = downloadBackup({ addonId, backupId });
-  const backupFile = extractBackup({ compressedBackup });
+  const compressedBackup = downloadBackup({addonId, backupId});
+  return extractBackup({compressedBackup});
+}
 
+async function dropObjectAndRestoreBackup(backupFile) {
   if (process.env.RESTORE_ANSWERS_AND_KES_INCREMENTALLY && process.env.RESTORE_ANSWERS_AND_KES_INCREMENTALLY === 'true') {
     dropCurrentObjectsButKesAndAnswers();
   } else {
@@ -182,7 +184,10 @@ async function fullReplicationAndEnrichment() {
   let retriesAlarm;
   try {
     retriesAlarm = setRetriesTimeout(RETRIES_TIMEOUT_MINUTES);
-    await retryFunction(downloadAndRestoreLatestBackup, MAX_RETRY_COUNT);
+    await retryFunction(async ()=> {
+      const backup = await getScalingoBackup();
+      await dropObjectAndRestoreBackup(backup);
+    }, MAX_RETRY_COUNT);
   } finally {
     clearTimeout(retriesAlarm);
   }
@@ -214,7 +219,7 @@ function _filterObjectLines(objectLines) {
 
 module.exports = {
   addEnrichment,
-  downloadAndRestoreLatestBackup,
+  dropObjectAndRestoreBackup,
   downloadBackup,
   dropCurrentObjects,
   extractBackup,
