@@ -21,7 +21,7 @@ describe('Integration | steps.js', () => {
     before(async function() {
       // given
       database = await Database.create(databaseConfig);
-      backupFile = await createBackupAndCreateEmptyDatabase(database, {});
+      backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, {});
 
       // when
       await steps.restoreBackup({ backupFile });
@@ -56,7 +56,7 @@ describe('Integration | steps.js', () => {
         process.env.RESTORE_ANSWERS_AND_KES = undefined;
         // given
         database = await Database.create(databaseConfig);
-        backupFile = await createBackupAndCreateEmptyDatabase(database, {});
+        backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, {});
 
         // when
         await steps.restoreBackup({ backupFile });
@@ -86,7 +86,7 @@ describe('Integration | steps.js', () => {
         // given
         process.env.RESTORE_FK_CONSTRAINTS = 'true';
         database = await Database.create(databaseConfig);
-        backupFile = await createBackupAndCreateEmptyDatabase(database, { createForeignKeys: true });
+        backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, { createForeignKeys: true });
       });
 
       after(function() {
@@ -112,7 +112,7 @@ describe('Integration | steps.js', () => {
         // given
         process.env.RESTORE_FK_CONSTRAINTS = 'false';
         database = await Database.create(databaseConfig);
-        backupFile = await createBackupAndCreateEmptyDatabase(database, {});
+        backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, {});
 
         // when
         await steps.restoreBackup({ backupFile });
