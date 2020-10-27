@@ -149,15 +149,23 @@ function restoreBackup({ backupFile, databaseUrl }) {
   logger.info('Restore done');
 }
 
-async function downloadAndRestoreLatestBackup() {
-  const addonId = await getPostgresAddonId();
-  logger.info('Add-on ID: ' + addonId);
+async function downloadAndRestoreLatestBackup(localBackupFile) {
 
-  const backupId = getBackupId({ addonId });
-  logger.info('Backup ID: ' + backupId);
+  let backupFile;
 
-  const compressedBackup = downloadBackup({ addonId, backupId });
-  const backupFile = extractBackup({ compressedBackup });
+  if (process.NODE_ENV === 'production') {
+    const addonId = await getPostgresAddonId();
+    logger.info('Add-on ID: ' + addonId);
+
+    const backupId = getBackupId({ addonId });
+    logger.info('Backup ID: ' + backupId);
+
+    const compressedBackup = downloadBackup({ addonId, backupId });
+    backupFile = extractBackup({ compressedBackup });
+
+  } else {
+    backupFile = localBackupFile;
+  }
 
   if (process.env.RESTORE_ANSWERS_AND_KES_INCREMENTALLY && process.env.RESTORE_ANSWERS_AND_KES_INCREMENTALLY === 'true') {
     dropCurrentObjectsButKesAndAnswers();
