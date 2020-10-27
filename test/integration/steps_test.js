@@ -12,7 +12,7 @@ describe('Integration | steps.js', () => {
     tableRowCount: 100000,
   }
 
-  process.env.DATABASE_URL = `${databaseConfig.serverUrl}/${databaseConfig.databaseName}`;
+  databaseConfig.databaseUrl = `${databaseConfig.serverUrl}/${databaseConfig.databaseName}`;
 
   context('whatever options are provided', ()=> {
     let database;
@@ -24,14 +24,8 @@ describe('Integration | steps.js', () => {
       backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, {});
 
       // when
-      await steps.restoreBackup({ backupFile });
-    });
+      await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl });
 
-    after(function() {
-      database.dropDatabase();
-    });
-
-    it('restores the data', async function() {
       // then
       const restoredRowCount = parseInt(await database.runSql(`SELECT COUNT(*) FROM ${databaseConfig.tableName}`));
       expect(restoredRowCount).to.equal(databaseConfig.tableRowCount);
@@ -59,7 +53,7 @@ describe('Integration | steps.js', () => {
         backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, {});
 
         // when
-        await steps.restoreBackup({ backupFile });
+        await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl });
       });
 
       after(function() {
@@ -95,7 +89,7 @@ describe('Integration | steps.js', () => {
 
       it('does restore these constraints', async function() {
         // when
-        await steps.restoreBackup({ backupFile });
+        await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl });
 
         // then
         const areForeignKeysRestored = parseInt(await database.runSql('SELECT COUNT(1) FROM pg_constraint pgc  WHERE pgc.contype = \'f\''));
@@ -115,7 +109,7 @@ describe('Integration | steps.js', () => {
         backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, {});
 
         // when
-        await steps.restoreBackup({ backupFile });
+        await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl });
       });
 
       after(function() {

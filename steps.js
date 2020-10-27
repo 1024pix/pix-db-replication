@@ -128,8 +128,7 @@ function writeListFileForReplication({ backupFile }) {
   fs.writeFileSync(RESTORE_LIST_FILENAME, filteredObjectLines.join('\n'));
 }
 
-// TODO: injecter l'URL de la database en argument
-function restoreBackup({ backupFile }) {
+function restoreBackup({ backupFile, databaseUrl }) {
   logger.info('Start restore');
 
   try {
@@ -139,7 +138,7 @@ function restoreBackup({ backupFile }) {
       '--jobs', PG_RESTORE_JOBS,
       '--no-owner',
       '--use-list', RESTORE_LIST_FILENAME,
-      '-d', process.env.DATABASE_URL,
+      '-d', databaseUrl,
       backupFile
     ]);
 
@@ -166,7 +165,7 @@ async function downloadAndRestoreLatestBackup() {
     dropCurrentObjects();
   }
 
-  restoreBackup({ backupFile });
+  restoreBackup({ backupFile, databaseUrl: process.env.DATABASE_URL });
 }
 
 async function importAirtableData() {
