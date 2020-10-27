@@ -41,7 +41,7 @@ async function createTableToBeIndexed(database) {
 async function fillTables(database, databaseConfig) {
   try {
     await database.runSql(
-        `INSERT INTO ${databaseConfig.tableName}(id) SELECT x FROM generate_series(1, ${databaseConfig.tableRowCount}) s(x)`
+      `INSERT INTO ${databaseConfig.tableName}(id) SELECT x FROM generate_series(1, ${databaseConfig.tableRowCount}) s(x)`
     );
   } catch (err) {
     console.log(err);
@@ -50,8 +50,8 @@ async function fillTables(database, databaseConfig) {
 
 async function createTables(database, databaseConfig) {
   await database.runSql(
-      `CREATE TABLE ${databaseConfig.tableName}(id int NOT NULL PRIMARY KEY)`,
-      `COMMENT ON TABLE ${databaseConfig.tableName} IS 'test comment'`
+    `CREATE TABLE ${databaseConfig.tableName}(id int NOT NULL PRIMARY KEY)`,
+    `COMMENT ON TABLE ${databaseConfig.tableName} IS 'test comment'`
   );
 }
 module.exports = { createBackupAndCreateEmptyDatabase };
