@@ -63,4 +63,4 @@ async function createTables(database, databaseConfig) {
     `COMMENT ON TABLE ${databaseConfig.tableName} IS 'test comment'`
   );
 }
-module.exports = { createBackupAndCreateEmptyDatabase, createBackup };
+module.exports = { createBackupAndCreateEmptyDatabase, createAndFillDatabase, createBackup };
