@@ -13,3 +13,4 @@ steps.fullReplicationAndEnrichment()
     logger.error(error);
     process.exit(1);
   });
+

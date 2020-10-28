@@ -103,6 +103,7 @@ function downloadBackup({ addonId, backupId }) {
 }
 
 function extractBackup({ compressedBackup }) {
+  // MACOS: execSync('tar', [ 'xvzf', compressedBackup ]);
   execSync('tar', [ 'xvzf', compressedBackup, '--wildcards', '*.pgsql' ]);
   const backupFile = fs.readdirSync('.').find((f) => /.*\.pgsql$/.test(f));
   if (!backupFile) {
@@ -113,6 +114,11 @@ function extractBackup({ compressedBackup }) {
 
 function dropCurrentObjects() {
   execSync('psql', [ process.env.DATABASE_URL, '-c', 'DROP OWNED BY CURRENT_USER CASCADE' ]);
+}
+
+function dropCurrentObjectsButKesAndAnswers() {
+  const dropTableQuery = execSyncStdOut('psql', [ process.env.DATABASE_URL, '--tuples-only', '--command', 'select string_agg(\'drop table "\' || tablename || \'" CASCADE\', \'; \') from pg_tables where schemaname = \'public\' and tablename not in (\'knowledge-elements\', \'answers\');' ]);
+  execSync('psql', [ process.env.DATABASE_URL, '-c', dropTableQuery ]);
 }
 
 function writeListFileForReplication({ backupFile }) {
@@ -135,6 +141,7 @@ function restoreBackup({ backupFile }) {
       '-d', process.env.DATABASE_URL,
       backupFile
     ]);
+
   } finally {
     fs.unlinkSync(backupFile);
   }
@@ -152,8 +159,12 @@ async function downloadAndRestoreLatestBackup() {
   const compressedBackup = downloadBackup({ addonId, backupId });
   const backupFile = extractBackup({ compressedBackup });
 
-  dropCurrentObjects();
-
+  if (process.env.RESTORE_ANSWERS_AND_KES_INCREMENTALLY && process.env.RESTORE_ANSWERS_AND_KES_INCREMENTALLY === 'true') {
+    dropCurrentObjectsButKesAndAnswers();
+  } else {
+    dropCurrentObjects();
+  }
+  
   restoreBackup({ backupFile });
 }
 
