@@ -71,12 +71,41 @@ jobs:
           key: v1-api-npm-{{ checksum "cachekey" }}
           paths:
             - ~/.npm
+      - run :
+          name : Refresh package cache
+          command: |
+            sudo apt-get update
+      - run :
+          name : Install psql
+          command: |
+            sudo apt-get install postgresql-client
+      - run :
+          name: Check if psql is properly installed
+          command: |
+            psql --version
+      - run:
+          name: Waiting for PostgreSQL to start
+          command: |
+            for i in `seq 1 10`;
+            do
+              nc -z localhost 5432 && echo Success && exit 0
+              echo -n .
+              sleep 2
+            done
+            echo Failed waiting for Postgres && exit 1
+      - run :
+          name: Check psql connexion to database
+          command: |
+            psql --user circleci --host localhost --port 5432 --dbname circleci --echo-all --command='SELECT current_user;'
       - run:
           command: |
             npm run preinstall
       - run:
           command: |
             npm run lint
-            npm run test:ci
+            npm run test
           environment:
             TEST_DATABASE_URL: postgres://circleci@localhost:5432/circleci
+            DATABASE_URL: postgres://circleci@localhost:5432/circleci
+            TEST_POSTGRES_URL: postgres://circleci@localhost:5432
+            DATABASE_NAME: circleci
