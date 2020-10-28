@@ -8,7 +8,7 @@ describe('Integration | steps.js', () => {
   describe('#restoreBackup', () => {
 
     const databaseConfig = {
-      serverUrl: process.env.TEST_POSTGRES_URL || 'postgres://postgres@localhost',
+      serverUrl: 'postgres://pix_test@localhost:5432',
       databaseName: 'pix_replication_test',
       tableName: 'test_table',
       tableRowCount: 100000,
@@ -20,8 +20,8 @@ describe('Integration | steps.js', () => {
       let database;
       let backupFile;
 
-      before(async function() {
-      // given
+      it('does not restore comments', async function() {
+        // given
         database = await Database.create(databaseConfig);
         backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, {});
 
@@ -31,10 +31,8 @@ describe('Integration | steps.js', () => {
         // then
         const restoredRowCount = parseInt(await database.runSql(`SELECT COUNT(*) FROM ${databaseConfig.tableName}`));
         expect(restoredRowCount).to.equal(databaseConfig.tableRowCount);
-      });
 
-      it('does not restore comments', async function() {
-      // then
+        // then
         const restoredComment = await database.runSql(`SELECT obj_description('${databaseConfig.tableName}'::regclass, 'pg_class')`);
         expect(restoredComment).to.be.empty;
       });
@@ -161,36 +159,46 @@ describe('Integration | steps.js', () => {
   });
 
   describe('#dropObjectAndRestoreBackup', () => {
+    let sourceDatabase;
+    let targetDatabase;
+
+    const sourceDatabaseConfig = {
+      serverUrl: 'postgres://pix_test@localhost:5431',
+      databaseName: 'replication_source',
+      databaseUrl: 'postgres://pix_test@localhost:5431/replication_source',
+      tableName: 'test_table',
+      tableRowCount: 100000,
+    };
+
+    const targetDatabaseConfig = {
+      serverUrl: 'postgres://pix_test@localhost:5432',
+      databaseName: 'replication_target',
+      databaseUrl: 'postgres://pix_test@localhost:5432/replication_target',
+      tableName: 'test_table',
+      tableRowCount: 100000,
+    };
+
+    beforeEach(async () => {
+      sourceDatabase = await Database.create(sourceDatabaseConfig);
+      targetDatabase = await Database.create(targetDatabaseConfig);
+    })
+
+    afterEach(async () => {
+      sourceDatabase.dropDatabase();
+      targetDatabase.dropDatabase();
+    })
+
+    async function createBackUpFromSourceAndRestoreToTarget(sourceDatabase, sourceDatabaseConfig, targetDatabaseUrl) {
+      const backupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, {createTablesNotToBeImported: true});
+      await steps.restoreBackup({backupFile, databaseUrl: targetDatabaseUrl });
+    }
 
     it('if table restore is disabled and increment restore is enabled, should preserve data', async function() {
-
-      const aMinute = 1 * 1000 * 60;
-      this.timeout(aMinute);
-
-      const sourceDatabaseConfig = {
-        serverUrl: 'postgres://postgres@localhost:5431',
-        databaseName: 'replication_source',
-        databaseUrl: 'postgres://postgres@localhost:5431/replication_source',
-        tableName: 'test_table',
-        tableRowCount: 100000,
-      };
-      let sourceDatabase = await Database.create(sourceDatabaseConfig);
-
-      const targetDatabaseConfig = {
-        serverUrl: 'postgres://postgres@localhost:5432',
-        databaseName: 'replication_target',
-        databaseUrl: 'postgres://postgres@localhost:5432/replication_target',
-        tableName: 'test_table',
-        tableRowCount: 100000,
-      };
-      const targetDatabase = await Database.create(targetDatabaseConfig);
-
       // given
       process.env.RESTORE_ANSWERS_AND_KES = true;
       process.env.RESTORE_ANSWERS_AND_KES_INCREMENTALLY = undefined;
-      const firstDayBackupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true });
-      console.log('firstDayBackupFile: ' + firstDayBackupFile);
-      await steps.restoreBackup({ backupFile: firstDayBackupFile, databaseUrl: targetDatabaseConfig.databaseUrl });
+
+      await createBackUpFromSourceAndRestoreToTarget(sourceDatabase, sourceDatabaseConfig, targetDatabaseConfig.databaseUrl);
 
       const answersCountBefore = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM answers'));
       expect(answersCountBefore).not.to.equal(0);
@@ -217,9 +225,26 @@ describe('Integration | steps.js', () => {
       // then
       const knowledgeElementsCountAfter = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM "knowledge-elements"'));
       expect(knowledgeElementsCountBefore).to.equal(knowledgeElementsCountAfter);
+    });
 
+    it('should not fail when database contains plpgsql source', async function() {
+      // given
+      process.env.RESTORE_ANSWERS_AND_KES = true;
+      process.env.RESTORE_ANSWERS_AND_KES_INCREMENTALLY = undefined;
+
+      await createBackUpFromSourceAndRestoreToTarget(sourceDatabase, sourceDatabaseConfig, targetDatabaseConfig.databaseUrl);
+      
       await sourceDatabase.dropDatabase();
-      await targetDatabase.dropDatabase();
+      
+      sourceDatabase = await Database.create(sourceDatabaseConfig);
+
+      process.env.DATABASE_URL = targetDatabaseConfig.databaseUrl;
+      process.env.RESTORE_ANSWERS_AND_KES = false;
+      process.env.RESTORE_ANSWERS_AND_KES_INCREMENTALLY = true;
+      const secondDayBackupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true, createFunction: true });
+
+      // when
+      steps.dropObjectAndRestoreBackup(secondDayBackupFile);
     });
   });
 

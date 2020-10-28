@@ -11,7 +11,7 @@ const { add } = require('../../enrichment');
 describe('Integration | enrichment.js', () => {
 
   const databaseConfig = {
-    serverUrl: process.env.TEST_POSTGRES_URL || 'postgres://postgres@localhost',
+    serverUrl: 'postgres://pix_test@localhost:5432',
     databaseName: 'pix_replication_test',
     tableName: 'test_table',
     tableRowCount: 100000,

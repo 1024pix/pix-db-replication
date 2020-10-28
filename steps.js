@@ -118,7 +118,9 @@ function dropCurrentObjects() {
 
 function dropCurrentObjectsButKesAndAnswers() {
   const dropTableQuery = execSyncStdOut('psql', [ process.env.DATABASE_URL, '--tuples-only', '--command', 'select string_agg(\'drop table "\' || tablename || \'" CASCADE\', \'; \') from pg_tables where schemaname = \'public\' and tablename not in (\'knowledge-elements\', \'answers\');' ]);
+  const dropFunction = execSyncStdOut('psql', [ process.env.DATABASE_URL, '--tuples-only', '--command', 'select string_agg(\'drop function "\' || proname || \'"\', \'; \') FROM pg_proc pp INNER JOIN pg_roles pr ON pp.proowner = pr.oid WHERE pr.rolname = current_user AND pp.prokind = \'f\'' ]);
   execSync('psql', [ process.env.DATABASE_URL, '-c', dropTableQuery ]);
+  execSync('psql', [ process.env.DATABASE_URL, '-c', dropFunction ]);
 }
 
 function writeListFileForReplication({ backupFile }) {
@@ -153,14 +155,14 @@ async function getScalingoBackup() {
   const addonId = await getPostgresAddonId();
   logger.info('Add-on ID: ' + addonId);
 
-  const backupId = getBackupId({addonId});
+  const backupId = getBackupId({ addonId });
   logger.info('Backup ID: ' + backupId);
 
-  const compressedBackup = downloadBackup({addonId, backupId});
-  return extractBackup({compressedBackup});
+  const compressedBackup = downloadBackup({ addonId, backupId });
+  return extractBackup({ compressedBackup });
 }
 
-async function dropObjectAndRestoreBackup(backupFile) {
+function dropObjectAndRestoreBackup(backupFile) {
   if (process.env.RESTORE_ANSWERS_AND_KES_INCREMENTALLY && process.env.RESTORE_ANSWERS_AND_KES_INCREMENTALLY === 'true') {
     dropCurrentObjectsButKesAndAnswers();
   } else {
