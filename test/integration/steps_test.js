@@ -231,7 +231,6 @@ describe('Integration | steps.js', () => {
       process.env.RESTORE_ANSWERS_AND_KES_INCREMENTALLY = true;
       await sourceDatabase.createDatabase();
       const secondDayBackupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true });
-      console.log('secondDayBackupFile: ' + secondDayBackupFile);
 
       // when
       process.env.DATABASE_URL = targetDatabase._databaseUrl;

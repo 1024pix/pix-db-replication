@@ -6,6 +6,11 @@ const START_BACKUP = 'Backup ID:';
 const START_REPLICATION = 'Start restore';
 const START_ENRICHMENT = 'Restore done';
 
+function log(args) {
+  // eslint-disable-next-line no-console
+  console.log(args);
+}
+
 function _printPrettyTimeElapsedBetweenTwoDates(olderDate, date) {
   const secondsElapsed = _getSecondsElapsedBetweenTwoDates(olderDate, date);
   return _printPrettyTimeElapsed(secondsElapsed);
@@ -172,25 +177,25 @@ function _do(logLines) {
     fkConstraintItems,
   } = _categorizeAndSortByElapsed(foundItems);
 
-  console.log(`FK CONSTRAINT total duration : ${_printPrettyTimeElapsed(fkConstraintItems.totalElapsed)}`);
+  log(`FK CONSTRAINT total duration : ${_printPrettyTimeElapsed(fkConstraintItems.totalElapsed)}`);
   for (let i = 0; i < 3 && fkConstraintItems.operations.length > 0; ++i) {
-    console.log(`\t${fkConstraintItems.operations[i].operation} : ${_printPrettyTimeElapsed(fkConstraintItems.operations[i].elapsed)}`);
+    log(`\t${fkConstraintItems.operations[i].operation} : ${_printPrettyTimeElapsed(fkConstraintItems.operations[i].elapsed)}`);
   }
-  console.log(`CONSTRAINT total duration : ${_printPrettyTimeElapsed(constraintItems.totalElapsed)}`);
+  log(`CONSTRAINT total duration : ${_printPrettyTimeElapsed(constraintItems.totalElapsed)}`);
   for (let i = 0; i < 3 && constraintItems.operations.length > 0; ++i) {
-    console.log(`\t${constraintItems.operations[i].operation} : ${_printPrettyTimeElapsed(constraintItems.operations[i].elapsed)}`);
+    log(`\t${constraintItems.operations[i].operation} : ${_printPrettyTimeElapsed(constraintItems.operations[i].elapsed)}`);
   }
-  console.log(`INDEX total duration : ${_printPrettyTimeElapsed(indexItems.totalElapsed)}`);
+  log(`INDEX total duration : ${_printPrettyTimeElapsed(indexItems.totalElapsed)}`);
   for (let i = 0; i < 3 && indexItems.operations.length > 0; ++i) {
-    console.log(`\t${indexItems.operations[i].operation} : ${_printPrettyTimeElapsed(indexItems.operations[i].elapsed)}`);
+    log(`\t${indexItems.operations[i].operation} : ${_printPrettyTimeElapsed(indexItems.operations[i].elapsed)}`);
   }
-  console.log(`SEQUENCE total duration : ${_printPrettyTimeElapsed(sequenceItems.totalElapsed)}`);
+  log(`SEQUENCE total duration : ${_printPrettyTimeElapsed(sequenceItems.totalElapsed)}`);
   for (let i = 0; i < 3 && sequenceItems.operations.length > 0; ++i) {
-    console.log(`\t${sequenceItems.operations[i].operation} : ${_printPrettyTimeElapsed(sequenceItems.operations[i].elapsed)}`);
+    log(`\t${sequenceItems.operations[i].operation} : ${_printPrettyTimeElapsed(sequenceItems.operations[i].elapsed)}`);
   }
-  console.log(`TABLE DATA total duration : ${_printPrettyTimeElapsed(tableDataItems.totalElapsed)}`);
+  log(`TABLE DATA total duration : ${_printPrettyTimeElapsed(tableDataItems.totalElapsed)}`);
   for (let i = 0; i < 3 && tableDataItems.operations.length > 0; ++i) {
-    console.log(`\t${tableDataItems.operations[i].operation} : ${_printPrettyTimeElapsed(tableDataItems.operations[i].elapsed)}`);
+    log(`\t${tableDataItems.operations[i].operation} : ${_printPrettyTimeElapsed(tableDataItems.operations[i].elapsed)}`);
   }
 }
 
@@ -206,12 +211,13 @@ async function main() {
     const startReplicationTimestamp = _extractTimestampFromContent(logLines, START_REPLICATION);
     const startEnrichmentTimestamp = _extractTimestampFromContent(logLines, START_ENRICHMENT);
     const endTimestamp = _extractTimestampFromLogLine(logLines.slice(-1));
-    console.log(`Durée de récupération du backup: ${_printPrettyTimeElapsedBetweenTwoDates(startBackupTimestamp, startReplicationTimestamp)}`);
-    console.log(`Durée de réplication: ${_printPrettyTimeElapsedBetweenTwoDates(startReplicationTimestamp, startEnrichmentTimestamp)}`);
-    console.log(`Durée de l'enrichissement: ${_printPrettyTimeElapsedBetweenTwoDates(startEnrichmentTimestamp, endTimestamp)}`);
-    console.log(`Durée totale: ${_printPrettyTimeElapsedBetweenTwoDates(startBackupTimestamp, endTimestamp)}`);
+    log(`Durée de récupération du backup: ${_printPrettyTimeElapsedBetweenTwoDates(startBackupTimestamp, startReplicationTimestamp)}`);
+    log(`Durée de réplication: ${_printPrettyTimeElapsedBetweenTwoDates(startReplicationTimestamp, startEnrichmentTimestamp)}`);
+    log(`Durée de l'enrichissement: ${_printPrettyTimeElapsedBetweenTwoDates(startEnrichmentTimestamp, endTimestamp)}`);
+    log(`Durée totale: ${_printPrettyTimeElapsedBetweenTwoDates(startBackupTimestamp, endTimestamp)}`);
     _do(logLines);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('\n', error);
     process.exit(1);
   }
@@ -221,6 +227,7 @@ if (require.main === module) {
   main().then(
     () => process.exit(0),
     (err) => {
+      // eslint-disable-next-line no-console
       console.error(err);
       process.exit(1);
     },

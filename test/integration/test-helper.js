@@ -59,13 +59,9 @@ async function createTableToBeIndexed(database) {
 }
 
 async function fillTables(database, databaseConfig) {
-  try {
-    await database.runSql(
-      `INSERT INTO ${databaseConfig.tableName}(id) SELECT x FROM generate_series(1, ${databaseConfig.tableRowCount}) s(x)`
-    );
-  } catch (err) {
-    console.log(err);
-  }
+  await database.runSql(
+    `INSERT INTO ${databaseConfig.tableName}(id) SELECT x FROM generate_series(1, ${databaseConfig.tableRowCount}) s(x)`
+  );
 }
 
 async function createTables(database, databaseConfig) {

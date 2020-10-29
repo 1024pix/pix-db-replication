@@ -22,6 +22,7 @@ async function importAndDump() {
     return [ t, (await db.query(`SELECT * FROM ${t}`)).rows ];
   })));
   const result = _.fromPairs(results);
+  // eslint-disable-next-line no-console
   console.dir(result, { depth: 3 });
 }
 
