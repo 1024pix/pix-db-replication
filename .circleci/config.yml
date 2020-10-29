@@ -54,7 +54,7 @@ jobs:
   build_and_test:
     docker:
       - image: circleci/node:14.15.0
-      - image: postgres:12.3-alpine
+      - image: postgres:12.4-alpine
         environment:
           POSTGRES_USER: circleci
           POSTGRES_HOST_AUTH_METHOD: trust
