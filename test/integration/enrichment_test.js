@@ -1,8 +1,7 @@
 const { expect } = require('chai');
+const pgUrlParser = require('pg-connection-string').parse;
 
-const TEST_POSTGRES_URL = process.env.TEST_POSTGRES_URL || 'postgres://postgres@localhost';
-const TEST_DB_NAME = 'pix_replication_test';
-process.env.DATABASE_URL  = `${TEST_POSTGRES_URL}/${TEST_DB_NAME}`;
+const DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://postgres@localhost:5432/replication_target';
 
 const { createAndFillDatabase } = require('./test-helper');
 const Database = require('../utils/database');
@@ -10,9 +9,11 @@ const { add } = require('../../enrichment');
 
 describe('Integration | enrichment.js', () => {
 
+  const config = pgUrlParser(DATABASE_URL);
+
   const databaseConfig = {
-    serverUrl: 'postgres://pix_test@localhost:5432',
-    databaseName: 'pix_replication_test',
+    serverUrl: `postgres://${config.user}@${config.host}:${config.port}`,
+    databaseName: config.database,
     tableName: 'test_table',
     tableRowCount: 100000,
   };
@@ -21,19 +22,23 @@ describe('Integration | enrichment.js', () => {
 
   describe('add', function() {
 
-    context('whatever options are provided', ()=> {
+    context('whatever options are provided', () => {
       let database;
 
-      before(async function() {
-        process.env.DATABASE_URL = databaseConfig.databaseUrl;
-        database = await Database.create(databaseConfig);
+      afterEach(() => {
+        delete process.env.DATABASE_URL;
+        database.dropDatabase();
       });
 
       it('create index users_createdAt_idx', async function() {
+
         // given
-        await createAndFillDatabase(database, databaseConfig, {});
+        database = await Database.create(databaseConfig);
+        await createAndFillDatabase(database, databaseConfig, { createTablesNotToBeImported: true });
+        process.env.RESTORE_ANSWERS_AND_KES_INCREMENTALLY = 'true';
 
         // when
+        process.env.DATABASE_URL = databaseConfig.databaseUrl;
         await add();
 
         // then
@@ -42,6 +47,16 @@ describe('Integration | enrichment.js', () => {
       });
 
       it('create view students', async function() {
+
+        // given
+        database = await Database.create(databaseConfig);
+        await createAndFillDatabase(database, databaseConfig, { createTablesNotToBeImported: true });
+        process.env.RESTORE_ANSWERS_AND_KES_INCREMENTALLY = 'true';
+
+        // when
+        process.env.DATABASE_URL = databaseConfig.databaseUrl;
+        await add();
+
         // then
         const viewCount = parseInt(await database.runSql('SELECT COUNT(1) FROM pg_views vws WHERE vws.viewname = \'students\';'));
         expect(viewCount).to.equal(1);
@@ -49,20 +64,22 @@ describe('Integration | enrichment.js', () => {
 
     });
 
-    context('according to environment variables', ()=>{
+    context('according to environment variables', () => {
       let database;
 
-      before(async function() {
-        process.env.DATABASE_URL = databaseConfig.databaseUrl;
-        database = await Database.create(databaseConfig);
+      afterEach(() => {
+        delete process.env.DATABASE_URL;
+        database.dropDatabase();
       });
 
       it('does create these indexes', async function() {
         // given
-        process.env.RESTORE_ANSWERS_AND_KES = 'true';
+        database = await Database.create(databaseConfig);
         await createAndFillDatabase(database, databaseConfig, { createTablesNotToBeImported : true });
+        process.env.RESTORE_ANSWERS_AND_KES = 'true';
 
         // when
+        process.env.DATABASE_URL = databaseConfig.databaseUrl;
         await add();
 
         // then
