@@ -181,16 +181,16 @@ describe('Integration | steps.js', () => {
     beforeEach(async () => {
       sourceDatabase = await Database.create(sourceDatabaseConfig);
       targetDatabase = await Database.create(targetDatabaseConfig);
-    })
+    });
 
     afterEach(async () => {
       sourceDatabase.dropDatabase();
       targetDatabase.dropDatabase();
-    })
+    });
 
     async function createBackUpFromSourceAndRestoreToTarget(sourceDatabase, sourceDatabaseConfig, targetDatabaseUrl) {
-      const backupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, {createTablesNotToBeImported: true});
-      await steps.restoreBackup({backupFile, databaseUrl: targetDatabaseUrl });
+      const backupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true });
+      await steps.restoreBackup({ backupFile, databaseUrl: targetDatabaseUrl });
     }
 
     it('if table restore is disabled and increment restore is enabled, should preserve data', async function() {
