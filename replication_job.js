@@ -1,16 +1,19 @@
 require('dotenv').config();
 
-const cron = require('node-cron');
 const steps = require('./steps');
 const logger = require('./logger');
 
+const CronJob = require('cron').CronJob;
+const parisTimezone = 'Europe/Paris';
+
 steps.scalingoSetup();
 
-cron.schedule(process.env.SCHEDULE, async () => {
+new CronJob(process.env.SCHEDULE, async function() {
   try {
     await steps.fullReplicationAndEnrichment();
   } catch (error) {
     logger.error(error);
     process.exit(1);
   }
-});
+}, null, true, parisTimezone);
+
