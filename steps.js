@@ -113,6 +113,7 @@ function extractBackup({ compressedBackup }) {
 }
 
 function dropCurrentObjects() {
+  // TODO: pass DATABASE_URL by argument
   execSync('psql', [ process.env.DATABASE_URL, ' --echo-all', 'ON_ERROR_STOP=1', '--command', 'DROP OWNED BY CURRENT_USER CASCADE' ]);
 }
 
@@ -135,6 +136,7 @@ function restoreBackup({ backupFile, databaseUrl }) {
 
   try {
     writeListFileForReplication({ backupFile });
+    // TODO: pass DATABASE_URL by argument
     execSync('pg_restore', [
       '--verbose',
       '--jobs', PG_RESTORE_JOBS,
