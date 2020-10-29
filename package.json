@@ -12,6 +12,7 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
+    "preinstall": "npx check-engine",
     "test": "NODE_ENV=test mocha --exit --recursive --reporter=dot -- -timeout 600000",
     "test:ci": "NODE_ENV=test mocha --exit --recursive --reporter=dot ./test/unit"
   },
@@ -27,6 +28,7 @@
   "dependencies": {
     "airtable": "^0.10.0",
     "bunyan": "^1.8.14",
+    "check-engine": "^1.9.0",
     "cron": "^1.8.2",
     "dotenv": "^8.2.0",
     "execa": "^4.0.3",
