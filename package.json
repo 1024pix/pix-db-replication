@@ -27,6 +27,7 @@
   "dependencies": {
     "airtable": "^0.10.0",
     "bunyan": "^1.8.14",
+    "cron": "^1.8.2",
     "dotenv": "^8.2.0",
     "execa": "^4.0.3",
     "node-cron": "^2.0.3",
