@@ -103,6 +103,7 @@ function downloadBackup({ addonId, backupId }) {
 }
 
 function extractBackup({ compressedBackup }) {
+  // MACOS: execSync('tar', [ 'xvzf', compressedBackup ]);
   execSync('tar', [ 'xvzf', compressedBackup, '--wildcards', '*.pgsql' ]);
   const backupFile = fs.readdirSync('.').find((f) => /.*\.pgsql$/.test(f));
   if (!backupFile) {
@@ -115,6 +116,13 @@ function dropCurrentObjects() {
   execSync('psql', [ process.env.DATABASE_URL, '-c', 'DROP OWNED BY CURRENT_USER CASCADE' ]);
 }
 
+function dropCurrentObjectsButKesAndAnswers() {
+  const dropTableQuery = execSyncStdOut('psql', [ process.env.DATABASE_URL, '--tuples-only', '--command', 'select string_agg(\'drop table "\' || tablename || \'" CASCADE\', \'; \') from pg_tables where schemaname = \'public\' and tablename not in (\'knowledge-elements\', \'answers\');' ]);
+  const dropFunction = execSyncStdOut('psql', [ process.env.DATABASE_URL, '--tuples-only', '--command', 'select string_agg(\'drop function "\' || proname || \'"\', \'; \') FROM pg_proc pp INNER JOIN pg_roles pr ON pp.proowner = pr.oid WHERE pr.rolname = current_user AND pp.prokind = \'f\'' ]);
+  execSync('psql', [ process.env.DATABASE_URL, '-c', dropTableQuery ]);
+  execSync('psql', [ process.env.DATABASE_URL, '-c', dropFunction ]);
+}
+
 function writeListFileForReplication({ backupFile }) {
   const backupObjectList = execSyncStdOut('pg_restore', [ backupFile, '-l' ]);
   const backupObjectLines = backupObjectList.split('\n');
@@ -122,7 +130,7 @@ function writeListFileForReplication({ backupFile }) {
   fs.writeFileSync(RESTORE_LIST_FILENAME, filteredObjectLines.join('\n'));
 }
 
-function restoreBackup({ backupFile }) {
+function restoreBackup({ backupFile, databaseUrl }) {
   logger.info('Start restore');
 
   try {
@@ -132,9 +140,10 @@ function restoreBackup({ backupFile }) {
       '--jobs', PG_RESTORE_JOBS,
       '--no-owner',
       '--use-list', RESTORE_LIST_FILENAME,
-      '-d', process.env.DATABASE_URL,
+      '-d', databaseUrl,
       backupFile
     ]);
+
   } finally {
     fs.unlinkSync(backupFile);
   }
@@ -142,7 +151,7 @@ function restoreBackup({ backupFile }) {
   logger.info('Restore done');
 }
 
-async function downloadAndRestoreLatestBackup() {
+async function getScalingoBackup() {
   const addonId = await getPostgresAddonId();
   logger.info('Add-on ID: ' + addonId);
 
@@ -150,11 +159,17 @@ async function downloadAndRestoreLatestBackup() {
   logger.info('Backup ID: ' + backupId);
 
   const compressedBackup = downloadBackup({ addonId, backupId });
-  const backupFile = extractBackup({ compressedBackup });
+  return extractBackup({ compressedBackup });
+}
 
-  dropCurrentObjects();
+function dropObjectAndRestoreBackup(backupFile) {
+  if (process.env.RESTORE_ANSWERS_AND_KES_INCREMENTALLY && process.env.RESTORE_ANSWERS_AND_KES_INCREMENTALLY === 'true') {
+    dropCurrentObjectsButKesAndAnswers();
+  } else {
+    dropCurrentObjects();
+  }
 
-  restoreBackup({ backupFile });
+  restoreBackup({ backupFile, databaseUrl: process.env.DATABASE_URL });
 }
 
 async function importAirtableData() {
@@ -171,7 +186,10 @@ async function fullReplicationAndEnrichment() {
   let retriesAlarm;
   try {
     retriesAlarm = setRetriesTimeout(RETRIES_TIMEOUT_MINUTES);
-    await retryFunction(downloadAndRestoreLatestBackup, MAX_RETRY_COUNT);
+    await retryFunction(async ()=> {
+      const backup = await getScalingoBackup();
+      await dropObjectAndRestoreBackup(backup);
+    }, MAX_RETRY_COUNT);
   } finally {
     clearTimeout(retriesAlarm);
   }
@@ -203,7 +221,7 @@ function _filterObjectLines(objectLines) {
 
 module.exports = {
   addEnrichment,
-  downloadAndRestoreLatestBackup,
+  dropObjectAndRestoreBackup,
   downloadBackup,
   dropCurrentObjects,
   extractBackup,
