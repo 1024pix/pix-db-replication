@@ -68,3 +68,5 @@ rules:
     - "error"
   no-console:
     - "error"
+  arrow-spacing:
+    - "error"
