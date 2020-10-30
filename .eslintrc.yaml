@@ -66,3 +66,7 @@ rules:
     - "error"
   space-infix-ops:
     - "error"
+  no-console:
+    - "error"
+  arrow-spacing:
+    - "error"

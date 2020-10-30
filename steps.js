@@ -186,7 +186,7 @@ async function fullReplicationAndEnrichment() {
   let retriesAlarm;
   try {
     retriesAlarm = setRetriesTimeout(RETRIES_TIMEOUT_MINUTES);
-    await retryFunction(async ()=> {
+    await retryFunction(async () => {
       const backup = await getScalingoBackup();
       await dropObjectAndRestoreBackup(backup);
     }, MAX_RETRY_COUNT);

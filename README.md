@@ -26,44 +26,22 @@ Afin de garder un seul repository partagé par les applications, utiliser les va
 Ce projet est prévu pour être déployé sur une application Scalingo associée à
 une base de donnée PostgreSQL.
 
-## Déploiement application
+## Paramétrage
+Voir le fichier [sample.env](sample.env)
 
-Pour satisfaire les contraintes de déploiement Scalingo, le `Procfile` déclare un conteneur de type `web` qui démarre un serveur Web "vide".
+## Déploiement sur Scalingo
+
+Pour satisfaire les contraintes de déploiement Scalingo, le [Procfile](Procfile) déclare un conteneur de type `web` qui démarre un serveur Web "vide".
  
 Une fois l'application créée et déployée une première fois, il faut: 
 - mettre à 0 le nombre de conteneurs de type `web` 
 - mettre à 1 le nombre de conteneurs de type `background`.
 
-## Paramétrage
-
-Variables d'environnement :
-
- * `SCALINGO_APP` : cette variable est utilisée automatiquement par l'outil CLI de Scalingo, et doit contenir le nom de l'application portant la base de données _source_ (`pix-api-production` typiquement).
-
- * `SCALINGO_API_TOKEN` : cette variable est utilisée automatiquement par l'outil CLI de Scalingo pour l'authentification, et doit être renseignée avec un _token_ d'utilisateur Scalingo étant collaborateur de l'application désignée par `SCALINGO_APP`.
-
- * `SCHEDULE` : une chaîne au format `cron` (interprétée par https://www.npmjs.com/package/node-cron) qui spécifie la fréquence à laquelle l'opération de réplication doit être exécutée. Exemple : `10 5 * * *` correspond à une exécution quotidienne à 5h10 UTC.
-
- * `DATABASE_URL` : URL d'accès à la base _cible_ qui sera écrasée et alimentée depuis le _backup_ à chaque exécution. Cette variable est en principe automatiquement alimentée par Scalingo lors de l'ajout d'une base PostgreSQL.
-
- * `MAX_RETRY_COUNT` : cette variable est utilisée pour indiquer le nombre maximum de tentative de rejeux
-
- * `RESTORE_FK_CONSTRAINTS` : restaurer ou non les contraintes de clés étrangères. Si non renseignée, les contraintes de clés étrangères ne sont pas restaurées. Si "true", les contraintes de clés étrangères sont restaurées.
-
- * `RESTORE_ANSWERS_AND_KES` : restaurer ou non les tables `answers` et `knowledge-elements`. Si non renseignée, ces tables ne sont pas restaurées. Si "true", ces tables sont restaurées.
- 
-  * `RESTORE_ANSWERS_AND_KES_INCREMENTALLY` : restaurer ou non les tables `answers` et `knowledge-elements` par incrément.
-   Si non renseignée ou false, ces tables sont restaurées entièrement à chaque restauration de dump.
-   Si renseignée à true, ces tables 
-    - ne sont supprimées à chaque restauration de dump.
-    - sont restaurées par incrément en recopiant les données via une connexion à la BDD source via COPY FROM/TO
-   
-  * `SOURCE_DATABASE_URL` : Si `RESTORE_ANSWERS_AND_KES_INCREMENTALLY = true`, URL de la BDD depuis laquelle seront récupérées les données 
-
-
 ## Exécution hors tâche planifiée
 
-Une opération de réplication peut être lancée immédiatement (hors tâche planifiée) en exécutant le script `run.js` dans un conteneur individuel Scalingo :
+Un traitement peut être lancé immédiatement (hors tâche planifiée) en exécutant un script dédié un conteneur one-off 
+
+### réplication complète
 
 Sur la BDD destinée aux internes
     $ scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-production --size M --detached node run.js
@@ -71,12 +49,41 @@ Sur la BDD destinée aux internes
 Sur la BDD destinée aux externes
     $ scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-ex-production --size M --detached node run.js
     
+### réplication incrémentale
+
+Sur la BDD destinée aux internes
+`scalingo run --region osc-secnum-fr1 -a <NOM_APPLICATION> --size M --detached node ./src/run-replicate-incrementally.js`    
+    
 ## Développement et exécution en local
+
+### réplication complète
 
 Certaines étapes de la procédure de réplication sont spécifiques à l'environnement Scalingo et pas pertinentes à exécuter en local lors du développement sur le script. 
 Un exemple d'exécution d'une partie des étapes, en supposant un _backup_ déjà téléchargé et un serveur PostgreSQL disponible en local:
 
-    $ DATABASE_URL=postgres://postgres@localhost/pix_restore node -e "steps=require('./steps'); steps.dropCurrentObjects(); steps.restoreBackup({compressedBackup:'backup.tar.gz'})"
+`node -e "require('dotenv').config(); steps=require('./steps'); steps.dropObjectAndRestoreBackup('./data/source.pgsql')"`
+
+### réplication incrémentale
+
+#### Initialiser l'environnement
+
+Importer les dumps du répertoire `./data` :
+```
+pg_restore --verbose --no-owner -d postgresql://postgres@localhost:5431/replication_source ./data/source.pgsql
+pg_restore --verbose --no-owner -d postgresql://postgres@localhost:5432/replication_target ./data/target.pgsql
+```
+
+Supprimer les FK sortantes des tables à copier
+```
+psql postgresql://postgres@localhost:5432/replication_target
+ALTER TABLE answers DROP CONSTRAINT "answers_assessmentid_foreign";
+ALTER TABLE "knowledge-elements" DROP CONSTRAINT "knowledge_elements_answerid_foreign";
+ALTER TABLE "knowledge-elements" DROP CONSTRAINT "knowledge_elements_assessmentid_foreign";
+ALTER TABLE "knowledge-elements" DROP CONSTRAINT "knowledge_elements_userid_foreign";
+```
+
+#### Exécuter
+`node ./src/run-replicate-incrementally.js`
 
 ## Tests
 
@@ -163,26 +170,3 @@ S'il y a eu
 
 Alors vous obtiendrez le message suivant `TypeError: Cannot read property '0' of null`
 
-
-## TODO
-
-Pour importer les dumps du répertoire `./data` :
-
-```
-pg_restore --verbose --no-owner -d postgresql://postgres@localhost:5431/replication_source ./data/source.pgsql
-pg_restore --verbose --no-owner -d postgresql://postgres@localhost:5432/replication_target ./data/target.pgsql
-```
-
-Penser à supprimer les contraintes sur les tables `answers` et `knowledge-elements` :
-
-```
-psql postgresql://postgres@localhost:5432/replication_target
-ALTER TABLE answers DROP CONSTRAINT answers_assessmentid_foreign;
-ALTER TABLE "knowledge-elements" DROP CONSTRAINT knowledge_elements_answerid_foreign;
-ALTER TABLE "knowledge-elements" DROP CONSTRAINT knowledge_elements_assessmentid_foreign;
-ALTER TABLE "knowledge-elements" DROP CONSTRAINT knowledge_elements_userid_foreign;
-```
-
-```
-node ./src/run-replicate-incrementally.js
-```
