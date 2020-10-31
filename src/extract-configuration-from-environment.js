@@ -1,3 +1,5 @@
+/* eslint no-process-env: "off" */
+
 module.exports = function() {
 
   const extractInteger = function(arg) {
