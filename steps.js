@@ -222,19 +222,10 @@ function _filterObjectLines(objectLines) {
 }
 
 module.exports = {
-  addEnrichment,
   dropObjectAndRestoreBackup,
-  downloadBackup,
-  dropCurrentObjects,
-  extractBackup,
   fullReplicationAndEnrichment,
-  getBackupId,
-  getPostgresAddonId,
   importAirtableData,
-  installPostgresClient,
-  installScalingoCli,
   restoreBackup,
   retryFunction,
-  setupPath,
   scalingoSetup,
 };
