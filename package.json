@@ -38,6 +38,7 @@
     "chai": "^4.2.0",
     "eslint": "^7.11.0",
     "eslint-plugin-mocha": "^8.0.0",
+    "eslint-plugin-yaml": "^0.3.0",
     "mocha": "^8.2.0",
     "pg-connection-string": "^2.4.0",
     "sinon": "^9.2.0",
