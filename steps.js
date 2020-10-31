@@ -174,8 +174,8 @@ function dropObjectAndRestoreBackup(backupFile, configuration) {
   restoreBackup({ backupFile, databaseUrl: configuration.DATABASE_URL });
 }
 
-async function importAirtableData() {
-  await airtableData.fetchAndSaveData();
+async function importAirtableData(configuration) {
+  await airtableData.fetchAndSaveData(configuration);
 }
 
 async function addEnrichment() {
@@ -199,7 +199,7 @@ async function fullReplicationAndEnrichment() {
     clearTimeout(retriesAlarm);
   }
 
-  await importAirtableData();
+  await importAirtableData(configuration);
 
   await addEnrichment();
 

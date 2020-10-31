@@ -86,23 +86,23 @@ const tables = [{
 }
 ];
 
-async function fetchAndSaveData() {
+async function fetchAndSaveData(configuration) {
   await Promise.all(tables.map(async (table) => {
-    const data = await _getItems(table);
-    await _dropTable(table.name);
-    await _createTable(table);
-    await _saveItems(table, data);
+    const data = await _getItems(table, configuration);
+    await _dropTable(table.name, configuration);
+    await _createTable(table, configuration);
+    await _saveItems(table, data, configuration);
   }));
 }
 
-async function _dropTable(tableName) {
+async function _dropTable(tableName, configuration) {
   return runDBOperation(async (client) => {
     const dropQuery = `DROP TABLE IF EXISTS ${format.ident(tableName)} CASCADE`;
     await client.query(dropQuery);
-  });
+  }, configuration);
 }
 
-async function _createTable(table) {
+async function _createTable(table, configuration) {
   await runDBOperation(async (client) => {
     const fieldsText = ['"id" text PRIMARY KEY'].concat(table.fields.map((field) => {
       return format('\t%I\t%s', field.name, field.type + (field.type === 'boolean' ? ' NOT NULL' : ''));
@@ -113,24 +113,24 @@ async function _createTable(table) {
       const indexQuery = format ('CREATE INDEX %I on %I (%I)', `${table.name}_${index}_idx`, table.name, index);
       await client.query(indexQuery);
     }
-  });
+  }, configuration);
 }
 
-async function _saveItems(table, items) {
+async function _saveItems(table, items, configuration) {
   await runDBOperation(async (client) => {
     const fields = ['id'].concat(table.fields.map((field) => field.name));
     const values = items.map((item) => fields.map((field) => item[field]));
     const saveQuery = format('INSERT INTO %I (%I) VALUES %L', table.name, fields, values);
     await client.query(saveQuery);
-  });
+  }, configuration);
 }
 
-function _initAirtable() {
-  return new Airtable({ apiKey: process.env.AIRTABLE_KEY }).base(process.env.AIRTABLE_BASE);
+function _initAirtable(configuration) {
+  return new Airtable({ apiKey: configuration.AIRTABLE_API_KEY }).base(configuration.AIRTABLE_BASE);
 }
 
-async function _getItems(structure) {
-  const base = _initAirtable();
+async function _getItems(structure, configuration) {
+  const base = _initAirtable(configuration);
   const fields = structure.fields;
   const airtableFields = _.compact(fields.map((field) => field.airtableName));
   if (structure.airtableId) {
