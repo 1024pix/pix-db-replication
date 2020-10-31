@@ -20,7 +20,7 @@ function _printPrettyTimeElapsed(secondsElapsed) {
   const hours = Math.trunc(secondsElapsed / 60 / 60);
   const secondsMinusHours = secondsElapsed - (hours * 60 * 60);
   const minutes = Math.trunc(secondsMinusHours / 60);
-  const seconds = Math.round(secondsMinusHours - (minutes * 60), 0);
+  const seconds = Math.round(secondsMinusHours - (minutes * 60));
   return `${hours}h ${minutes}min ${seconds}s`;
 }
 
