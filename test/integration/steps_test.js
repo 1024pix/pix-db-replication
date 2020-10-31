@@ -266,8 +266,8 @@ describe('Integration | steps.js', () => {
       const secondDayBackupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true });
 
       // when
-      process.env.DATABASE_URL = targetDatabase._databaseUrl;
-      await steps.dropObjectAndRestoreBackup(secondDayBackupFile);
+      const configuration = { RESTORE_ANSWERS_AND_KES_INCREMENTALLY : 'true', DATABASE_URL : targetDatabase._databaseUrl };
+      await steps.dropObjectAndRestoreBackup(secondDayBackupFile, configuration);
 
       // then
       const answersCountAfter = parseInt(await targetDatabase.runSql('SELECT  COUNT(1) FROM answers'));
@@ -337,8 +337,8 @@ describe('Integration | steps.js', () => {
       const secondDayBackupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true, createFunction: true });
 
       // when
-      process.env.DATABASE_URL = targetDatabaseConfig.databaseUrl;
-      steps.dropObjectAndRestoreBackup(secondDayBackupFile);
+      const configuration = { RESTORE_ANSWERS_AND_KES_INCREMENTALLY : 'true', DATABASE_URL : targetDatabase._databaseUrl };
+      steps.dropObjectAndRestoreBackup(secondDayBackupFile, configuration);
     });
   });
 

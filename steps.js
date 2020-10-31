@@ -4,10 +4,10 @@
 // https://www.npmjs.com/package/dotenv#usage
 require('dotenv').config();
 
+const extractConfigurationFromEnvironment = require ('./src/extract-configuration-from-environment');
+
 const PG_CLIENT_VERSION = process.env.PG_CLIENT_VERSION || '12';
 const PG_RESTORE_JOBS = parseInt(process.env.PG_RESTORE_JOBS, 10) || 4;
-const MAX_RETRY_COUNT = parseInt(process.env.MAX_RETRY_COUNT, 10) || 10;
-const RETRIES_TIMEOUT_MINUTES = parseInt(process.env.RETRIES_TIMEOUT_MINUTES, 10) || 180;
 
 const execa = require('execa');
 const fs = require('fs');
@@ -112,16 +112,16 @@ function extractBackup({ compressedBackup }) {
   return backupFile;
 }
 
-function dropCurrentObjects() {
+function dropCurrentObjects(configuration) {
   // TODO: pass DATABASE_URL by argument
-  execSync('psql', [ process.env.DATABASE_URL, ' --echo-all', 'ON_ERROR_STOP=1', '--command', 'DROP OWNED BY CURRENT_USER CASCADE' ]);
+  execSync('psql', [ configuration.DATABASE_URL, ' --echo-all', 'ON_ERROR_STOP=1', '--command', 'DROP OWNED BY CURRENT_USER CASCADE' ]);
 }
 
-function dropCurrentObjectsButKesAndAnswers() {
-  const dropTableQuery = execSyncStdOut('psql', [ process.env.DATABASE_URL, '--tuples-only', '--command', 'select string_agg(\'drop table "\' || tablename || \'" CASCADE\', \'; \') from pg_tables where schemaname = \'public\' and tablename not in (\'knowledge-elements\', \'answers\');' ]);
-  const dropFunction = execSyncStdOut('psql', [ process.env.DATABASE_URL, '--tuples-only', '--command', 'select string_agg(\'drop function "\' || proname || \'"\', \'; \') FROM pg_proc pp INNER JOIN pg_roles pr ON pp.proowner = pr.oid WHERE pr.rolname = current_user ' ]);
-  execSync('psql', [ process.env.DATABASE_URL, 'ON_ERROR_STOP=1', '--echo-all' , '--command', dropTableQuery ]);
-  execSync('psql', [ process.env.DATABASE_URL, 'ON_ERROR_STOP=1', '--echo-all' , '--command', dropFunction ]);
+function dropCurrentObjectsButKesAndAnswers(configuration) {
+  const dropTableQuery = execSyncStdOut('psql', [ configuration.DATABASE_URL, '--tuples-only', '--command', 'select string_agg(\'drop table "\' || tablename || \'" CASCADE\', \'; \') from pg_tables where schemaname = \'public\' and tablename not in (\'knowledge-elements\', \'answers\');' ]);
+  const dropFunction = execSyncStdOut('psql', [ configuration.DATABASE_URL, '--tuples-only', '--command', 'select string_agg(\'drop function "\' || proname || \'"\', \'; \') FROM pg_proc pp INNER JOIN pg_roles pr ON pp.proowner = pr.oid WHERE pr.rolname = current_user ' ]);
+  execSync('psql', [ configuration.DATABASE_URL, 'ON_ERROR_STOP=1', '--echo-all' , '--command', dropTableQuery ]);
+  execSync('psql', [ configuration.DATABASE_URL, 'ON_ERROR_STOP=1', '--echo-all' , '--command', dropFunction ]);
 }
 
 function writeListFileForReplication({ backupFile }) {
@@ -164,14 +164,14 @@ async function getScalingoBackup() {
   return extractBackup({ compressedBackup });
 }
 
-function dropObjectAndRestoreBackup(backupFile) {
-  if (process.env.RESTORE_ANSWERS_AND_KES_INCREMENTALLY && process.env.RESTORE_ANSWERS_AND_KES_INCREMENTALLY === 'true') {
-    dropCurrentObjectsButKesAndAnswers();
+function dropObjectAndRestoreBackup(backupFile, configuration) {
+  if (configuration.RESTORE_ANSWERS_AND_KES_INCREMENTALLY && configuration.RESTORE_ANSWERS_AND_KES_INCREMENTALLY === 'true') {
+    dropCurrentObjectsButKesAndAnswers(configuration);
   } else {
-    dropCurrentObjects();
+    dropCurrentObjects(configuration);
   }
 
-  restoreBackup({ backupFile, databaseUrl: process.env.DATABASE_URL });
+  restoreBackup({ backupFile, databaseUrl: configuration.DATABASE_URL });
 }
 
 async function importAirtableData() {
@@ -183,15 +183,18 @@ async function addEnrichment() {
 }
 
 async function fullReplicationAndEnrichment() {
+
+  const configuration = extractConfigurationFromEnvironment();
+
   logger.info('Start replication and enrichment');
 
   let retriesAlarm;
   try {
-    retriesAlarm = setRetriesTimeout(RETRIES_TIMEOUT_MINUTES);
+    retriesAlarm = setRetriesTimeout(configuration.RETRIES_TIMEOUT_MINUTES);
     await retryFunction(async () => {
       const backup = await getScalingoBackup();
-      await dropObjectAndRestoreBackup(backup);
-    }, MAX_RETRY_COUNT);
+      await dropObjectAndRestoreBackup(backup, configuration);
+    }, configuration.MAX_RETRY_COUNT);
   } finally {
     clearTimeout(retriesAlarm);
   }
