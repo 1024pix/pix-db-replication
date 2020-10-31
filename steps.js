@@ -178,8 +178,8 @@ async function importAirtableData(configuration) {
   await airtableData.fetchAndSaveData(configuration);
 }
 
-async function addEnrichment() {
-  await enrichment.add();
+async function addEnrichment(configuration) {
+  await enrichment.add(configuration);
 }
 
 async function fullReplicationAndEnrichment() {
@@ -201,7 +201,7 @@ async function fullReplicationAndEnrichment() {
 
   await importAirtableData(configuration);
 
-  await addEnrichment();
+  await addEnrichment(configuration);
 
   logger.info('Full replication and enrichment done');
 }
