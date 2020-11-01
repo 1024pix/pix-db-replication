@@ -1,5 +1,3 @@
-/* eslint no-process-env: "off" */
-
 const { expect } = require('chai');
 const pgUrlParser = require('pg-connection-string').parse;
 const Database = require('../utils/database');
@@ -12,7 +10,10 @@ describe('Integration | replicate-incrementally.js', () => {
 
   describe('run', function() {
 
+    // CircleCI set up environment variables to access DB, so we need to read them here
+    // eslint-disable-next-line no-process-env
     const SOURCE_DATABASE_URL = process.env.SOURCE_DATABASE_URL || 'postgres://pix@localhost:5432/replication_source';
+    // eslint-disable-next-line no-process-env
     const TARGET_DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://pix@localhost:5432/replication_target';
 
     let sourceDatabase;
@@ -79,8 +80,14 @@ describe('Integration | replicate-incrementally.js', () => {
         const backupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true });
 
         targetDatabase = await Database.create(targetDatabaseConfig);
+
+        // TODO: do not use production code to setup environment
+        // TODO: refactor restoreBackup to pass configuration by argument
+        // eslint-disable-next-line no-process-env
         process.env.RESTORE_ANSWERS_AND_KES = 'true';
+        // eslint-disable-next-line no-process-env
         process.env.RESTORE_FK_CONSTRAINTS = 'false';
+        // eslint-disable-next-line no-process-env
         delete process.env.RESTORE_ANSWERS_AND_KES_INCREMENTALLY;
         await steps.restoreBackup({ backupFile, databaseUrl: targetDatabaseConfig.databaseUrl });
 
@@ -114,8 +121,14 @@ describe('Integration | replicate-incrementally.js', () => {
         const backupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true });
 
         targetDatabase = await Database.create(targetDatabaseConfig);
+
+        // TODO: do not use production code to setup environment
+        // TODO: refactor restoreBackup to pass configuration by argument
+        // eslint-disable-next-line no-process-env
         process.env.RESTORE_ANSWERS_AND_KES = 'true';
+        // eslint-disable-next-line no-process-env
         process.env.RESTORE_FK_CONSTRAINTS = 'false';
+        // eslint-disable-next-line no-process-env
         delete process.env.RESTORE_ANSWERS_AND_KES_INCREMENTALLY;
         await steps.restoreBackup({ backupFile, databaseUrl: targetDatabaseConfig.databaseUrl });
 
