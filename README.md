@@ -113,11 +113,14 @@ $ scalingo -a pix-api-review-pr1973 pgsql-console
 
 Lancer un backup (ou ne rien faire, le dernier est utilisé par défaut)
 
+Déterminer le nom de l'application, ex.pix-datawarehouse-pr47
+NOM_APPLICATION=pix-datawarehouse-pr47
+
 Lancer l'import du backup 
-$ scalingo run --region osc-fr1 --app pix-db-replication --size S --detached node run.js
+$ scalingo run --region osc-fr1 --app $NOM_APPLICATION --size S --detached node run.js
 
 Vérifier le résultat
-$ scalingo -a pix-db-replication pgsql-console
+$ scalingo --app $NOM_APPLICATION pgsql-console
 `SELECT id, email FROM "users" LIMIT 5;`
 
 ### Automatisés
