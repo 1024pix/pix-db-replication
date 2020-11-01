@@ -353,4 +353,44 @@ describe('Integration | steps.js', () => {
     });
   });
 
+  describe('#importAirtableData', () => {
+
+    let database;
+    let targetDatabaseConfig;
+    const AIRTABLE_API_KEY = 'keyblo10ZCvCqBAJg';
+    const AIRTABLE_BASE =  'app3fvsqhtHJntXaC';
+
+    before(async() => {
+
+      // CircleCI set up environment variables to access DB, so we need to read them here
+      // eslint-disable-next-line no-process-env
+      const TARGET_DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://pix@localhost:5432/replication_target';
+      const rawTargetDataBaseConfig = pgUrlParser(TARGET_DATABASE_URL);
+
+      targetDatabaseConfig = {
+        serverUrl: `postgres://${rawTargetDataBaseConfig.user}@${rawTargetDataBaseConfig.host}:${rawTargetDataBaseConfig.port}`,
+        databaseName: rawTargetDataBaseConfig.database,
+        tableName: 'test_table',
+        tableRowCount: 100000,
+      };
+
+      targetDatabaseConfig.databaseUrl = `${targetDatabaseConfig.serverUrl}/${targetDatabaseConfig.databaseName}`;
+
+      database = await Database.create(targetDatabaseConfig);
+    });
+
+    it('should import data', async function() {
+
+      // when
+      const configuration = { AIRTABLE_API_KEY, AIRTABLE_BASE, DATABASE_URL: targetDatabaseConfig.databaseUrl };
+      await steps.importAirtableData(configuration);
+
+      // then
+      const competenceRowCount = parseInt(await database.runSql('SELECT COUNT(*) FROM competences'));
+      expect(competenceRowCount).to.be.above(0);
+
+    });
+
+  });
+
 });
