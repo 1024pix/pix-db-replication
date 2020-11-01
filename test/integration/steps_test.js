@@ -36,9 +36,10 @@ describe('Integration | steps.js', () => {
         // given
         database = await Database.create(databaseConfig);
         const backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, {});
+        const configuration = { RESTORE_FK_CONSTRAINTS: 'false' };
 
         // when
-        await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl });
+        steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl, configuration });
 
         // then
         const restoredRowCount = parseInt(await database.runSql(`SELECT COUNT(*) FROM ${databaseConfig.tableName}`));
@@ -65,13 +66,13 @@ describe('Integration | steps.js', () => {
 
           it('should not restore these tables', async function() {
 
-            process.env.RESTORE_ANSWERS_AND_KES = undefined;
             // given
             database = await Database.create(databaseConfig);
             const backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, { createTablesNotToBeImported: true });
+            const configuration = { RESTORE_ANSWERS_AND_KES: undefined, RESTORE_FK_CONSTRAINTS: 'false' };
 
             // when
-            await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl });
+            await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl, configuration });
 
             // then
             const isAnswersRestored = parseInt(await database.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'answers\''));
@@ -98,10 +99,10 @@ describe('Integration | steps.js', () => {
             // given
             database = await Database.create(databaseConfig);
             const backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, { createTablesNotToBeImported: true });
+            const configuration = { RESTORE_ANSWERS_AND_KES: 'true', RESTORE_FK_CONSTRAINTS: 'false' };
 
             // when
-            process.env.RESTORE_ANSWERS_AND_KES = true;
-            await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl });
+            await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl, configuration });
 
             // then
             const isAnswersRestored = parseInt(await database.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'answers\''));
@@ -130,9 +131,10 @@ describe('Integration | steps.js', () => {
             process.env.RESTORE_FK_CONSTRAINTS = 'true';
             database = await Database.create(databaseConfig);
             const backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, { createForeignKeys: true });
+            const configuration = {  RESTORE_FK_CONSTRAINTS: 'true' };
 
             // when
-            await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl });
+            await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl, configuration });
 
             // then
             const areForeignKeysRestored = parseInt(await database.runSql('SELECT COUNT(1) FROM pg_constraint pgc  WHERE pgc.contype = \'f\''));
@@ -151,12 +153,12 @@ describe('Integration | steps.js', () => {
           it('should not restore keys constraints', async function() {
 
             // given
-            process.env.RESTORE_FK_CONSTRAINTS = 'false';
             database = await Database.create(databaseConfig);
             const backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, { createForeignKeys: true });
+            const configuration = { RESTORE_FK_CONSTRAINTS: 'false' };
 
             // when
-            await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl });
+            await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl, configuration });
 
             // then
             const areForeignKeysRestored = parseInt(await database.runSql('SELECT COUNT(1) FROM pg_constraint pgc  WHERE pgc.contype = \'f\''));
@@ -238,19 +240,17 @@ describe('Integration | steps.js', () => {
       targetDatabase = await Database.create(targetDatabaseConfig);
     });
 
-    async function createBackUpFromSourceAndRestoreToTarget(sourceDatabase, sourceDatabaseConfig, targetDatabaseUrl) {
+    async function createBackUpFromSourceAndRestoreToTarget(sourceDatabase, sourceDatabaseConfig, targetDatabaseUrl, configuration) {
       const backupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true });
-      await steps.restoreBackup({ backupFile, databaseUrl: targetDatabaseUrl });
+      await steps.restoreBackup({ backupFile, databaseUrl: targetDatabaseUrl, configuration });
     }
 
     it('if backup restore is disabled and increment restore is enabled on specific tables, should preserve data', async function() {
       // given
 
       // Day 1
-      process.env.RESTORE_ANSWERS_AND_KES = true;
-      process.env.RESTORE_ANSWERS_AND_KES_INCREMENTALLY = undefined;
-
-      await createBackUpFromSourceAndRestoreToTarget(sourceDatabase, sourceDatabaseConfig, targetDatabaseConfig.databaseUrl);
+      const firstDayConfiguration = { RESTORE_ANSWERS_AND_KES : 'true' };
+      await createBackUpFromSourceAndRestoreToTarget(sourceDatabase, sourceDatabaseConfig, targetDatabaseConfig.databaseUrl, firstDayConfiguration);
 
       const answersCountBefore = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM answers'));
       expect(answersCountBefore).not.to.equal(0);
@@ -268,8 +268,8 @@ describe('Integration | steps.js', () => {
       const secondDayBackupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true });
 
       // when
-      const configuration = { RESTORE_ANSWERS_AND_KES_INCREMENTALLY : 'true', DATABASE_URL : targetDatabase._databaseUrl };
-      await steps.dropObjectAndRestoreBackup(secondDayBackupFile, configuration);
+      const secondDayConfiguration = { RESTORE_ANSWERS_AND_KES_INCREMENTALLY : 'true', DATABASE_URL : targetDatabase._databaseUrl };
+      await steps.dropObjectAndRestoreBackup(secondDayBackupFile, secondDayConfiguration);
 
       // then
       const answersCountAfter = parseInt(await targetDatabase.runSql('SELECT  COUNT(1) FROM answers'));
@@ -327,20 +327,22 @@ describe('Integration | steps.js', () => {
       // given
 
       // Day 1
-      process.env.RESTORE_ANSWERS_AND_KES = true;
-      process.env.RESTORE_ANSWERS_AND_KES_INCREMENTALLY = undefined;
-      await createBackUpFromSourceAndRestoreToTarget(sourceDatabase, sourceDatabaseConfig, targetDatabaseConfig.databaseUrl);
+      const firstDayTargetConfiguration = { RESTORE_ANSWERS_AND_KES : 'true' };
+      await createBackUpFromSourceAndRestoreToTarget(sourceDatabase, sourceDatabaseConfig, targetDatabaseConfig.databaseUrl, firstDayTargetConfiguration);
       await sourceDatabase.dropDatabase();
 
       // Day 2
-      process.env.RESTORE_ANSWERS_AND_KES = false;
-      process.env.RESTORE_ANSWERS_AND_KES_INCREMENTALLY = true;
       sourceDatabase = await Database.create(sourceDatabaseConfig);
       const secondDayBackupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true, createFunction: true });
+      const secondDayTargetConfiguration = { RESTORE_ANSWERS_AND_KES_INCREMENTALLY : 'true', DATABASE_URL : targetDatabase._databaseUrl };
+
+      const dropObjectAndRestoreBackupWithArguments = function() {
+        steps.dropObjectAndRestoreBackup(secondDayBackupFile, secondDayTargetConfiguration);
+      };
 
       // when
-      const configuration = { RESTORE_ANSWERS_AND_KES_INCREMENTALLY : 'true', DATABASE_URL : targetDatabase._databaseUrl };
-      steps.dropObjectAndRestoreBackup(secondDayBackupFile, configuration);
+      // then
+      expect(dropObjectAndRestoreBackupWithArguments).not.to.throw;
     });
   });
 

@@ -1,6 +1,0 @@
-extends:
-  - '../../.eslintrc.yaml'
-
-rules:
-  no-process-env:
-    - "error"

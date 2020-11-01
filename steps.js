@@ -124,18 +124,18 @@ function dropCurrentObjectsButKesAndAnswers(configuration) {
   execSync('psql', [ configuration.DATABASE_URL, 'ON_ERROR_STOP=1', '--echo-all' , '--command', dropFunction ]);
 }
 
-function writeListFileForReplication({ backupFile }) {
+function writeListFileForReplication({ backupFile, configuration }) {
   const backupObjectList = execSyncStdOut('pg_restore', [ backupFile, '-l' ]);
   const backupObjectLines = backupObjectList.split('\n');
-  const filteredObjectLines = _filterObjectLines(backupObjectLines);
+  const filteredObjectLines = _filterObjectLines(backupObjectLines, configuration);
   fs.writeFileSync(RESTORE_LIST_FILENAME, filteredObjectLines.join('\n'));
 }
 
-function restoreBackup({ backupFile, databaseUrl }) {
+function restoreBackup({ backupFile, databaseUrl, configuration }) {
   logger.info('Start restore');
 
   try {
-    writeListFileForReplication({ backupFile });
+    writeListFileForReplication({ backupFile, configuration });
     // TODO: pass DATABASE_URL by argument
     execSync('pg_restore', [
       '--verbose',
@@ -171,7 +171,7 @@ function dropObjectAndRestoreBackup(backupFile, configuration) {
     dropCurrentObjects(configuration);
   }
 
-  restoreBackup({ backupFile, databaseUrl: configuration.DATABASE_URL });
+  restoreBackup({ backupFile, databaseUrl: configuration.DATABASE_URL, configuration });
 }
 
 async function importAirtableData(configuration) {
@@ -206,9 +206,9 @@ async function fullReplicationAndEnrichment() {
   logger.info('Full replication and enrichment done');
 }
 
-function _filterObjectLines(objectLines) {
-  const restoreFkConstraints = process.env.RESTORE_FK_CONSTRAINTS === 'true';
-  const restoreAnswersAndKes = process.env.RESTORE_ANSWERS_AND_KES === 'true';
+function _filterObjectLines(objectLines, configuration) {
+  const restoreFkConstraints = configuration.RESTORE_FK_CONSTRAINTS === 'true';
+  const restoreAnswersAndKes = configuration.RESTORE_ANSWERS_AND_KES === 'true';
   let filteredObjectLines = objectLines
     .filter((line) => !/ COMMENT /.test(line));
   if (!restoreFkConstraints) {
