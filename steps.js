@@ -1,9 +1,5 @@
 'use strict';
 
-// As early as possible in your application, require and configure dotenv.
-// https://www.npmjs.com/package/dotenv#usage
-require('dotenv').config();
-
 const execa = require('execa');
 const fs = require('fs');
 const retry = require('p-retry');
