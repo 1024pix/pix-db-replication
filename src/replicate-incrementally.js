@@ -1,7 +1,7 @@
 'use strict';
 
 const { execSync } = require('child_process');
-const extractConfigurationFromEnvironment = require ('./extract-configuration-from-environment');
+
 
 const execa = require('execa');
 const logger = require('../logger');
@@ -10,9 +10,7 @@ function execSyncStdOut(cmd, args) {
   return execa.sync(cmd, args, { stderr: 'inherit' }).stdout;
 }
 
-function run() {
-
-  const configuration = extractConfigurationFromEnvironment();
+function run(configuration) {
 
   if (!configuration.RESTORE_ANSWERS_AND_KES_INCREMENTALLY || configuration.RESTORE_ANSWERS_AND_KES_INCREMENTALLY === 'false') {
     return;

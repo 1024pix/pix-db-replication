@@ -54,11 +54,10 @@ describe('Integration | replicate-incrementally.js', () => {
         const knowledgeElementsCountBefore = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM "knowledge-elements"'));
         expect(knowledgeElementsCountBefore).not.to.equal(0);
 
+        const configuration = { SOURCE_DATABASE_URL : SOURCE_DATABASE_URL, TARGET_DATABASE_URL :TARGET_DATABASE_URL };
+
         // when
-        process.env.SOURCE_DATABASE_URL = SOURCE_DATABASE_URL;
-        process.env.TARGET_DATABASE_URL = TARGET_DATABASE_URL;
-        delete process.env.RESTORE_ANSWERS_AND_KES_INCREMENTALLY;
-        await run();
+        run(configuration);
 
         // then
         const knowledgeElementsCountAfter = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM "knowledge-elements"'));
@@ -93,15 +92,15 @@ describe('Integration | replicate-incrementally.js', () => {
         await createAndFillDatabase(targetDatabase, targetDatabaseConfig, { createTablesNotToBeImported: true });
         await targetDatabase.runSql('DELETE FROM answers');
 
-        delete process.env.RESTORE_ANSWERS_AND_KES;
-        delete process.env.RESTORE_FK_CONSTRAINTS;
-        process.env.RESTORE_ANSWERS_AND_KES_INCREMENTALLY = 'true';
+        const configuration = { SOURCE_DATABASE_URL : SOURCE_DATABASE_URL, TARGET_DATABASE_URL :TARGET_DATABASE_URL, RESTORE_ANSWERS_AND_KES_INCREMENTALLY : 'true' };
 
-        // when - then
-        process.env.SOURCE_DATABASE_URL = SOURCE_DATABASE_URL;
-        process.env.TARGET_DATABASE_URL = TARGET_DATABASE_URL;
+        // when
+        const runWithConfiguration = function() {
+          run(configuration);
+        };
 
-        expect(run).to.throw('Answers table must not be empty on target database');
+        // then
+        expect(runWithConfiguration).to.throw('Answers table must not be empty on target database');
       });
 
       it('should copy all missing values', async function() {
@@ -134,14 +133,11 @@ describe('Integration | replicate-incrementally.js', () => {
         await sourceDatabase.runSql('INSERT INTO "knowledge-elements"  (id, "userId", "createdAt") VALUES (2, 2, CURRENT_TIMESTAMP)');
         await sourceDatabase.runSql('INSERT INTO "knowledge-elements"  (id, "userId", "createdAt") VALUES (3, 2, CURRENT_TIMESTAMP)');
 
-        delete process.env.RESTORE_ANSWERS_AND_KES;
-        delete process.env.RESTORE_FK_CONSTRAINTS;
-        process.env.RESTORE_ANSWERS_AND_KES_INCREMENTALLY = 'true';
+        // given
+        const configuration = { SOURCE_DATABASE_URL : SOURCE_DATABASE_URL, TARGET_DATABASE_URL :TARGET_DATABASE_URL, RESTORE_ANSWERS_AND_KES_INCREMENTALLY : 'true' };
 
         // when
-        process.env.SOURCE_DATABASE_URL = SOURCE_DATABASE_URL;
-        process.env.TARGET_DATABASE_URL = TARGET_DATABASE_URL;
-        await run();
+        run(configuration);
 
         // then
         const answersCountAfter = parseInt(await targetDatabase.runSql('SELECT  COUNT(1) FROM answers'));
