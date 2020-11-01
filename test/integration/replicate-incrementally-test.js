@@ -1,3 +1,5 @@
+/* eslint no-process-env: "off" */
+
 const { expect } = require('chai');
 const pgUrlParser = require('pg-connection-string').parse;
 const Database = require('../utils/database');

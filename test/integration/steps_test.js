@@ -1,3 +1,5 @@
+/* eslint no-process-env: "off" */
+
 const { expect } = require('chai');
 const steps = require('../../steps');
 const { createBackupAndCreateEmptyDatabase, createBackup } = require('./test-helper');
