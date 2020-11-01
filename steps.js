@@ -4,9 +4,6 @@
 // https://www.npmjs.com/package/dotenv#usage
 require('dotenv').config();
 
-const PG_CLIENT_VERSION = process.env.PG_CLIENT_VERSION || '12';
-const PG_RESTORE_JOBS = parseInt(process.env.PG_RESTORE_JOBS, 10) || 4;
-
 const execa = require('execa');
 const fs = require('fs');
 const retry = require('p-retry');
@@ -48,6 +45,7 @@ function retryFunction(fn, maxRetryCount) {
 // dbclient-fetch assumes $HOME/bin is in the PATH
 function setupPath() {
   shellSync('mkdir -p "$HOME/bin"');
+  // eslint-disable-next-line no-process-env
   process.env.PATH = process.env.HOME + '/bin' + ':' + process.env.PATH;
 }
 
@@ -55,14 +53,14 @@ function installScalingoCli() {
   shellSync('curl -Ss -O https://cli-dl.scalingo.io/install && bash install --yes --install-dir "$HOME/bin"');
 }
 
-function installPostgresClient() {
-  execSync('dbclient-fetcher', [ 'pgsql', PG_CLIENT_VERSION ]);
+function installPostgresClient(configuration) {
+  execSync('dbclient-fetcher', [ 'pgsql', configuration.PG_CLIENT_VERSION ]);
 }
 
-function scalingoSetup() {
+function scalingoSetup(configuration) {
   setupPath();
   installScalingoCli();
-  installPostgresClient();
+  installPostgresClient(configuration);
 }
 
 function getPostgresAddonId() {
@@ -137,7 +135,7 @@ function restoreBackup({ backupFile, databaseUrl, configuration }) {
     // TODO: pass DATABASE_URL by argument
     execSync('pg_restore', [
       '--verbose',
-      '--jobs', PG_RESTORE_JOBS,
+      '--jobs', configuration.PG_RESTORE_JOBS,
       '--no-owner',
       '--use-list', RESTORE_LIST_FILENAME,
       `--dbname=${databaseUrl}`,

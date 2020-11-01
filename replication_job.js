@@ -9,7 +9,7 @@ const parisTimezone = 'Europe/Paris';
 const extractConfigurationFromEnvironment = require ('./src/extract-configuration-from-environment');
 const configuration = extractConfigurationFromEnvironment();
 
-steps.scalingoSetup();
+steps.scalingoSetup(configuration);
 
 new CronJob(configuration.SCHEDULE, async function() {
   try {

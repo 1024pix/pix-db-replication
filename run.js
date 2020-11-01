@@ -6,7 +6,7 @@ const steps = require('./steps');
 const extractConfigurationFromEnvironment = require ('./src/extract-configuration-from-environment');
 const configuration = extractConfigurationFromEnvironment();
 
-steps.scalingoSetup();
+steps.scalingoSetup(configuration);
 
 steps.fullReplicationAndEnrichment(configuration)
   .then(() => {
