@@ -57,7 +57,7 @@ describe('Integration | replicate-incrementally.js', () => {
         const knowledgeElementsCountBefore = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM "knowledge-elements"'));
         expect(knowledgeElementsCountBefore).not.to.equal(0);
 
-        const configuration = { SOURCE_DATABASE_URL : SOURCE_DATABASE_URL, TARGET_DATABASE_URL :TARGET_DATABASE_URL };
+        const configuration = { SOURCE_DATABASE_URL : SOURCE_DATABASE_URL, TARGET_DATABASE_URL : TARGET_DATABASE_URL, PG_RESTORE_JOBS: 4 };
 
         // when
         run(configuration);
@@ -82,15 +82,7 @@ describe('Integration | replicate-incrementally.js', () => {
         targetDatabase = await Database.create(targetDatabaseConfig);
 
         // TODO: do not use production code to setup environment
-        // TODO: refactor restoreBackup to pass configuration by argument
-        // eslint-disable-next-line no-process-env
-        process.env.RESTORE_ANSWERS_AND_KES = 'true';
-        // eslint-disable-next-line no-process-env
-        process.env.RESTORE_FK_CONSTRAINTS = 'false';
-        // eslint-disable-next-line no-process-env
-        delete process.env.RESTORE_ANSWERS_AND_KES_INCREMENTALLY;
-
-        const firstDayConfiguration = { RESTORE_ANSWERS_AND_KES : 'true', RESTORE_FK_CONSTRAINTS : 'false', RESTORE_ANSWERS_AND_KES_INCREMENTALLY : undefined };
+        const firstDayConfiguration = { RESTORE_ANSWERS_AND_KES : 'true', RESTORE_FK_CONSTRAINTS : 'false', RESTORE_ANSWERS_AND_KES_INCREMENTALLY : undefined, PG_RESTORE_JOBS: 4 };
         await steps.restoreBackup({ backupFile, databaseUrl: targetDatabaseConfig.databaseUrl, configuration: firstDayConfiguration });
 
         // Day 2
@@ -103,7 +95,10 @@ describe('Integration | replicate-incrementally.js', () => {
         await createAndFillDatabase(targetDatabase, targetDatabaseConfig, { createTablesNotToBeImported: true });
         await targetDatabase.runSql('DELETE FROM answers');
 
-        const configuration = { SOURCE_DATABASE_URL : SOURCE_DATABASE_URL, TARGET_DATABASE_URL :TARGET_DATABASE_URL, RESTORE_ANSWERS_AND_KES_INCREMENTALLY : 'true' };
+        const configuration = { SOURCE_DATABASE_URL : SOURCE_DATABASE_URL,
+          TARGET_DATABASE_URL :TARGET_DATABASE_URL,
+          RESTORE_ANSWERS_AND_KES_INCREMENTALLY : 'true',
+          PG_RESTORE_JOBS: 4 };
 
         // when
         const runWithConfiguration = function() {
@@ -125,7 +120,7 @@ describe('Integration | replicate-incrementally.js', () => {
         targetDatabase = await Database.create(targetDatabaseConfig);
 
         // TODO: do not use production code to setup environment
-        const firstDayConfiguration = { RESTORE_ANSWERS_AND_KES : 'true', RESTORE_FK_CONSTRAINTS : 'false', RESTORE_ANSWERS_AND_KES_INCREMENTALLY : undefined };
+        const firstDayConfiguration = { RESTORE_ANSWERS_AND_KES : 'true', RESTORE_FK_CONSTRAINTS : 'false', RESTORE_ANSWERS_AND_KES_INCREMENTALLY : undefined, PG_RESTORE_JOBS: 4 };
         await steps.restoreBackup({ backupFile, databaseUrl: targetDatabaseConfig.databaseUrl, configuration: firstDayConfiguration });
 
         const answersCountBefore = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM answers'));
@@ -145,7 +140,7 @@ describe('Integration | replicate-incrementally.js', () => {
         await sourceDatabase.runSql('INSERT INTO "knowledge-elements"  (id, "userId", "createdAt") VALUES (3, 2, CURRENT_TIMESTAMP)');
 
         // given
-        const configuration = { SOURCE_DATABASE_URL : SOURCE_DATABASE_URL, TARGET_DATABASE_URL :TARGET_DATABASE_URL, RESTORE_ANSWERS_AND_KES_INCREMENTALLY : 'true' };
+        const configuration = { SOURCE_DATABASE_URL : SOURCE_DATABASE_URL, TARGET_DATABASE_URL :TARGET_DATABASE_URL, RESTORE_ANSWERS_AND_KES_INCREMENTALLY : 'true', PG_RESTORE_JOBS: 4 };
 
         // when
         run(configuration);
