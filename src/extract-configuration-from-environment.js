@@ -6,6 +6,10 @@ module.exports = function() {
     return parseInt(arg, 10);
   };
 
+  if (!process.env.NODE_ENV || process.env.NODE_ENV !== 'production' || process.env.NODE_ENV !== 'test') {
+    require('dotenv').config();
+  }
+
   return {
     PG_CLIENT_VERSION : process.env.PG_CLIENT_VERSION || 12,
     RETRIES_TIMEOUT_MINUTES : extractInteger(process.env.RETRIES_TIMEOUT_MINUTES) || 180,

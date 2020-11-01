@@ -1,5 +1,3 @@
-require('dotenv').config();
-
 const CronJob = require('cron').CronJob;
 const parisTimezone = 'Europe/Paris';
 

@@ -1,5 +1,3 @@
-require('dotenv').config();
-
 const logger = require('../logger');
 const runner = require('./replicate-incrementally');
 

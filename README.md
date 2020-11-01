@@ -30,6 +30,7 @@ une base de donnée PostgreSQL.
 Voir le fichier [sample.env](sample.env)
 
 ## Déploiement sur Scalingo
+Alimenter les variables d'environnement documentées dans le fichier [sample.env](sample.env)
 
 Pour satisfaire les contraintes de déploiement Scalingo, le [Procfile](Procfile) déclare un conteneur de type `web` qui démarre un serveur Web "vide".
  
@@ -73,12 +74,22 @@ Checking versions...
  Environment looks good!
 ```
 
+## Paramétrage
+Créer un fichier `.env` à partir du fichier [sample.env](sample.env)
+
 ### réplication complète
 
-Certaines étapes de la procédure de réplication sont spécifiques à l'environnement Scalingo et pas pertinentes à exécuter en local lors du développement sur le script. 
-Un exemple d'exécution d'une partie des étapes, en supposant un _backup_ déjà téléchargé et un serveur PostgreSQL disponible en local:
+Elle débute par le téléchargent du backup d'une application Scalingo distante.
+Elle ne peut pas être exécutée en local (utilisation du binaire `dbclient-fetcher` disponible uniquement sur Scalingo ).
 
-`node -e "require('dotenv').config(); steps=require('./steps'); steps.dropObjectAndRestoreBackup('./data/source.pgsql')"`
+Pour n'exécuter 
+- que la restauration
+- en utilisant le backup `./data/source.pgsql`
+
+`node -e "steps=require('./steps'); steps.dropObjectAndRestoreBackup('./data/source.pgsql', require ('./src/extract-configuration-from-environment')())"`
+
+Penser à recréer le backup sur le FS local, supprimé par la restauration
+`git checkout data/source.pgsql`
 
 ### réplication incrémentale
 

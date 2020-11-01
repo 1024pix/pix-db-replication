@@ -1,9 +1,6 @@
 extends:
   - '../.eslintrc.yaml'
-  - 'plugin:node/recommended'
 
 rules:
   no-process-env:
     - "error"
-  no-process-exit:
-   -  "off"
