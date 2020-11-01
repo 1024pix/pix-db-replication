@@ -4,8 +4,6 @@
 // https://www.npmjs.com/package/dotenv#usage
 require('dotenv').config();
 
-const extractConfigurationFromEnvironment = require ('./src/extract-configuration-from-environment');
-
 const PG_CLIENT_VERSION = process.env.PG_CLIENT_VERSION || '12';
 const PG_RESTORE_JOBS = parseInt(process.env.PG_RESTORE_JOBS, 10) || 4;
 
@@ -182,9 +180,7 @@ async function addEnrichment(configuration) {
   await enrichment.add(configuration);
 }
 
-async function fullReplicationAndEnrichment() {
-
-  const configuration = extractConfigurationFromEnvironment();
+async function fullReplicationAndEnrichment(configuration) {
 
   logger.info('Start replication and enrichment');
 

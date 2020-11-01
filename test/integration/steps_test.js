@@ -1,5 +1,3 @@
-/* eslint no-process-env: "off" */
-
 const { expect } = require('chai');
 const steps = require('../../steps');
 const { createBackupAndCreateEmptyDatabase, createBackup } = require('./test-helper');
@@ -128,7 +126,6 @@ describe('Integration | steps.js', () => {
           it('should restore these constraints', async function() {
 
             // given
-            process.env.RESTORE_FK_CONSTRAINTS = 'true';
             database = await Database.create(databaseConfig);
             const backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, { createForeignKeys: true });
             const configuration = {  RESTORE_FK_CONSTRAINTS: 'true' };
@@ -209,6 +206,9 @@ describe('Integration | steps.js', () => {
     let targetDatabaseConfig;
 
     before(async() => {
+
+      // CircleCI set up environment variables to access DB, so we need to read them here
+      // eslint-disable-next-line no-process-env
       const SOURCE_DATABASE_URL = process.env.SOURCE_DATABASE_URL || 'postgres://pix@localhost:5432/replication_source';
       const rawSourceDataBaseConfig = pgUrlParser(SOURCE_DATABASE_URL);
 
@@ -221,6 +221,8 @@ describe('Integration | steps.js', () => {
 
       sourceDatabaseConfig.databaseUrl = `${sourceDatabaseConfig.serverUrl}/${sourceDatabaseConfig.databaseName}`;
 
+      // CircleCI set up environment variables to access DB, so we need to read them here
+      // eslint-disable-next-line no-process-env
       const TARGET_DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://pix@localhost:5432/replication_target';
       const rawTargetDataBaseConfig = pgUrlParser(TARGET_DATABASE_URL);
 
@@ -261,9 +263,6 @@ describe('Integration | steps.js', () => {
       await sourceDatabase.dropDatabase();
 
       // Day 2
-      process.env.DATABASE_URL = targetDatabaseConfig.databaseUrl;
-      process.env.RESTORE_ANSWERS_AND_KES = false;
-      process.env.RESTORE_ANSWERS_AND_KES_INCREMENTALLY = true;
       await sourceDatabase.createDatabase();
       const secondDayBackupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true });
 

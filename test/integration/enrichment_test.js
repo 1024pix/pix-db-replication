@@ -1,6 +1,7 @@
 const { expect } = require('chai');
 const pgUrlParser = require('pg-connection-string').parse;
 
+// CircleCI set up environment variables to access DB, so we need to read them here
 // eslint-disable-next-line no-process-env
 const DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://pix@localhost:5432/replication_target';
 
