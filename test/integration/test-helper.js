@@ -9,11 +9,14 @@ async function createBackupAndCreateEmptyDatabase(database, databaseConfig, { cr
 async function createBackup(database, databaseConfig, {
   createTablesNotToBeImported = false,
   createForeignKeys = false,
-  createFunction = false
+  createFunction = false,
+  dropDatabase = true
 }) {
   await createAndFillDatabase(database, databaseConfig, { createTablesNotToBeImported, createForeignKeys, createFunction });
   const backupFile = await database.createBackup();
-  await database.dropDatabase();
+  if (dropDatabase) {
+    await database.dropDatabase();
+  }
   return backupFile;
 }
 
@@ -52,6 +55,8 @@ async function createTablesThatMayNotBeRestored(database) {
 
 async function createTableWithForeignKey(database, databaseConfig) {
   await database.runSql(`CREATE TABLE referencing (id INTEGER REFERENCES ${databaseConfig.tableName})`);
+  await database.runSql('INSERT INTO referencing (id) VALUES (1)');
+  await database.runSql('INSERT INTO referencing (id) VALUES (2)');
 }
 
 async function createTableToBeIndexed(database) {
