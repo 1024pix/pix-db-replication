@@ -56,7 +56,7 @@ jobs:
       - image: circleci/node:14.15.0
       - image: postgres:9.6-alpine
         environment:
-          POSTGRES_USER: circleci
+          POSTGRES_USER: postgres
           POSTGRES_HOST_AUTH_METHOD: trust
     working_directory: ~/db-replication
     steps:
@@ -79,10 +79,6 @@ jobs:
           name : Install psql
           command: |
             sudo apt-get install postgresql-client
-      - run :
-          name: Check if psql is properly installed
-          command: |
-            psql --version
       - run:
           name: Waiting for PostgreSQL to start
           command: |
@@ -93,10 +89,6 @@ jobs:
               sleep 2
             done
             echo Failed waiting for Postgres && exit 1
-      - run :
-          name: Get default pg_dump version
-          command: |
-            psql --user circleci --host localhost --port 5432 --dbname circleci --echo-all --command='SELECT current_user;'
       - run:
           command: |
             npm run preinstall
@@ -109,4 +101,3 @@ jobs:
             TEST_DATABASE_URL: postgres://circleci@localhost:5432/circleci
             DATABASE_URL: postgres://circleci@localhost:5432/circleci
             TEST_POSTGRES_URL: postgres://circleci@localhost:5432
-            DATABASE_NAME: circleci
