@@ -1,5 +1,14 @@
 extends: 'eslint:recommended'
 
+overrides:
+  - files:
+      - "*.yaml"
+      - "*.yml"
+    plugins:
+      - "yaml"
+    extends:
+      - "plugin:yaml/recommended"
+
 root: true
 
 plugins:
@@ -70,3 +79,5 @@ rules:
     - "error"
   arrow-spacing:
     - "error"
+
+
