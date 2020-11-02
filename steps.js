@@ -119,7 +119,7 @@ function dropCurrentObjects() {
 
 function dropCurrentObjectsButKesAndAnswers() {
   const dropTableQuery = execSyncStdOut('psql', [ process.env.DATABASE_URL, '--tuples-only', '--command', 'select string_agg(\'drop table "\' || tablename || \'" CASCADE\', \'; \') from pg_tables where schemaname = \'public\' and tablename not in (\'knowledge-elements\', \'answers\');' ]);
-  const dropFunction = execSyncStdOut('psql', [ process.env.DATABASE_URL, '--tuples-only', '--command', 'select string_agg(\'drop function "\' || proname || \'"\', \'; \') FROM pg_proc pp INNER JOIN pg_roles pr ON pp.proowner = pr.oid WHERE pr.rolname = current_user AND pp.prokind = \'f\'' ]);
+  const dropFunction = execSyncStdOut('psql', [ process.env.DATABASE_URL, '--tuples-only', '--command', 'select string_agg(\'drop function "\' || proname || \'"\', \'; \') FROM pg_proc pp INNER JOIN pg_roles pr ON pp.proowner = pr.oid WHERE pr.rolname = current_user ' ]);
   execSync('psql', [ process.env.DATABASE_URL, 'ON_ERROR_STOP=1', '--echo-all' , '--command', dropTableQuery ]);
   execSync('psql', [ process.env.DATABASE_URL, 'ON_ERROR_STOP=1', '--echo-all' , '--command', dropFunction ]);
 }
