@@ -56,6 +56,23 @@ Sur la BDD destinée aux internes
     
 ## Développement et exécution en local
 
+### Installation
+
+Installer
+```
+git clone git@github.com:1024pix/pix-db-replication.git && cd pix-db-replication
+nvm use
+npm run preinstall
+```
+
+Vérifiez que vous obtenez
+```
+Checking versions... 
+✔ node was validated with ** 
+✔ npm was validated with **
+ Environment looks good!
+```
+
 ### réplication complète
 
 Certaines étapes de la procédure de réplication sont spécifiques à l'environnement Scalingo et pas pertinentes à exécuter en local lors du développement sur le script. 
