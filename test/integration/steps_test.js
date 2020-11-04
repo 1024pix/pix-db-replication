@@ -357,11 +357,8 @@ describe('Integration | steps.js', () => {
 
   describe('#importAirtableData', () => {
 
-    let database;
     let targetDatabaseConfig;
-    const AIRTABLE_API_KEY = 'keyblo10ZCvCqBAJg';
-    const AIRTABLE_BASE =  'app3fvsqhtHJntXaC';
-
+    let targetDatabase;
     before(async() => {
 
       // CircleCI set up environment variables to access DB, so we need to read them here
@@ -378,59 +375,74 @@ describe('Integration | steps.js', () => {
 
       targetDatabaseConfig.databaseUrl = `${targetDatabaseConfig.serverUrl}/${targetDatabaseConfig.databaseName}`;
 
-      database = await Database.create(targetDatabaseConfig);
-    });
-
-    it('should import data', async function() {
-
-      // when
-      const configuration = { AIRTABLE_API_KEY, AIRTABLE_BASE, DATABASE_URL: targetDatabaseConfig.databaseUrl };
-      await steps.importAirtableData(configuration);
-
-      // then
-      const competenceRowCount = parseInt(await database.runSql('SELECT COUNT(*) FROM competences'));
-      expect(competenceRowCount).to.be.above(0);
-
-    });
-
-  });
-
-  describe('#importAirtableData', () => {
-
-    let targetDatabaseConfig;
-    before(async() => {
-
-      // CircleCI set up environment variables to access DB, so we need to read them here
-      // eslint-disable-next-line no-process-env
-      const TARGET_DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://pix@localhost:5432/replication_target';
-      const rawTargetDataBaseConfig = pgUrlParser(TARGET_DATABASE_URL);
-
-      targetDatabaseConfig = {
-        serverUrl: `postgres://${rawTargetDataBaseConfig.user}@${rawTargetDataBaseConfig.host}:${rawTargetDataBaseConfig.port}`,
-        databaseName: rawTargetDataBaseConfig.database,
-        tableName: 'test_table',
-        tableRowCount: 100000,
-      };
-
-      targetDatabaseConfig.databaseUrl = `${targetDatabaseConfig.serverUrl}/${targetDatabaseConfig.databaseName}`;
-
-      await Database.create(targetDatabaseConfig);
+      targetDatabase = await Database.create(targetDatabaseConfig);
     });
 
     context('according to AirTable API status', () => {
 
-      it('when API is unavailable, should retry at most the expected time', async function() {
+      it('if available, should import data', async function() {
+
+        // when
+        const configuration = {
+          AIRTABLE_API_KEY : 'key8BhNMj8YDSHTpa',
+          AIRTABLE_BASE : 'appHAIFk9u1qqglhX',
+          DATABASE_URL: targetDatabaseConfig.databaseUrl,
+          MAX_RETRY_COUNT : 10 ,
+          RETRIES_TIMEOUT_MINUTES : 180
+        };
+
+        await steps.importAirtableData(configuration);
+
+        // then
+        const competenceRowCount = parseInt(await targetDatabase.runSql('SELECT COUNT(*) FROM competences'));
+        expect(competenceRowCount).to.be.above(0);
+
+      });
+
+      it('if available but credentials are invalid, should not retry the expect time, but throw', async function() {
 
         // given
-        process.env.DATABASE_URL = targetDatabaseConfig.databaseUrl;
-        process.env.AIRTABLE_KEY = 'key8BhNMj8YDSHTpa';
-        process.env.AIRTABLE_BASE = 'appHAIFk9u1qqglhX';
+
+        // given
+        const configuration = {
+          DATABASE_URL : targetDatabaseConfig.databaseUrl,
+          AIRTABLE_API_KEY : 'INVALID',
+          AIRTABLE_BASE : 'INVALID',
+          MAX_RETRY_COUNT : 1000,
+          RETRIES_TIMEOUT_MINUTES : 1
+        };
+
+        // when
+        const startedAt = new Date();
+        let errorMessage;
+        try {
+          await steps.importAirtableData(configuration);
+        } catch (error) {
+          errorMessage = error.message;
+        }
+        const endedAt = new Date();
+        const elapsedTimeMinutes = Math.round((endedAt - startedAt) / 1000 / 60);
+
+        // then
+        expect(errorMessage).to.eq('404 - NOT_FOUND - Could not find what you are looking for');
+        expect(elapsedTimeMinutes).to.eq(0);
+
+      });
+
+      it('if unavailable, should retry at most the expected time', async function() {
+
+        // given
+        const configuration = {
+          DATABASE_URL : targetDatabaseConfig.databaseUrl,
+          AIRTABLE_API_KEY : 'key8BhNMj8YDSHTpa',
+          AIRTABLE_BASE : 'appHAIFk9u1qqglhX',
+          MAX_RETRY_COUNT : 1000 ,
+          RETRIES_TIMEOUT_MINUTES : 1
+        };
 
         const baseUrl = 'https://api.airtable.com';
         const path = '/v0/appHAIFk9u1qqglhX/Domaines?fields%5B%5D=Nom&fields%5B%5D=id+persistant';
         const UNAVAILABLE_STATUS_CODE = 503;
-
-        const RETRIES_TIMEOUT_MINUTES = 1;
 
         const domainesAirtableCall = nock(baseUrl,  { allowUnmocked: true })
           .get(path)
@@ -438,14 +450,14 @@ describe('Integration | steps.js', () => {
 
         // when
         const startedAt = new Date();
-        await steps.importAirtableData({ max_retry_count: 1000 , retries_timeout_minutes: RETRIES_TIMEOUT_MINUTES });
+        await steps.importAirtableData(configuration);
         const endedAt = new Date();
-        const elapsedTime = Math.round((endedAt - startedAt) / 1000 / 60);
+        const elapsedTimeMinutes = Math.round((endedAt - startedAt) / 1000 / 60);
 
         // then
         expect(domainesAirtableCall.isDone()).to.be.true;
-        expect(elapsedTime).to.be.at.least(RETRIES_TIMEOUT_MINUTES - 1);
-        expect(elapsedTime).to.be.at.most(RETRIES_TIMEOUT_MINUTES);
+        expect(elapsedTimeMinutes).to.be.at.least(configuration.RETRIES_TIMEOUT_MINUTES - 1);
+        expect(elapsedTimeMinutes).to.be.at.most(configuration.RETRIES_TIMEOUT_MINUTES);
 
       });
 

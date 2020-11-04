@@ -45,6 +45,19 @@ function retryFunction(fn, maxRetryCount) {
   });
 }
 
+function retryFunctionAirTable(fn, maxRetryCount) {
+  return retry(fn, {
+    onFailedAttempt: (error) => {
+      logger.error(error);
+      // TODO: execute this code only for Airtable, not for database dump download
+      if (error.message !== '503 - SERVICE_UNAVAILABLE - The service is temporarily unavailable. Please retry shortly.') {
+        throw error;
+      }
+    },
+    retries: maxRetryCount
+  });
+}
+
 // dbclient-fetch assumes $HOME/bin is in the PATH
 function setupPath() {
   shellSync('mkdir -p "$HOME/bin"');
@@ -173,11 +186,11 @@ function dropObjectAndRestoreBackup(backupFile, configuration) {
   restoreBackup({ backupFile, databaseUrl: configuration.DATABASE_URL, configuration });
 }
 
-async function importAirtableData({ max_retry_count, retries_timeout_minutes }) {
+async function importAirtableData(configuration) {
 
   const wrappedCall = async function() {
     try {
-      await airtableData.fetchAndSaveData();
+      await airtableData.fetchAndSaveData(configuration);
     } catch (error) {
       // An AirTableError is throw => {
       //   "error": "SERVICE_UNAVAILABLE",
@@ -188,15 +201,19 @@ async function importAirtableData({ max_retry_count, retries_timeout_minutes }) 
       // It must be Error, otherwise an error is thrown instead of retrying the action (its actual purpose)
       // https://github.com/sindresorhus/p-retry/blob/master/index.js#L44
       // To avoid this, we create a brand-new error with the right type and throw it to p-retry
-      throw new Error(error.statusCode + error.error + error.message);
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error(`${error.statusCode} - ${error.error} - ${error.message}`);
+      }
     }
   };
 
   let airtableRetriesAlarm;
   logger.info('airtableData.fetchAndSaveData - Started');
   try {
-    airtableRetriesAlarm = setAirTableRetriesTimeout(retries_timeout_minutes);
-    await retryFunction(wrappedCall, max_retry_count);
+    airtableRetriesAlarm = setAirTableRetriesTimeout(configuration.RETRIES_TIMEOUT_MINUTES);
+    await retryFunctionAirTable(wrappedCall, configuration.MAX_RETRY_COUNT);
   } finally {
     clearTimeout(airtableRetriesAlarm);
   }
@@ -226,7 +243,7 @@ async function fullReplicationAndEnrichment(configuration) {
   }
 
   logger.info('Retrieve AirTable data to database ');
-  await importAirtableData({ max_retry_count: configuration.MAX_RETRY_COUNT, retries_timeout_minutes: configuration.RETRIES_TIMEOUT_MINUTES });
+  await importAirtableData(configuration);
 
   logger.info('Enrich');
   await addEnrichment(configuration);
