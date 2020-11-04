@@ -113,12 +113,13 @@ function extractBackup({ compressedBackup }) {
 }
 
 function dropCurrentObjects() {
+  // TODO: pass DATABASE_URL by argument
   execSync('psql', [ process.env.DATABASE_URL, ' --echo-all', 'ON_ERROR_STOP=1', '--command', 'DROP OWNED BY CURRENT_USER CASCADE' ]);
 }
 
 function dropCurrentObjectsButKesAndAnswers() {
   const dropTableQuery = execSyncStdOut('psql', [ process.env.DATABASE_URL, '--tuples-only', '--command', 'select string_agg(\'drop table "\' || tablename || \'" CASCADE\', \'; \') from pg_tables where schemaname = \'public\' and tablename not in (\'knowledge-elements\', \'answers\');' ]);
-  const dropFunction = execSyncStdOut('psql', [ process.env.DATABASE_URL, '--tuples-only', '--command', 'select string_agg(\'drop function "\' || proname || \'"\', \'; \') FROM pg_proc pp INNER JOIN pg_roles pr ON pp.proowner = pr.oid WHERE pr.rolname = current_user AND pp.prokind = \'f\'' ]);
+  const dropFunction = execSyncStdOut('psql', [ process.env.DATABASE_URL, '--tuples-only', '--command', 'select string_agg(\'drop function "\' || proname || \'"\', \'; \') FROM pg_proc pp INNER JOIN pg_roles pr ON pp.proowner = pr.oid WHERE pr.rolname = current_user ' ]);
   execSync('psql', [ process.env.DATABASE_URL, 'ON_ERROR_STOP=1', '--echo-all' , '--command', dropTableQuery ]);
   execSync('psql', [ process.env.DATABASE_URL, 'ON_ERROR_STOP=1', '--echo-all' , '--command', dropFunction ]);
 }
@@ -135,6 +136,7 @@ function restoreBackup({ backupFile, databaseUrl }) {
 
   try {
     writeListFileForReplication({ backupFile });
+    // TODO: pass DATABASE_URL by argument
     execSync('pg_restore', [
       '--verbose',
       '--jobs', PG_RESTORE_JOBS,

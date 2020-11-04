@@ -1,7 +1,7 @@
 const { expect } = require('chai');
 const pgUrlParser = require('pg-connection-string').parse;
 
-const DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://postgres@localhost:5432/replication_target';
+const DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://pix@localhost:5432/replication_target';
 
 const { createAndFillDatabase } = require('./test-helper');
 const Database = require('../utils/database');

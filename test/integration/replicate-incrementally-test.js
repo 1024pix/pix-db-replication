@@ -10,7 +10,7 @@ describe('Integration | replicate-incrementally.js', () => {
 
   describe('run', function() {
 
-    const SOURCE_DATABASE_URL = process.env.SOURCE_DATABASE_URL || 'postgres://pix@localhost:5431/replication_source';
+    const SOURCE_DATABASE_URL = process.env.SOURCE_DATABASE_URL || 'postgres://pix@localhost:5432/replication_source';
     const TARGET_DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://pix@localhost:5432/replication_target';
 
     let sourceDatabase;
