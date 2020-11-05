@@ -167,11 +167,15 @@ function dropObjectAndRestoreBackup(backupFile, configuration) {
 }
 
 async function importAirtableData(configuration) {
+  logger.info('airtableData.fetchAndSaveData - Started');
   await airtableData.fetchAndSaveData(configuration);
+  logger.info('airtableData.fetchAndSaveData - Ended');
 }
 
 async function addEnrichment(configuration) {
+  logger.info('enrichment.add - Started');
   await enrichment.add(configuration);
+  logger.info('enrichment.add - Ended');
 }
 
 async function fullReplicationAndEnrichment(configuration) {
