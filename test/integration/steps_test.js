@@ -8,6 +8,8 @@ describe('Integration | steps.js', () => {
 
   describe('#restoreBackup', () => {
 
+    // CircleCI set up environment variables to access DB, so we need to read them here
+    // eslint-disable-next-line no-process-env
     const DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://postgres@localhost:5432/replication_target';
     const config = pgUrlParser(DATABASE_URL);
 
@@ -203,7 +205,7 @@ describe('Integration | steps.js', () => {
     let targetDatabaseConfig;
 
     before(async() => {
-      const SOURCE_DATABASE_URL = process.env.SOURCE_DATABASE_URL || 'postgres://pix@localhost:5431/replication_source';
+      const SOURCE_DATABASE_URL = process.env.SOURCE_DATABASE_URL || 'postgres://pix@localhost:5432/replication_source';
       const rawSourceDataBaseConfig = pgUrlParser(SOURCE_DATABASE_URL);
 
       sourceDatabaseConfig = {
