@@ -8,6 +8,8 @@ describe('Integration | steps.js', () => {
 
   describe('#restoreBackup', () => {
 
+    // CircleCI set up environment variables to access DB, so we need to read them here
+    // eslint-disable-next-line no-process-env
     const DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://postgres@localhost:5432/replication_target';
     const config = pgUrlParser(DATABASE_URL);
 
@@ -32,9 +34,10 @@ describe('Integration | steps.js', () => {
         // given
         database = await Database.create(databaseConfig);
         const backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, {});
+        const configuration = { RESTORE_FK_CONSTRAINTS: 'false', PG_RESTORE_JOBS: 4 };
 
         // when
-        await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl });
+        steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl, configuration });
 
         // then
         const restoredRowCount = parseInt(await database.runSql(`SELECT COUNT(*) FROM ${databaseConfig.tableName}`));
@@ -61,13 +64,13 @@ describe('Integration | steps.js', () => {
 
           it('should not restore these tables', async function() {
 
-            process.env.RESTORE_ANSWERS_AND_KES = undefined;
             // given
             database = await Database.create(databaseConfig);
             const backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, { createTablesNotToBeImported: true });
+            const configuration = { RESTORE_ANSWERS_AND_KES: undefined, RESTORE_FK_CONSTRAINTS: 'false', PG_RESTORE_JOBS: 4  };
 
             // when
-            await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl });
+            await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl, configuration });
 
             // then
             const isAnswersRestored = parseInt(await database.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'answers\''));
@@ -94,10 +97,10 @@ describe('Integration | steps.js', () => {
             // given
             database = await Database.create(databaseConfig);
             const backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, { createTablesNotToBeImported: true });
+            const configuration = { RESTORE_ANSWERS_AND_KES: 'true', RESTORE_FK_CONSTRAINTS: 'false',  PG_RESTORE_JOBS: 4   };
 
             // when
-            process.env.RESTORE_ANSWERS_AND_KES = true;
-            await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl });
+            await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl, configuration });
 
             // then
             const isAnswersRestored = parseInt(await database.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'answers\''));
@@ -123,12 +126,12 @@ describe('Integration | steps.js', () => {
           it('should restore these constraints', async function() {
 
             // given
-            process.env.RESTORE_FK_CONSTRAINTS = 'true';
             database = await Database.create(databaseConfig);
             const backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, { createForeignKeys: true });
+            const configuration = {  RESTORE_FK_CONSTRAINTS: 'true',  PG_RESTORE_JOBS: 4 };
 
             // when
-            await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl });
+            await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl, configuration });
 
             // then
             const areForeignKeysRestored = parseInt(await database.runSql('SELECT COUNT(1) FROM pg_constraint pgc  WHERE pgc.contype = \'f\''));
@@ -147,12 +150,12 @@ describe('Integration | steps.js', () => {
           it('should not restore keys constraints', async function() {
 
             // given
-            process.env.RESTORE_FK_CONSTRAINTS = 'false';
             database = await Database.create(databaseConfig);
             const backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, { createForeignKeys: true });
+            const configuration = { RESTORE_FK_CONSTRAINTS: 'false', PG_RESTORE_JOBS: 4 };
 
             // when
-            await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl });
+            await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl, configuration });
 
             // then
             const areForeignKeysRestored = parseInt(await database.runSql('SELECT COUNT(1) FROM pg_constraint pgc  WHERE pgc.contype = \'f\''));
@@ -162,12 +165,12 @@ describe('Integration | steps.js', () => {
           it('should restore referencing table with data', async function() {
 
             // given
-            process.env.RESTORE_FK_CONSTRAINTS = 'false';
+            const configuration = { RESTORE_FK_CONSTRAINTS: 'false', PG_RESTORE_JOBS: 4  };
             database = await Database.create(databaseConfig);
             const backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, { createForeignKeys: true });
 
             // when
-            await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl });
+            await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl, configuration });
 
             // then
             const isAnswersRestored = parseInt(await database.runSql('SELECT COUNT(1) FROM referencing'));
@@ -177,12 +180,12 @@ describe('Integration | steps.js', () => {
           it('should restore referenced table with data', async function() {
 
             // given
-            process.env.RESTORE_FK_CONSTRAINTS = 'false';
+            const configuration = { RESTORE_FK_CONSTRAINTS: 'false', PG_RESTORE_JOBS: 4  };
             database = await Database.create(databaseConfig);
             const backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, { createForeignKeys: true });
 
             // when
-            await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl });
+            await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl, configuration });
 
             // then
             const isAnswersRestored = parseInt(await database.runSql(`SELECT COUNT(1) FROM ${databaseConfig.tableName} `));
@@ -203,7 +206,10 @@ describe('Integration | steps.js', () => {
     let targetDatabaseConfig;
 
     before(async() => {
-      const SOURCE_DATABASE_URL = process.env.SOURCE_DATABASE_URL || 'postgres://pix@localhost:5431/replication_source';
+
+      // CircleCI set up environment variables to access DB, so we need to read them here
+      // eslint-disable-next-line no-process-env
+      const SOURCE_DATABASE_URL = process.env.SOURCE_DATABASE_URL || 'postgres://pix@localhost:5432/replication_source';
       const rawSourceDataBaseConfig = pgUrlParser(SOURCE_DATABASE_URL);
 
       sourceDatabaseConfig = {
@@ -215,6 +221,8 @@ describe('Integration | steps.js', () => {
 
       sourceDatabaseConfig.databaseUrl = `${sourceDatabaseConfig.serverUrl}/${sourceDatabaseConfig.databaseName}`;
 
+      // CircleCI set up environment variables to access DB, so we need to read them here
+      // eslint-disable-next-line no-process-env
       const TARGET_DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://pix@localhost:5432/replication_target';
       const rawTargetDataBaseConfig = pgUrlParser(TARGET_DATABASE_URL);
 
@@ -234,19 +242,17 @@ describe('Integration | steps.js', () => {
       targetDatabase = await Database.create(targetDatabaseConfig);
     });
 
-    async function createBackUpFromSourceAndRestoreToTarget(sourceDatabase, sourceDatabaseConfig, targetDatabaseUrl) {
+    async function createBackUpFromSourceAndRestoreToTarget(sourceDatabase, sourceDatabaseConfig, targetDatabaseUrl, configuration) {
       const backupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true });
-      await steps.restoreBackup({ backupFile, databaseUrl: targetDatabaseUrl });
+      await steps.restoreBackup({ backupFile, databaseUrl: targetDatabaseUrl, configuration });
     }
 
     it('if backup restore is disabled and increment restore is enabled on specific tables, should preserve data', async function() {
       // given
 
       // Day 1
-      process.env.RESTORE_ANSWERS_AND_KES = true;
-      process.env.RESTORE_ANSWERS_AND_KES_INCREMENTALLY = undefined;
-
-      await createBackUpFromSourceAndRestoreToTarget(sourceDatabase, sourceDatabaseConfig, targetDatabaseConfig.databaseUrl);
+      const firstDayConfiguration = { RESTORE_ANSWERS_AND_KES : 'true', PG_RESTORE_JOBS: 4 };
+      await createBackUpFromSourceAndRestoreToTarget(sourceDatabase, sourceDatabaseConfig, targetDatabaseConfig.databaseUrl, firstDayConfiguration);
 
       const answersCountBefore = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM answers'));
       expect(answersCountBefore).not.to.equal(0);
@@ -257,15 +263,12 @@ describe('Integration | steps.js', () => {
       await sourceDatabase.dropDatabase();
 
       // Day 2
-      process.env.DATABASE_URL = targetDatabaseConfig.databaseUrl;
-      process.env.RESTORE_ANSWERS_AND_KES = false;
-      process.env.RESTORE_ANSWERS_AND_KES_INCREMENTALLY = true;
       await sourceDatabase.createDatabase();
       const secondDayBackupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true });
 
       // when
-      process.env.DATABASE_URL = targetDatabase._databaseUrl;
-      await steps.dropObjectAndRestoreBackup(secondDayBackupFile);
+      const secondDayConfiguration = { RESTORE_ANSWERS_AND_KES_INCREMENTALLY : 'true', DATABASE_URL : targetDatabase._databaseUrl, PG_RESTORE_JOBS: 4   };
+      await steps.dropObjectAndRestoreBackup(secondDayBackupFile, secondDayConfiguration);
 
       // then
       const answersCountAfter = parseInt(await targetDatabase.runSql('SELECT  COUNT(1) FROM answers'));
@@ -285,12 +288,16 @@ describe('Integration | steps.js', () => {
 
       // Target : restore backup
       const targetDatabase = await Database.create(targetDatabaseConfig);
-      process.env.RESTORE_FK_CONSTRAINTS = 'true';
-      process.env.RESTORE_ANSWERS_AND_KES = 'true';
-      process.env.RESTORE_ANSWERS_AND_KES_INCREMENTALLY = 'false';
 
-      process.env.DATABASE_URL = targetDatabase._databaseUrl;
-      await steps.dropObjectAndRestoreBackup(firstDaySourceBackupFile);
+      const firstDayTargetConfiguration = {
+        PG_RESTORE_JOBS: 4,
+        DATABASE_URL : targetDatabase._databaseUrl,
+        RESTORE_FK_CONSTRAINTS: 'true',
+        RESTORE_ANSWERS_AND_KES: 'true',
+        RESTORE_ANSWERS_AND_KES_INCREMENTALLY: 'false'
+      };
+
+      await steps.dropObjectAndRestoreBackup(firstDaySourceBackupFile, firstDayTargetConfiguration);
 
       const referencingCountBefore = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM referencing'));
       expect(referencingCountBefore).not.to.equal(0);
@@ -303,12 +310,16 @@ describe('Integration | steps.js', () => {
       const secondDaySourceBackupFile = await sourceDatabase.createBackup();
 
       // Target : restore backup
-      process.env.RESTORE_FK_CONSTRAINTS = 'false';
-      process.env.RESTORE_ANSWERS_AND_KES = 'false';
-      process.env.RESTORE_ANSWERS_AND_KES_INCREMENTALLY = 'true';
+      const secondDayTargetConfiguration = {
+        PG_RESTORE_JOBS: 4,
+        DATABASE_URL : targetDatabase._databaseUrl,
+        RESTORE_FK_CONSTRAINTS: 'false',
+        RESTORE_ANSWERS_AND_KES: 'false',
+        RESTORE_ANSWERS_AND_KES_INCREMENTALLY: 'true'
+      };
+
       // when
-      process.env.DATABASE_URL = targetDatabase._databaseUrl;
-      await steps.dropObjectAndRestoreBackup(secondDaySourceBackupFile);
+      await steps.dropObjectAndRestoreBackup(secondDaySourceBackupFile, secondDayTargetConfiguration);
 
       // then
       const countAfter = parseInt(await targetDatabase.runSql(`SELECT COUNT(1) FROM ${sourceDatabaseConfig.tableName}`));
@@ -323,21 +334,63 @@ describe('Integration | steps.js', () => {
       // given
 
       // Day 1
-      process.env.RESTORE_ANSWERS_AND_KES = true;
-      process.env.RESTORE_ANSWERS_AND_KES_INCREMENTALLY = undefined;
-      await createBackUpFromSourceAndRestoreToTarget(sourceDatabase, sourceDatabaseConfig, targetDatabaseConfig.databaseUrl);
+      const firstDayTargetConfiguration = { RESTORE_ANSWERS_AND_KES : 'true', PG_RESTORE_JOBS: 4 };
+      await createBackUpFromSourceAndRestoreToTarget(sourceDatabase, sourceDatabaseConfig, targetDatabaseConfig.databaseUrl, firstDayTargetConfiguration);
       await sourceDatabase.dropDatabase();
 
       // Day 2
-      process.env.RESTORE_ANSWERS_AND_KES = false;
-      process.env.RESTORE_ANSWERS_AND_KES_INCREMENTALLY = true;
       sourceDatabase = await Database.create(sourceDatabaseConfig);
       const secondDayBackupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true, createFunction: true });
+      const secondDayTargetConfiguration = { RESTORE_ANSWERS_AND_KES_INCREMENTALLY : 'true', DATABASE_URL : targetDatabase._databaseUrl, PG_RESTORE_JOBS: 4 };
+
+      const dropObjectAndRestoreBackupWithArguments = function() {
+        steps.dropObjectAndRestoreBackup(secondDayBackupFile, secondDayTargetConfiguration);
+      };
 
       // when
-      process.env.DATABASE_URL = targetDatabaseConfig.databaseUrl;
-      steps.dropObjectAndRestoreBackup(secondDayBackupFile);
+      // then
+      expect(dropObjectAndRestoreBackupWithArguments).not.to.throw;
     });
+  });
+
+  describe('#importAirtableData', () => {
+
+    let database;
+    let targetDatabaseConfig;
+    const AIRTABLE_API_KEY = 'keyblo10ZCvCqBAJg';
+    const AIRTABLE_BASE =  'app3fvsqhtHJntXaC';
+
+    before(async() => {
+
+      // CircleCI set up environment variables to access DB, so we need to read them here
+      // eslint-disable-next-line no-process-env
+      const TARGET_DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://pix@localhost:5432/replication_target';
+      const rawTargetDataBaseConfig = pgUrlParser(TARGET_DATABASE_URL);
+
+      targetDatabaseConfig = {
+        serverUrl: `postgres://${rawTargetDataBaseConfig.user}@${rawTargetDataBaseConfig.host}:${rawTargetDataBaseConfig.port}`,
+        databaseName: rawTargetDataBaseConfig.database,
+        tableName: 'test_table',
+        tableRowCount: 100000,
+      };
+
+      targetDatabaseConfig.databaseUrl = `${targetDatabaseConfig.serverUrl}/${targetDatabaseConfig.databaseName}`;
+
+      database = await Database.create(targetDatabaseConfig);
+    });
+
+    it('should import data', async function() {
+
+      // when
+      const configuration = { AIRTABLE_API_KEY, AIRTABLE_BASE, DATABASE_URL: targetDatabaseConfig.databaseUrl };
+      await steps.importAirtableData(configuration);
+
+      // then
+      const competenceRowCount = parseInt(await database.runSql('SELECT COUNT(*) FROM competences'));
+      expect(competenceRowCount).to.be.above(0);
+
+    });
+
   });
 
 });

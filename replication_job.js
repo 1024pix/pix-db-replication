@@ -6,11 +6,14 @@ const logger = require('./logger');
 const CronJob = require('cron').CronJob;
 const parisTimezone = 'Europe/Paris';
 
-steps.scalingoSetup();
+const extractConfigurationFromEnvironment = require ('./src/extract-configuration-from-environment');
+const configuration = extractConfigurationFromEnvironment();
 
-new CronJob(process.env.SCHEDULE, async function() {
+steps.scalingoSetup(configuration);
+
+new CronJob(configuration.SCHEDULE, async function() {
   try {
-    await steps.fullReplicationAndEnrichment();
+    await steps.fullReplicationAndEnrichment(configuration);
   } catch (error) {
     logger.error(error);
     process.exit(1);

@@ -1,6 +1,8 @@
 const { expect } = require('chai');
 const pgUrlParser = require('pg-connection-string').parse;
 
+// CircleCI set up environment variables to access DB, so we need to read them here
+// eslint-disable-next-line no-process-env
 const DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://pix@localhost:5432/replication_target';
 
 const { createAndFillDatabase } = require('./test-helper');
@@ -26,7 +28,6 @@ describe('Integration | enrichment.js', () => {
       let database;
 
       afterEach(() => {
-        delete process.env.DATABASE_URL;
         database.dropDatabase();
       });
 
@@ -35,11 +36,10 @@ describe('Integration | enrichment.js', () => {
         // given
         database = await Database.create(databaseConfig);
         await createAndFillDatabase(database, databaseConfig, { createTablesNotToBeImported: true });
-        process.env.RESTORE_ANSWERS_AND_KES_INCREMENTALLY = 'true';
 
         // when
-        process.env.DATABASE_URL = databaseConfig.databaseUrl;
-        await add();
+        const configuration = { RESTORE_ANSWERS_AND_KES: 'true', DATABASE_URL : databaseConfig.databaseUrl };
+        await add(configuration);
 
         // then
         const indexCount = parseInt(await database.runSql('SELECT COUNT(1) FROM pg_indexes ndx WHERE ndx.indexname = \'users_createdAt_idx\''));
@@ -51,11 +51,10 @@ describe('Integration | enrichment.js', () => {
         // given
         database = await Database.create(databaseConfig);
         await createAndFillDatabase(database, databaseConfig, { createTablesNotToBeImported: true });
-        process.env.RESTORE_ANSWERS_AND_KES_INCREMENTALLY = 'true';
 
         // when
-        process.env.DATABASE_URL = databaseConfig.databaseUrl;
-        await add();
+        const configuration = { RESTORE_ANSWERS_AND_KES: 'true', DATABASE_URL : databaseConfig.databaseUrl };
+        await add(configuration);
 
         // then
         const viewCount = parseInt(await database.runSql('SELECT COUNT(1) FROM pg_views vws WHERE vws.viewname = \'students\';'));
@@ -68,7 +67,6 @@ describe('Integration | enrichment.js', () => {
       let database;
 
       afterEach(() => {
-        delete process.env.DATABASE_URL;
         database.dropDatabase();
       });
 
@@ -76,11 +74,10 @@ describe('Integration | enrichment.js', () => {
         // given
         database = await Database.create(databaseConfig);
         await createAndFillDatabase(database, databaseConfig, { createTablesNotToBeImported : true });
-        process.env.RESTORE_ANSWERS_AND_KES = 'true';
 
         // when
-        process.env.DATABASE_URL = databaseConfig.databaseUrl;
-        await add();
+        const configuration = { RESTORE_ANSWERS_AND_KES: 'true', DATABASE_URL : databaseConfig.databaseUrl };
+        await add(configuration);
 
         // then
         const KEIndexCount = parseInt(await database.runSql('SELECT COUNT(1) FROM pg_indexes ndx WHERE ndx.indexname = \'knowledge-elements_createdAt_idx\''));

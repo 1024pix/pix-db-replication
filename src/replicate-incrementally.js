@@ -1,7 +1,6 @@
 'use strict';
 
 const { execSync } = require('child_process');
-
 const execa = require('execa');
 const logger = require('../logger');
 
@@ -9,23 +8,20 @@ function execSyncStdOut(cmd, args) {
   return execa.sync(cmd, args, { stderr: 'inherit' }).stdout;
 }
 
-function run() {
+function run(configuration) {
 
-  if (!process.env.RESTORE_ANSWERS_AND_KES_INCREMENTALLY || process.env.RESTORE_ANSWERS_AND_KES_INCREMENTALLY === 'false') {
+  if (!configuration.RESTORE_ANSWERS_AND_KES_INCREMENTALLY || configuration.RESTORE_ANSWERS_AND_KES_INCREMENTALLY === 'false') {
     return;
   }
 
-  const sourceDatabaseURL = process.env.SOURCE_DATABASE_URL;
-  const targetDatabaseURL = process.env.TARGET_DATABASE_URL;
-
   logger.info('Start incremental replication');
 
-  const answersLastRecordIndexTarget = parseInt(execSyncStdOut('psql', [targetDatabaseURL, '--tuples-only', '--command', 'SELECT MAX(id) FROM answers']));
+  const answersLastRecordIndexTarget = parseInt(execSyncStdOut('psql', [configuration.TARGET_DATABASE_URL, '--tuples-only', '--command', 'SELECT MAX(id) FROM answers']));
   if (isNaN(answersLastRecordIndexTarget)) {
     throw new Error('Answers table must not be empty on target database');
   }
 
-  const kELastRecordIndexTarget = parseInt(execSyncStdOut('psql', [targetDatabaseURL, '--tuples-only', '--command', 'SELECT MAX(id) FROM "knowledge-elements"']));
+  const kELastRecordIndexTarget = parseInt(execSyncStdOut('psql', [configuration.TARGET_DATABASE_URL, '--tuples-only', '--command', 'SELECT MAX(id) FROM "knowledge-elements"']));
   if (isNaN(kELastRecordIndexTarget)) {
     throw new Error('Knowledge-elements table must not be empty on target database');
   }
@@ -34,10 +30,10 @@ function run() {
 
   const answersSqlCopyCommand = `
     psql \\
-        ${sourceDatabaseURL} \\
+        ${configuration.SOURCE_DATABASE_URL} \\
         --command "\\copy (SELECT * FROM answers WHERE id>${answersLastRecordIndexTarget}) to stdout" | \\
     psql \\
-        ${targetDatabaseURL} \\
+        ${configuration.TARGET_DATABASE_URL} \\
         --command "\\copy answers from stdin"`;
 
   const answersCopyMessage = execSync(answersSqlCopyCommand);
@@ -45,10 +41,10 @@ function run() {
 
   const kesSqlCopyCommand = `
     psql \\
-        ${sourceDatabaseURL} \\
+        ${configuration.SOURCE_DATABASE_URL} \\
         --command "\\copy (SELECT * FROM \\"knowledge-elements\\" WHERE id>${kELastRecordIndexTarget}) to stdout" | \\
     psql \\
-        ${targetDatabaseURL} \\
+        ${configuration.TARGET_DATABASE_URL} \\
         --command "\\copy \\"knowledge-elements\\" from stdin"`;
 
   const kECopyMessage = execSync(kesSqlCopyCommand);

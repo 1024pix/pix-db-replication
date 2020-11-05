@@ -79,5 +79,7 @@ rules:
     - "error"
   arrow-spacing:
     - "error"
+  no-process-env:
+    - "error"
 
 

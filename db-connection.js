@@ -1,8 +1,8 @@
 const { Client } = require('pg');
 
-async function runDBOperation(callback) {
+async function runDBOperation(callback, configuration) {
   const client = new Client({
-    connectionString: process.env.DATABASE_URL
+    connectionString: configuration.DATABASE_URL
   });
   try {
     await client.connect();

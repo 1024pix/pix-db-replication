@@ -1,10 +1,11 @@
-require('dotenv').config();
-
 const logger = require('../logger');
 const runner = require('./replicate-incrementally');
 
+const extractConfigurationFromEnvironment = require ('./extract-configuration-from-environment');
+const configuration = extractConfigurationFromEnvironment();
+
 try {
-  runner.run();
+  runner.run(configuration);
   process.exit(0);
 }
 catch (error)  {

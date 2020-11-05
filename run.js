@@ -3,9 +3,12 @@ require('dotenv').config();
 const logger = require('./logger');
 const steps = require('./steps');
 
-steps.scalingoSetup();
+const extractConfigurationFromEnvironment = require ('./src/extract-configuration-from-environment');
+const configuration = extractConfigurationFromEnvironment();
 
-steps.fullReplicationAndEnrichment()
+steps.scalingoSetup(configuration);
+
+steps.fullReplicationAndEnrichment(configuration)
   .then(() => {
     process.exit(0);
   })
