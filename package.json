@@ -45,6 +45,7 @@
     "eslint-plugin-yaml": "^0.3.0",
     "husky": "^4.3.0",
     "mocha": "^8.2.0",
+    "nock": "^13.0.4",
     "pg-connection-string": "^2.4.0",
     "sinon": "^9.2.0",
     "tmp-promise": "^3.0.2"
