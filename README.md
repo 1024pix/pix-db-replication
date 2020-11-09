@@ -114,13 +114,18 @@ ALTER TABLE "knowledge-elements" DROP CONSTRAINT "knowledge_elements_userid_fore
 `node ./src/run-replicate-incrementally.js`
 
 ## Tests
+Une partie du code n'est pas testable de manière automatisée.
+Elle consiste en la récupération du backup.
+Il est donc important d'effectuer un test manuel en RA avant de merger une PR, même si la CI passe. 
+ 
+### Manuels 
 
-### Manuels en local
+#### Local
 
 Récupérer les données Airtable
 `node -e "steps=require('./steps'); steps.importAirtableData();"`
 
-### Manuels sur RA Scalingo
+#### RA Scalingo
 
 Application Scalingo hors osc-secnum-fr1 pour éviter les considérations de sécurité des données 
 
@@ -140,8 +145,9 @@ $ scalingo -a pix-datawarehouse-pr<NUMERO-PR> pgsql-console
 `SELECT id, email FROM "users" LIMIT 5;`
 
 ### Automatisés
+#### Local
 
-#### Intégration
+##### Intégration
  
 Déroulement : 
 - une BDD est créé en local sur l'URL $TEST_POSTGRES_URL (défaut: `postgres://postgres@localhost`), instance `pix_replication_test`
@@ -155,8 +161,9 @@ Note: le dump Scalingo est créé avec des options `pg_dump` [différentes](http
 Se connecter à la BDD de test 
 ```psql postgres://postgres@localhost/pix_replication_test```
 
-Les tests d'intégration sortent en erreur sur CircleCI avec le message suivant 
-`Error: spawn psql ENOENT`
+#### CI
+La CI exécute l'intégralité des tests (unitaire et intégration).
+Elle les exécute ur une version de PostgreSQL antérieure (9 au lieu de 12 en production)
 
 ## Parser les logs
 
