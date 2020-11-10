@@ -2,7 +2,7 @@
   "name": "pix-db-replication",
   "version": "1.0.0",
   "private": true,
-  "description": "Import de backup PostgreSQL depuis un dépôt de backup distant",
+  "description": "Socle d'application décisionnelle: import données par backup/copie à chaud/API et enrichissement ",
   "license": "AGPL-3.0",
   "author": "GIP Pix",
   "engines": {
