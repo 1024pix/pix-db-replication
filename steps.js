@@ -17,8 +17,8 @@ function execShell(cmdline) {
   return execa(cmdline, { stdio: 'inherit', shell: true });
 }
 
-function execSync(cmd, args) {
-  execa.sync(cmd, args, { stdio: 'inherit' });
+function exec(cmd, args) {
+  return execa(cmd, args, { stdio: 'inherit' });
 }
 
 function execSyncStdOut(cmd, args) {
@@ -71,18 +71,18 @@ async function setupPath() {
 }
 
 function installPostgresClient(configuration) {
-  execSync('dbclient-fetcher', [ 'pgsql', configuration.PG_CLIENT_VERSION ]);
+  return exec('dbclient-fetcher', [ 'pgsql', configuration.PG_CLIENT_VERSION ]);
 }
 
 async function scalingoSetup(configuration) {
   await setupPath();
-  installPostgresClient(configuration);
+  return installPostgresClient(configuration);
 }
 
-function extractBackup({ compressedBackup }) {
-  // MACOS: execSync('tar', [ 'xvzf', compressedBackup ]);
+async function extractBackup({ compressedBackup }) {
+  // MACOS: exec('tar', [ 'xvzf', compressedBackup ]);
   logger.info('Start Extract backup');
-  execSync('tar', [ 'xvzf', compressedBackup, '--wildcards', '*.pgsql']);
+  await exec('tar', [ 'xvzf', compressedBackup, '--wildcards', '*.pgsql']);
   const backupFile = fs.readdirSync('.').find((f) => /.*\.pgsql$/.test(f));
   if (!backupFile) {
     throw new Error(`Could not find .pgsql file in ${compressedBackup}`);
@@ -93,14 +93,14 @@ function extractBackup({ compressedBackup }) {
 
 function dropCurrentObjects(configuration) {
   // TODO: pass DATABASE_URL by argument
-  execSync('psql', [ configuration.DATABASE_URL, ' --echo-all', '--set', 'ON_ERROR_STOP=on', '--command', 'DROP OWNED BY CURRENT_USER CASCADE' ]);
+  return exec('psql', [ configuration.DATABASE_URL, ' --echo-all', '--set', 'ON_ERROR_STOP=on', '--command', 'DROP OWNED BY CURRENT_USER CASCADE' ]);
 }
 
-function dropCurrentObjectsButKesAndAnswers(configuration) {
+async function dropCurrentObjectsButKesAndAnswers(configuration) {
   const dropTableQuery = execSyncStdOut('psql', [ configuration.DATABASE_URL, '--tuples-only', '--command', 'select string_agg(\'drop table "\' || tablename || \'" CASCADE\', \'; \') from pg_tables where schemaname = \'public\' and tablename not in (\'knowledge-elements\', \'answers\');' ]);
   const dropFunction = execSyncStdOut('psql', [ configuration.DATABASE_URL, '--tuples-only', '--command', 'select string_agg(\'drop function "\' || proname || \'"\', \'; \') FROM pg_proc pp INNER JOIN pg_roles pr ON pp.proowner = pr.oid WHERE pr.rolname = current_user ' ]);
-  execSync('psql', [ configuration.DATABASE_URL, '--set', 'ON_ERROR_STOP=on', '--echo-all' , '--command', dropTableQuery ]);
-  execSync('psql', [ configuration.DATABASE_URL, '--set', 'ON_ERROR_STOP=on', '--echo-all' , '--command', dropFunction ]);
+  await exec('psql', [ configuration.DATABASE_URL, '--set', 'ON_ERROR_STOP=on', '--echo-all' , '--command', dropTableQuery ]);
+  return exec('psql', [ configuration.DATABASE_URL, '--set', 'ON_ERROR_STOP=on', '--echo-all' , '--command', dropFunction ]);
 }
 
 function writeListFileForReplication({ backupFile, configuration }) {
@@ -110,13 +110,13 @@ function writeListFileForReplication({ backupFile, configuration }) {
   fs.writeFileSync(RESTORE_LIST_FILENAME, filteredObjectLines.join('\n'));
 }
 
-function restoreBackup({ backupFile, databaseUrl, configuration }) {
+async function restoreBackup({ backupFile, databaseUrl, configuration }) {
   logger.info('Start restore');
 
   try {
     writeListFileForReplication({ backupFile, configuration });
     // TODO: pass DATABASE_URL by argument
-    execSync('pg_restore', [
+    await exec('pg_restore', [
       '--verbose',
       '--jobs', configuration.PG_RESTORE_JOBS,
       '--no-owner',
@@ -156,17 +156,17 @@ async function getScalingoBackup() {
   return extractBackup({ compressedBackup });
 }
 
-function dropObjectAndRestoreBackup(backupFile, configuration) {
+async function dropObjectAndRestoreBackup(backupFile, configuration) {
   logger.info('Start drop Objects AndRestoreBackup');
   if (configuration.RESTORE_ANSWERS_AND_KES_INCREMENTALLY && configuration.RESTORE_ANSWERS_AND_KES_INCREMENTALLY === 'true') {
-    dropCurrentObjectsButKesAndAnswers(configuration);
+    await dropCurrentObjectsButKesAndAnswers(configuration);
   } else {
-    dropCurrentObjects(configuration);
+    await dropCurrentObjects(configuration);
   }
   logger.info('End drop Objects AndRestoreBackup');
 
   logger.info('Start restore Backup');
-  restoreBackup({ backupFile, databaseUrl: configuration.DATABASE_URL, configuration });
+  await restoreBackup({ backupFile, databaseUrl: configuration.DATABASE_URL, configuration });
   logger.info('End restore Backup');
 }
 
