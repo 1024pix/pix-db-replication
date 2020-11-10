@@ -4,11 +4,12 @@ const { execSync } = require('child_process');
 const execa = require('execa');
 const logger = require('../logger');
 
-function execSyncStdOut(cmd, args) {
-  return execa.sync(cmd, args, { stderr: 'inherit' }).stdout;
+async function execStdOut(cmd, args) {
+  const { stdout } = await execa(cmd, args, { stderr: 'inherit' });
+  return stdout;
 }
 
-function run(configuration) {
+async function run(configuration) {
 
   if (!configuration.RESTORE_ANSWERS_AND_KES_INCREMENTALLY || configuration.RESTORE_ANSWERS_AND_KES_INCREMENTALLY === 'false') {
     logger.info('Exit because RESTORE_ANSWERS_AND_KES_INCREMENTALLY is falsy');
@@ -17,14 +18,16 @@ function run(configuration) {
 
   logger.info('Start incremental replication');
 
-  const answersLastRecordIndexTargetBeforeReplication = parseInt(execSyncStdOut('psql', [configuration.TARGET_DATABASE_URL, '--tuples-only', '--command', 'SELECT MAX(id) FROM answers']));
+  const maxAnswerIdStr = await execStdOut('psql', [configuration.TARGET_DATABASE_URL, '--tuples-only', '--command', 'SELECT MAX(id) FROM answers']);
+  const answersLastRecordIndexTargetBeforeReplication = parseInt(maxAnswerIdStr);
   logger.info('Answers last record index target ' + answersLastRecordIndexTargetBeforeReplication);
 
   if (isNaN(answersLastRecordIndexTargetBeforeReplication)) {
     throw new Error('Answers table must not be empty on target database');
   }
 
-  const kELastRecordIndexTargetBeforeReplication = parseInt(execSyncStdOut('psql', [configuration.TARGET_DATABASE_URL, '--tuples-only', '--command', 'SELECT MAX(id) FROM "knowledge-elements"']));
+  const maxKEIdStr = await execStdOut('psql', [configuration.TARGET_DATABASE_URL, '--tuples-only', '--command', 'SELECT MAX(id) FROM "knowledge-elements"']);
+  const kELastRecordIndexTargetBeforeReplication = parseInt(maxKEIdStr);
   logger.info('KE last record index target ' + kELastRecordIndexTargetBeforeReplication);
 
   if (isNaN(kELastRecordIndexTargetBeforeReplication)) {
@@ -54,13 +57,15 @@ function run(configuration) {
 
   const kECopyMessage = execSync(kesSqlCopyCommand);
   logger.info('Knowledge-elements table copy returned: ' + kECopyMessage);
-
-  const answersLastRecordIndexTargetAfterReplication = parseInt(execSyncStdOut('psql', [configuration.TARGET_DATABASE_URL, '--tuples-only', '--command', 'SELECT MAX(id) FROM answers']));
+  
+  const maxAnswerIdStrAfterReplication = await execStdOut('psql', [configuration.TARGET_DATABASE_URL, '--tuples-only', '--command', 'SELECT MAX(id) FROM answers']);
+  const answersLastRecordIndexTargetAfterReplication = parseInt(maxAnswerIdStrAfterReplication);
   logger.info('Answers last record index target after replication ' + answersLastRecordIndexTargetAfterReplication);
 
   logger.info('Total of Answers imported ' + (answersLastRecordIndexTargetAfterReplication - answersLastRecordIndexTargetBeforeReplication));
 
-  const kELastRecordIndexTargetAfterReplication = parseInt(execSyncStdOut('psql', [configuration.TARGET_DATABASE_URL, '--tuples-only', '--command', 'SELECT MAX(id) FROM "knowledge-elements"']));
+  const maxKEIdStrAfterReplication = await execStdOut('psql', [configuration.TARGET_DATABASE_URL, '--tuples-only', '--command', 'SELECT MAX(id) FROM "knowledge-elements"']);
+  const kELastRecordIndexTargetAfterReplication = parseInt(maxKEIdStrAfterReplication);
   logger.info('KE last record index target after replication ' + kELastRecordIndexTargetAfterReplication);
 
   logger.info('Total of KE imported ' + (kELastRecordIndexTargetAfterReplication - kELastRecordIndexTargetBeforeReplication));

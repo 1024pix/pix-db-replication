@@ -1,4 +1,6 @@
-const { expect } = require('chai');
+const chai = require('chai');
+const expect = chai.expect;
+chai.use(require('chai-as-promised'));
 const pgUrlParser = require('pg-connection-string').parse;
 const Database = require('../utils/database');
 const { createAndFillDatabase, createBackup } = require('./test-helper');
@@ -60,7 +62,7 @@ describe('Integration | replicate-incrementally.js', () => {
         const configuration = { SOURCE_DATABASE_URL : SOURCE_DATABASE_URL, TARGET_DATABASE_URL : TARGET_DATABASE_URL, PG_RESTORE_JOBS: 4 };
 
         // when
-        run(configuration);
+        await run(configuration);
 
         // then
         const knowledgeElementsCountAfter = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM "knowledge-elements"'));
@@ -101,12 +103,10 @@ describe('Integration | replicate-incrementally.js', () => {
           PG_RESTORE_JOBS: 4 };
 
         // when
-        const runWithConfiguration = function() {
-          run(configuration);
-        };
+        const promise = run(configuration);
 
         // then
-        expect(runWithConfiguration).to.throw('Answers table must not be empty on target database');
+        return expect(promise).to.be.rejectedWith('Answers table must not be empty on target database');
       });
 
       it('should copy all missing values', async function() {
@@ -143,14 +143,16 @@ describe('Integration | replicate-incrementally.js', () => {
         const configuration = { SOURCE_DATABASE_URL : SOURCE_DATABASE_URL, TARGET_DATABASE_URL :TARGET_DATABASE_URL, RESTORE_ANSWERS_AND_KES_INCREMENTALLY : 'true', PG_RESTORE_JOBS: 4 };
 
         // when
-        run(configuration);
+        await run(configuration);
 
         // then
-        const answersCountAfter = parseInt(await targetDatabase.runSql('SELECT  COUNT(1) FROM answers'));
+        const answersCount = await targetDatabase.runSql('SELECT  COUNT(1) FROM answers');
+        const answersCountAfter = parseInt(answersCount);
         expect(answersCountAfter).to.equal(answersCountBefore + 2);
 
         // then
-        const knowledgeElementsCountAfter = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM "knowledge-elements"'));
+        const knowledgeElementsCount = await targetDatabase.runSql('SELECT COUNT(1) FROM "knowledge-elements"');
+        const knowledgeElementsCountAfter = parseInt(knowledgeElementsCount);
         expect(knowledgeElementsCountAfter).to.equal(knowledgeElementsCountBefore + 2);
         // TODO: check the rows copied have matching IDs
 

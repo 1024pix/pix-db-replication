@@ -21,8 +21,9 @@ function exec(cmd, args) {
   return execa(cmd, args, { stdio: 'inherit' });
 }
 
-function execSyncStdOut(cmd, args) {
-  return execa.sync(cmd, args, { stderr: 'inherit' }).stdout;
+async function execStdOut(cmd, args) {
+  const { stdout } = await execa(cmd, args, { stderr: 'inherit' });
+  return stdout;
 }
 
 function setRetriesTimeout(maxMinutes) {
@@ -97,14 +98,14 @@ function dropCurrentObjects(configuration) {
 }
 
 async function dropCurrentObjectsButKesAndAnswers(configuration) {
-  const dropTableQuery = execSyncStdOut('psql', [ configuration.DATABASE_URL, '--tuples-only', '--command', 'select string_agg(\'drop table "\' || tablename || \'" CASCADE\', \'; \') from pg_tables where schemaname = \'public\' and tablename not in (\'knowledge-elements\', \'answers\');' ]);
-  const dropFunction = execSyncStdOut('psql', [ configuration.DATABASE_URL, '--tuples-only', '--command', 'select string_agg(\'drop function "\' || proname || \'"\', \'; \') FROM pg_proc pp INNER JOIN pg_roles pr ON pp.proowner = pr.oid WHERE pr.rolname = current_user ' ]);
+  const dropTableQuery = await execStdOut('psql', [ configuration.DATABASE_URL, '--tuples-only', '--command', 'select string_agg(\'drop table "\' || tablename || \'" CASCADE\', \'; \') from pg_tables where schemaname = \'public\' and tablename not in (\'knowledge-elements\', \'answers\');' ]);
+  const dropFunction = await execStdOut('psql', [ configuration.DATABASE_URL, '--tuples-only', '--command', 'select string_agg(\'drop function "\' || proname || \'"\', \'; \') FROM pg_proc pp INNER JOIN pg_roles pr ON pp.proowner = pr.oid WHERE pr.rolname = current_user ' ]);
   await exec('psql', [ configuration.DATABASE_URL, '--set', 'ON_ERROR_STOP=on', '--echo-all' , '--command', dropTableQuery ]);
   return exec('psql', [ configuration.DATABASE_URL, '--set', 'ON_ERROR_STOP=on', '--echo-all' , '--command', dropFunction ]);
 }
 
-function writeListFileForReplication({ backupFile, configuration }) {
-  const backupObjectList = execSyncStdOut('pg_restore', [ backupFile, '-l' ]);
+async function writeListFileForReplication({ backupFile, configuration }) {
+  const backupObjectList = await execStdOut('pg_restore', [ backupFile, '-l' ]);
   const backupObjectLines = backupObjectList.split('\n');
   const filteredObjectLines = _filterObjectLines(backupObjectLines, configuration);
   fs.writeFileSync(RESTORE_LIST_FILENAME, filteredObjectLines.join('\n'));
@@ -114,7 +115,7 @@ async function restoreBackup({ backupFile, databaseUrl, configuration }) {
   logger.info('Start restore');
 
   try {
-    writeListFileForReplication({ backupFile, configuration });
+    await writeListFileForReplication({ backupFile, configuration });
     // TODO: pass DATABASE_URL by argument
     await exec('pg_restore', [
       '--verbose',
