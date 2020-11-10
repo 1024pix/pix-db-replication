@@ -13,8 +13,8 @@ const logger = require('./logger');
 
 const RESTORE_LIST_FILENAME = 'restore.list';
 
-function shellSync(cmdline) {
-  execa.sync(cmdline, { stdio: 'inherit', shell: true });
+function execShell(cmdline) {
+  return execa(cmdline, { stdio: 'inherit', shell: true });
 }
 
 function execSync(cmd, args) {
@@ -64,8 +64,8 @@ function retryFunctionAirTable(fn, maxRetryCount) {
 }
 
 // dbclient-fetch assumes $HOME/bin is in the PATH
-function setupPath() {
-  shellSync('mkdir -p "$HOME/bin"');
+async function setupPath() {
+  await execShell('mkdir -p "$HOME/bin"');
   // eslint-disable-next-line no-process-env
   process.env.PATH = process.env.HOME + '/bin' + ':' + process.env.PATH;
 }
@@ -74,8 +74,8 @@ function installPostgresClient(configuration) {
   execSync('dbclient-fetcher', [ 'pgsql', configuration.PG_CLIENT_VERSION ]);
 }
 
-function scalingoSetup(configuration) {
-  setupPath();
+async function scalingoSetup(configuration) {
+  await setupPath();
   installPostgresClient(configuration);
 }
 
@@ -138,7 +138,7 @@ async function getScalingoBackup() {
     token: process.env.SCALINGO_API_TOKEN,
     region: process.env.SCALINGO_REGION,
   });
-    
+
   const addon = await client.getAddon('postgresql');
   logger.info('Add-on ID: ' + addon.id);
 
@@ -170,7 +170,7 @@ function dropObjectAndRestoreBackup(backupFile, configuration) {
   logger.info('End restore Backup');
 }
 
-async function  importAirtableData(configuration) {
+async function importAirtableData(configuration) {
 
   const wrappedCall = async function() {
     try {
