@@ -83,15 +83,58 @@ Créer un fichier `.env` à partir du fichier [sample.env](sample.env)
 
 ### Réplication complète
 Elle débute par le téléchargent du backup d'une application Scalingo distante.
-Elle ne peut pas être exécutée en local (utilisation du binaire `dbclient-fetcher` disponible uniquement sur Scalingo ).
+Elle ne peut pas être exécutée en local à cause de l'absence de l'exécutable `dbclient-fetcher`, disponible uniquement sur Scalingo.
 
-Pour n'exécuter :
-- que la restauration
-- en utilisant le backup `./data/source.pgsql`
+Pour exécuter la réplication en utilisant le backup fourni `./data/source.pgsql` (seeds de RA), suivre les étapes suivantes.
 
+Démarrer le BDD locale
+```` bash
+docker-compose up -d
+````
+
+Activer la réplication complète avec le fichier `.env`
+```` bash
+RESTORE_ANSWERS_AND_KES=true
+RESTORE_ANSWERS_AND_KES_INCREMENTALLY=false
+````
+
+Créer un utilisateur non privilégié, à l'image de ce que Scalingo fait lors du provisionnement de l'add-on
+``` bash
+node test/utils/create-user.js
+```
+Se connecter sur DATABASE_URL pour vérifier
+``` bash
+psql postgres://pix@localhost:5432/replication_target
+```
+
+Lancer la restauration
 ``` bash
 node -e "steps=require('./steps'); steps.dropObjectAndRestoreBackup('./data/source.pgsql', require ('./src/extract-configuration-from-environment')())"
 ```
+
+Vous obtenez
+``` bash
+{"name":"pix-db-replication","hostname":"OCTO-TOPI","pid":23609,"level":30,"msg":"Restore done","time":"2020-11-16T08:26:45.857Z","v":0}
+``` 
+
+Lancer l'import des données AirTable (1 minute)
+``` bash
+node -e "steps=require('./steps'); steps.importAirtableData( require ('./src/extract-configuration-from-environment')())"
+```
+
+Vous obtenez
+``` bash
+{"name":"pix-db-replication","hostname":"OCTO-TOPI","pid":23731,"level":30,"msg":"airtableData.fetchAndSaveData - Ended","time":"2020-11-16T08:30:53.361Z","v":0}
+``` 
+
+Lancer l'enrichissement (< 1 minute)
+``` bash
+node -e "steps=require('./steps'); steps.addEnrichment( require ('./src/extract-configuration-from-environment')())"
+```
+Vous obtenez
+``` bash
+{"name":"pix-db-replication","hostname":"OCTO-TOPI","pid":23861,"level":30,"msg":"enrichment.add - Ended","time":"2020-11-16T08:32:13.157Z","v":0}
+``` 
 
 Pensez à recréer le backup sur le filesystem local, supprimé par la restauration
 ``` bash

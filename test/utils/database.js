@@ -1,6 +1,8 @@
 const execa = require('execa');
 const tmp = require('tmp-promise');
 const pgUrlParser = require('pg-connection-string').parse;
+const superUser = 'postgres';
+const databaseProtocol = 'postgres';
 
 module.exports = class Database {
 
@@ -10,7 +12,7 @@ module.exports = class Database {
     this._databaseUrl = `${this._serverUrl}/${this._databaseName}`;
     const config = pgUrlParser(this._databaseUrl);
     this._user = config.user;
-    this._superUserServerUrl = `postgres://postgres@${config.host}:${config.port}`;
+    this._superUserServerUrl = `${databaseProtocol}://${superUser}@${config.host}:${config.port}`;
     this._superUserDatabaseUrl = `${this._superUserServerUrl}/${config.database}`;
   }
 

@@ -277,4 +277,5 @@ module.exports = {
   restoreBackup,
   retryFunction,
   scalingoSetup,
+  addEnrichment
 };
