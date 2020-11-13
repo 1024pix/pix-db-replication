@@ -4,3 +4,6 @@
 restore.list
 backup.tar.gz
 logs.txt
+
+# OS - MacOSX
+.DS_Store
