@@ -1,32 +1,36 @@
 # Application de datawarehouse Pix
 
-Ce projet a pour but de mettre à disposition
-- des utilisateurs internes (développeurs, PO, support, métiers)
-- des utilisateurs externes (partenaires, membres d'une organisation dans PixOrga)
-les possibilités suivantes :
-- exécuter des rapports dans Metabase
-- exécuter des requêtes SQL 
+## Enjeux et contraintes
+Ce projet a pour but de mettre à disposition des ressources facilement exploitables et réglementaires auprès :
+- d'utilisateurs internes (développeurs, PO, support, métiers, ...)
+- d'utilisateurs externes (partenaires, membres d'une organisation dans PixOrga, ...)
 
 Les contraintes majeures sont :
 - disposer des données les plus récentes
 - ne pas impacter la performance de la BDD
 - ne donner accès qu'aux utilisateurs autorisés.
 
-La solution est la suivante :
-- importer chaque nuit les données de production complète dans une BDD dite "interne"
-- importer chaque nuit une partie des données de production dans une BDD dite "externe"
-- dans Metabase, ne donner accès aux externes que sur cette BDD "externe"
+## Approche
+Pour respecter nos enjeux, nous avons dessiné l'approche suivante :
+- importer chaque nuit _l'intégralité_ des données de production dans une BDD dite "interne"
+- importer chaque nuit _une partie_ des données de production dans une BDD dite "externe"
+- dans Metabase, les utilisateurs externes sont réglementairement restraints à l'utilisation de la BDD "externe"
 - suite à l'import, créer des objets supplémentaires pour assurer un temps d'exécution des rapports acceptables (index, vues matérialisées,...)
 
-Pour importer les données, récupérer le backup créé automatiquement par Scalingo.
-
-Afin de garder un seul repository partagé par les applications, utiliser les variables d'environnement. 
+## Produit
+Les possibilités suivantes sont disponibles :
+- exécuter des rapports dans Metabase
+- exécuter des requêtes SQL
 
 ## Pré-requis
-Ce projet est prévu pour être déployé sur une application Scalingo associée à
-une base de donnée PostgreSQL.
+Ce projet est prévu pour être déployé sur une application Scalingo associée à une base de donnée PostgreSQL.
+
+Pour importer des données, il faut récupérer le backup créé automatiquement par Scalingo.
+
+Des variables d'environnement sont mises en place afin de garder un seul repository partagé par les applications.
 
 ## Déploiement sur Scalingo
+
 ### Paramétrage
 Alimenter les variables d'environnement documentées dans le fichier [sample.env](sample.env)
 
@@ -57,6 +61,7 @@ scalingo run --region osc-secnum-fr1 -a <NOM_APPLICATION> --size M --detached no
 ```
 
 ## Développement et exécution en local
+
 ### Installation
 - Exécuter les commandes suivantes : 
 ``` bash
@@ -94,6 +99,7 @@ git checkout data/source.pgsql
 ```
 
 ### Réplication incrémentale
+
 #### Initialiser l'environnement
 Importer les dumps du répertoire `./data` :
 ``` bash
@@ -124,6 +130,7 @@ Elle consiste en la récupération du backup.
 Il est donc important d'effectuer un test manuel en RA avant de merger une PR, même si la CI passe. 
  
 ### Manuels 
+
 #### Local
 Récupérer les données Airtable : 
 ``` bash
@@ -161,7 +168,9 @@ SELECT id, email FROM "users" LIMIT 5;
 ```
 
 ### Automatisés
+
 #### Local
+
 ##### Intégration
 Déroulement : 
 - une BDD est créée en local sur l'URL `$TEST_POSTGRES_URL` (par défaut : `postgres://postgres@localhost`), instance `pix_replication_test`
