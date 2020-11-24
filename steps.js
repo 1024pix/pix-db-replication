@@ -7,6 +7,7 @@ const retry = require('p-retry');
 const airtableData = require('./airtable-data');
 const enrichment = require('./enrichment');
 const logger = require('./logger');
+const moment = require('moment');
 
 const RESTORE_LIST_FILENAME = 'restore.list';
 
@@ -91,10 +92,17 @@ function getPostgresAddonId() {
   }
 }
 
+function _getBackupIdForDate(backupsOutput, date) {
+  const status = 'done';
+  const isBackupFromTodayDone = new RegExp(`^\\|\\s*(?<backupId>[^ \|]+)[\\s\|,\\w]+${date}.*${status}`, 'm');
+  return backupsOutput.match(isBackupFromTodayDone).groups;
+}
+
 function getBackupId({ addonId }) {
   const backupsOutput = execSyncStdOut('scalingo', [ '--addon', addonId, 'backups' ]);
   try {
-    const { backupId } = backupsOutput.match(/^\|\s*(?<backupId>[^ |]+).*done/m).groups;
+    const today = moment().format('D MMM Y');
+    const { backupId } = _getBackupIdForDate(backupsOutput, today);
 
     return backupId;
   } catch (error) {
@@ -277,4 +285,5 @@ module.exports = {
   restoreBackup,
   retryFunction,
   scalingoSetup,
+  _getBackupIdForDate
 };
