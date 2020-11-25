@@ -140,14 +140,14 @@ function extractBackup({ compressedBackup }) {
 
 function dropCurrentObjects(configuration) {
   // TODO: pass DATABASE_URL by argument
-  execSync('psql', [ configuration.DATABASE_URL, ' --echo-all', 'ON_ERROR_STOP=1', '--command', 'DROP OWNED BY CURRENT_USER CASCADE' ]);
+  execSync('psql', [ configuration.DATABASE_URL, ' --echo-all', '--set', 'ON_ERROR_STOP=on', '--command', 'DROP OWNED BY CURRENT_USER CASCADE' ]);
 }
 
 function dropCurrentObjectsButKesAndAnswers(configuration) {
   const dropTableQuery = execSyncStdOut('psql', [ configuration.DATABASE_URL, '--tuples-only', '--command', 'select string_agg(\'drop table "\' || tablename || \'" CASCADE\', \'; \') from pg_tables where schemaname = \'public\' and tablename not in (\'knowledge-elements\', \'answers\');' ]);
   const dropFunction = execSyncStdOut('psql', [ configuration.DATABASE_URL, '--tuples-only', '--command', 'select string_agg(\'drop function "\' || proname || \'"\', \'; \') FROM pg_proc pp INNER JOIN pg_roles pr ON pp.proowner = pr.oid WHERE pr.rolname = current_user ' ]);
-  execSync('psql', [ configuration.DATABASE_URL, 'ON_ERROR_STOP=1', '--echo-all' , '--command', dropTableQuery ]);
-  execSync('psql', [ configuration.DATABASE_URL, 'ON_ERROR_STOP=1', '--echo-all' , '--command', dropFunction ]);
+  execSync('psql', [ configuration.DATABASE_URL, '--set', 'ON_ERROR_STOP=on', '--echo-all' , '--command', dropTableQuery ]);
+  execSync('psql', [ configuration.DATABASE_URL, '--set', 'ON_ERROR_STOP=on', '--echo-all' , '--command', dropFunction ]);
 }
 
 function writeListFileForReplication({ backupFile, configuration }) {
