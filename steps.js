@@ -94,8 +94,14 @@ function getPostgresAddonId() {
 
 function _getBackupIdForDate(backupsOutput, date) {
   const status = 'done';
-  const isBackupFromTodayDone = new RegExp(`^\\|\\s*(?<backupId>[^ \|]+)[\\s\|,\\w]+${date}.*${status}`, 'm');
-  return backupsOutput.match(isBackupFromTodayDone).groups;
+  const isBackupFromTodayDone = new RegExp(`^\\|\\s*(?<backupId>[^ |]+)[\\s|,\\w]+${date}.*${status}`, 'm');
+  const matchedBackupId = backupsOutput.match(isBackupFromTodayDone);
+
+  if (!matchedBackupId) {
+    throw new Error('The backup for yesterday is not available');
+  }
+
+  return matchedBackupId.groups;
 }
 
 function getBackupId({ addonId }) {
@@ -194,7 +200,7 @@ function dropObjectAndRestoreBackup(backupFile, configuration) {
   restoreBackup({ backupFile, databaseUrl: configuration.DATABASE_URL, configuration });
 }
 
-async function importAirtableData(configuration) {
+async function  importAirtableData(configuration) {
 
   const wrappedCall = async function() {
     try {
