@@ -37,12 +37,14 @@ function setAirTableRetriesTimeout(maxMinutes) {
   }, milliseconds);
 }
 
-function retryFunction(fn, maxRetryCount) {
+function retryFunction(fn, maxRetryCount, minTimeout, maxTimeout) {
   return retry(fn, {
     onFailedAttempt: (error) => {
       logger.error(error);
     },
-    retries: maxRetryCount
+    retries: maxRetryCount,
+    minTimeout: minTimeout,
+    maxTimeout: maxTimeout,
   });
 }
 
@@ -261,7 +263,7 @@ async function fullReplicationAndEnrichment(configuration) {
       const backup = await getScalingoBackup();
       logger.info('Start replication and enrichment');
       await dropObjectAndRestoreBackup(backup, configuration);
-    }, configuration.MAX_RETRY_COUNT);
+    }, configuration.MAX_RETRY_COUNT, configuration.MIN_TIMEOUT, configuration.MAX_TIMEOUT);
   } finally {
     clearTimeout(retriesAlarm);
   }

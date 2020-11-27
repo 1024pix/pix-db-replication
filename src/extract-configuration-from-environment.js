@@ -23,6 +23,8 @@ const extractConfigurationFromEnvironmentVariable = function() {
     AIRTABLE_BASE : process.env.AIRTABLE_BASE || 'app3fvsqhtHJntXaC',
     SCHEDULE : process.env.SCHEDULE || '10 5 * * *',
     MAX_RETRY_COUNT : extractInteger(process.env.MAX_RETRY_COUNT) || 10,
+    MIN_TIMEOUT: extractInteger(process.env.MIN_TIMEOUT) || 900000, // 15 min
+    MAX_TIMEOUT: extractInteger(process.env.MAX_TIMEOUT) || 900000, // 15 min
     PG_RESTORE_JOBS : extractInteger(process.env.PG_RESTORE_JOBS) || 4,
     RESTORE_FK_CONSTRAINTS : process.env.RESTORE_FK_CONSTRAINTS || 'true',
     RESTORE_ANSWERS_AND_KES : process.env.RESTORE_ANSWERS_AND_KES || 'true',
