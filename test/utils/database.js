@@ -49,13 +49,13 @@ module.exports = class Database {
 
   async createDatabase() {
     await execa('psql', [ this._superUserServerUrl,
-      '--echo-all', 'ON_ERROR_STOP=1', '--command', `CREATE DATABASE "${this._databaseName}"`,
+      '--echo-all', '--set', 'ON_ERROR_STOP=on', '--command', `CREATE DATABASE "${this._databaseName}"`,
     ]);
   }
 
   async dropDatabase() {
     await execa('psql', [ this._superUserServerUrl,
-      '--echo-all', 'ON_ERROR_STOP=1', '--command', `DROP DATABASE IF EXISTS "${this._databaseName}"`,
+      '--echo-all', '--set', 'ON_ERROR_STOP=on', '--command', `DROP DATABASE IF EXISTS "${this._databaseName}"`,
     ]);
   }
 

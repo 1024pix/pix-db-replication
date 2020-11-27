@@ -7,6 +7,7 @@ const retry = require('p-retry');
 const airtableData = require('./airtable-data');
 const enrichment = require('./enrichment');
 const logger = require('./logger');
+const moment = require('moment');
 
 const RESTORE_LIST_FILENAME = 'restore.list';
 
@@ -36,12 +37,14 @@ function setAirTableRetriesTimeout(maxMinutes) {
   }, milliseconds);
 }
 
-function retryFunction(fn, maxRetryCount) {
+function retryFunction(fn, maxRetryCount, minTimeout, maxTimeout) {
   return retry(fn, {
     onFailedAttempt: (error) => {
       logger.error(error);
     },
-    retries: maxRetryCount
+    retries: maxRetryCount,
+    minTimeout: minTimeout,
+    maxTimeout: maxTimeout,
   });
 }
 
@@ -91,10 +94,23 @@ function getPostgresAddonId() {
   }
 }
 
+function _getBackupIdForDate(backupsOutput, date) {
+  const status = 'done';
+  const isBackupFromTodayDone = new RegExp(`^\\|\\s*(?<backupId>[^ |]+)[\\s|,\\w]+${date}.*${status}`, 'm');
+  const matchedBackupId = backupsOutput.match(isBackupFromTodayDone);
+
+  if (!matchedBackupId) {
+    throw new Error('The backup for yesterday is not available');
+  }
+
+  return matchedBackupId.groups;
+}
+
 function getBackupId({ addonId }) {
   const backupsOutput = execSyncStdOut('scalingo', [ '--addon', addonId, 'backups' ]);
   try {
-    const { backupId } = backupsOutput.match(/^\|\s*(?<backupId>[^ |]+).*done/m).groups;
+    const today = moment().format('D MMM Y');
+    const { backupId } = _getBackupIdForDate(backupsOutput, today);
 
     return backupId;
   } catch (error) {
@@ -116,24 +132,26 @@ function downloadBackup({ addonId, backupId }) {
 
 function extractBackup({ compressedBackup }) {
   // MACOS: execSync('tar', [ 'xvzf', compressedBackup ]);
-  execSync('tar', [ 'xvzf', compressedBackup, '--wildcards', '*.pgsql' ]);
+  logger.info('Start Extract backup');
+  execSync('tar', [ 'xvzf', compressedBackup, '--wildcards', '*.pgsql']);
   const backupFile = fs.readdirSync('.').find((f) => /.*\.pgsql$/.test(f));
   if (!backupFile) {
     throw new Error(`Could not find .pgsql file in ${compressedBackup}`);
   }
+  logger.info('End Extract backup');
   return backupFile;
 }
 
 function dropCurrentObjects(configuration) {
   // TODO: pass DATABASE_URL by argument
-  execSync('psql', [ configuration.DATABASE_URL, ' --echo-all', 'ON_ERROR_STOP=1', '--command', 'DROP OWNED BY CURRENT_USER CASCADE' ]);
+  execSync('psql', [ configuration.DATABASE_URL, ' --echo-all', '--set', 'ON_ERROR_STOP=on', '--command', 'DROP OWNED BY CURRENT_USER CASCADE' ]);
 }
 
 function dropCurrentObjectsButKesAndAnswers(configuration) {
   const dropTableQuery = execSyncStdOut('psql', [ configuration.DATABASE_URL, '--tuples-only', '--command', 'select string_agg(\'drop table "\' || tablename || \'" CASCADE\', \'; \') from pg_tables where schemaname = \'public\' and tablename not in (\'knowledge-elements\', \'answers\');' ]);
   const dropFunction = execSyncStdOut('psql', [ configuration.DATABASE_URL, '--tuples-only', '--command', 'select string_agg(\'drop function "\' || proname || \'"\', \'; \') FROM pg_proc pp INNER JOIN pg_roles pr ON pp.proowner = pr.oid WHERE pr.rolname = current_user ' ]);
-  execSync('psql', [ configuration.DATABASE_URL, 'ON_ERROR_STOP=1', '--echo-all' , '--command', dropTableQuery ]);
-  execSync('psql', [ configuration.DATABASE_URL, 'ON_ERROR_STOP=1', '--echo-all' , '--command', dropFunction ]);
+  execSync('psql', [ configuration.DATABASE_URL, '--set', 'ON_ERROR_STOP=on', '--echo-all' , '--command', dropTableQuery ]);
+  execSync('psql', [ configuration.DATABASE_URL, '--set', 'ON_ERROR_STOP=on', '--echo-all' , '--command', dropFunction ]);
 }
 
 function writeListFileForReplication({ backupFile, configuration }) {
@@ -172,21 +190,28 @@ async function getScalingoBackup() {
   const backupId = getBackupId({ addonId });
   logger.info('Backup ID: ' + backupId);
 
+  logger.info('Start download backup');
   const compressedBackup = downloadBackup({ addonId, backupId });
+  logger.info('Fin download backup');
+
   return extractBackup({ compressedBackup });
 }
 
 function dropObjectAndRestoreBackup(backupFile, configuration) {
+  logger.info('Start drop Objects AndRestoreBackup');
   if (configuration.RESTORE_ANSWERS_AND_KES_INCREMENTALLY && configuration.RESTORE_ANSWERS_AND_KES_INCREMENTALLY === 'true') {
     dropCurrentObjectsButKesAndAnswers(configuration);
   } else {
     dropCurrentObjects(configuration);
   }
+  logger.info('End drop Objects AndRestoreBackup');
 
+  logger.info('Start restore Backup');
   restoreBackup({ backupFile, databaseUrl: configuration.DATABASE_URL, configuration });
+  logger.info('End restore Backup');
 }
 
-async function importAirtableData(configuration) {
+async function  importAirtableData(configuration) {
 
   const wrappedCall = async function() {
     try {
@@ -236,8 +261,9 @@ async function fullReplicationAndEnrichment(configuration) {
     retriesAlarm = setRetriesTimeout(configuration.RETRIES_TIMEOUT_MINUTES);
     await retryFunction(async () => {
       const backup = await getScalingoBackup();
+      logger.info('Start replication and enrichment');
       await dropObjectAndRestoreBackup(backup, configuration);
-    }, configuration.MAX_RETRY_COUNT);
+    }, configuration.MAX_RETRY_COUNT, configuration.MIN_TIMEOUT, configuration.MAX_TIMEOUT);
   } finally {
     clearTimeout(retriesAlarm);
   }
@@ -277,4 +303,5 @@ module.exports = {
   restoreBackup,
   retryFunction,
   scalingoSetup,
+  _getBackupIdForDate
 };
