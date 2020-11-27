@@ -130,11 +130,13 @@ function downloadBackup({ addonId, backupId }) {
 
 function extractBackup({ compressedBackup }) {
   // MACOS: execSync('tar', [ 'xvzf', compressedBackup ]);
-  execSync('tar', [ 'xvzf', compressedBackup, '--wildcards', '*.pgsql' ]);
+  logger.info('Start Extract backup');
+  execSync('tar', [ 'xvzf', compressedBackup, '--wildcards', '*.pgsql']);
   const backupFile = fs.readdirSync('.').find((f) => /.*\.pgsql$/.test(f));
   if (!backupFile) {
     throw new Error(`Could not find .pgsql file in ${compressedBackup}`);
   }
+  logger.info('End Extract backup');
   return backupFile;
 }
 
@@ -186,18 +188,25 @@ async function getScalingoBackup() {
   const backupId = getBackupId({ addonId });
   logger.info('Backup ID: ' + backupId);
 
+  logger.info('Start download backup');
   const compressedBackup = downloadBackup({ addonId, backupId });
+  logger.info('Fin download backup');
+
   return extractBackup({ compressedBackup });
 }
 
 function dropObjectAndRestoreBackup(backupFile, configuration) {
+  logger.info('Start drop Objects AndRestoreBackup');
   if (configuration.RESTORE_ANSWERS_AND_KES_INCREMENTALLY && configuration.RESTORE_ANSWERS_AND_KES_INCREMENTALLY === 'true') {
     dropCurrentObjectsButKesAndAnswers(configuration);
   } else {
     dropCurrentObjects(configuration);
   }
+  logger.info('End drop Objects AndRestoreBackup');
 
+  logger.info('Start restore Backup');
   restoreBackup({ backupFile, databaseUrl: configuration.DATABASE_URL, configuration });
+  logger.info('End restore Backup');
 }
 
 async function  importAirtableData(configuration) {
@@ -250,6 +259,7 @@ async function fullReplicationAndEnrichment(configuration) {
     retriesAlarm = setRetriesTimeout(configuration.RETRIES_TIMEOUT_MINUTES);
     await retryFunction(async () => {
       const backup = await getScalingoBackup();
+      logger.info('Start replication and enrichment');
       await dropObjectAndRestoreBackup(backup, configuration);
     }, configuration.MAX_RETRY_COUNT);
   } finally {
