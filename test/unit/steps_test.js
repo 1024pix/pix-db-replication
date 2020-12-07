@@ -1,7 +1,6 @@
 const { expect } = require('chai');
-const moment = require('moment');
 
-const { retryFunction, _getBackupIdForDate } = require('../../steps');
+const { retryFunction } = require('../../steps');
 
 function catchErr(promiseFn, ctx) {
   return async (...args) => {
@@ -71,40 +70,6 @@ describe('Unit | steps.js', () => {
       // then
       expect(error).to.be.instanceOf(Error);
       expect(nbRetries).to.be.equal(expectedNbRetries);
-    });
-  });
-
-  describe('#_getBackupIdForYesterday', () => {
-
-    it('should return backup from yesterday when done', async function() {
-      // given
-      const nov25 = '2020-11-25T08:56:16.553Z';
-      const backups = `| today-but-not-done | Mon, 25 Nov 2020 01:00:00 CET | 25 GB  | WIP   |
-| backup-from-incorrect-day | Mon, 24 Nov 2020 01:00:00 CET | 25 GB  | done   |
-| correct-backupId | Mon, 25 Nov 2020 01:00:00 CET | 25 GB  | done   |`;
-      const date = moment(nov25).format('D MMM Y');
-
-      // when
-      const result = _getBackupIdForDate(backups, date);
-
-      // then
-      expect(result).to.deep.equal({ 'backupId': 'correct-backupId' });
-    });
-
-    it('should throw an error when backup is not ready or available', async function() {
-      // given
-      const dateWithoutBackup = '2020-11-27T08:56:16.553Z';
-      const backups = `| today-but-not-done | Mon, 25 Nov 2020 01:00:00 CET | 25 GB  | WIP   |
-| backup-from-incorrect-day | Mon, 24 Nov 2020 01:00:00 CET | 25 GB  | done   |
-| correct-backupId | Mon, 25 Nov 2020 01:00:00 CET | 25 GB  | done   |`;
-      const date = moment(dateWithoutBackup).format('D MMM Y');
-
-      // when
-      const error = await catchErr(_getBackupIdForDate)(backups, date);
-
-      // then
-      expect(error).to.be.instanceOf(Error);
-      expect(error.message).to.equal('The backup for yesterday is not available');
     });
   });
 
