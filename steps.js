@@ -1,13 +1,15 @@
+/* eslint-disable no-process-env */
 'use strict';
 
 const execa = require('execa');
 const fs = require('fs');
 const retry = require('p-retry');
 
+const ScalingoClient = require('./src/scalingo/client');
+const { getTodayBackup } = require('./src/scalingo/utils');
 const airtableData = require('./airtable-data');
 const enrichment = require('./enrichment');
 const logger = require('./logger');
-const moment = require('moment');
 
 const RESTORE_LIST_FILENAME = 'restore.list';
 
@@ -68,66 +70,13 @@ function setupPath() {
   process.env.PATH = process.env.HOME + '/bin' + ':' + process.env.PATH;
 }
 
-function installScalingoCli() {
-  shellSync('curl -Ss -O https://cli-dl.scalingo.io/install && bash install --yes --install-dir "$HOME/bin"');
-}
-
 function installPostgresClient(configuration) {
   execSync('dbclient-fetcher', [ 'pgsql', configuration.PG_CLIENT_VERSION ]);
 }
 
 function scalingoSetup(configuration) {
   setupPath();
-  installScalingoCli();
   installPostgresClient(configuration);
-}
-
-function getPostgresAddonId() {
-  const addonsOutput = execSyncStdOut('scalingo', [ 'addons' ]);
-  try {
-    const { addonId } = addonsOutput.match(/PostgreSQL\s*\|\s*(?<addonId>\S+)/).groups;
-
-    return addonId;
-  } catch (error) {
-    logger.error({ output: addonsOutput, err: error }, 'Could not extract add-on ID from "scalingo addons" output');
-    throw error;
-  }
-}
-
-function _getBackupIdForDate(backupsOutput, date) {
-  const status = 'done';
-  const isBackupFromTodayDone = new RegExp(`^\\|\\s*(?<backupId>[^ |]+)[\\s|,\\w]+${date}.*${status}`, 'm');
-  const matchedBackupId = backupsOutput.match(isBackupFromTodayDone);
-
-  if (!matchedBackupId) {
-    throw new Error('The backup for yesterday is not available');
-  }
-
-  return matchedBackupId.groups;
-}
-
-function getBackupId({ addonId }) {
-  const backupsOutput = execSyncStdOut('scalingo', [ '--addon', addonId, 'backups' ]);
-  try {
-    const today = moment().format('D MMM Y');
-    const { backupId } = _getBackupIdForDate(backupsOutput, today);
-
-    return backupId;
-  } catch (error) {
-    logger.error({ output: backupsOutput, err: error }, 'Could not extract backup ID from "scalingo backups" output');
-    throw error;
-  }
-}
-
-function downloadBackup({ addonId, backupId }) {
-  const compressedBackup = 'backup.tar.gz';
-  execSync('scalingo', [ '--addon', addonId, 'backups-download', '--silent', '--backup', backupId, '--output', compressedBackup ]);
-
-  if (!fs.existsSync('backup.tar.gz')) {
-    throw new Error('Backup download failed');
-  }
-
-  return compressedBackup;
 }
 
 function extractBackup({ compressedBackup }) {
@@ -184,14 +133,24 @@ function restoreBackup({ backupFile, databaseUrl, configuration }) {
 }
 
 async function getScalingoBackup() {
-  const addonId = await getPostgresAddonId();
-  logger.info('Add-on ID: ' + addonId);
+  const client = await ScalingoClient.getInstance({
+    app: process.env.SCALINGO_APP,
+    token: process.env.SCALINGO_API_TOKEN,
+    region: process.env.SCALINGO_REGION,
+  });
+    
+  const addon = await client.getAddon('postgresql');
+  logger.info('Add-on ID: ' + addon.id);
 
-  const backupId = getBackupId({ addonId });
-  logger.info('Backup ID: ' + backupId);
+  const dbClient = await client.getDatabaseClient(addon.id);
+
+  const backups = await dbClient.getBackups();
+  const backup = getTodayBackup(backups);
+  logger.info('Backup ID: ' + backup.id);
 
   logger.info('Start download backup');
-  const compressedBackup = downloadBackup({ addonId, backupId });
+  const compressedBackup = './backup.tar.gz';
+  await dbClient.downloadBackup(backup.id, compressedBackup);
   logger.info('Fin download backup');
 
   return extractBackup({ compressedBackup });
@@ -303,5 +262,4 @@ module.exports = {
   restoreBackup,
   retryFunction,
   scalingoSetup,
-  _getBackupIdForDate
 };
