@@ -115,10 +115,11 @@ async function restoreBackup({ backupFile, databaseUrl, configuration }) {
   logger.info('Start restore');
 
   try {
+    const verboseOptions = process.env.NODE_ENV === 'test' ? [] : ['--verbose'];
     await writeListFileForReplication({ backupFile, configuration });
     // TODO: pass DATABASE_URL by argument
     await exec('pg_restore', [
-      '--verbose',
+      ...verboseOptions,
       '--jobs', configuration.PG_RESTORE_JOBS,
       '--no-owner',
       '--use-list', RESTORE_LIST_FILENAME,
