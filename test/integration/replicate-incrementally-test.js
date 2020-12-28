@@ -66,7 +66,7 @@ describe('Integration | replicate-incrementally.js', () => {
 
         // then
         const knowledgeElementsCountAfter = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM "knowledge-elements"'));
-        expect(knowledgeElementsCountAfter).to.equal(knowledgeElementsCountAfter);
+        expect(knowledgeElementsCountAfter).to.equal(knowledgeElementsCountBefore);
 
       });
 
