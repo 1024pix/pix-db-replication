@@ -38,7 +38,7 @@ workflows:
 jobs:
   checkout:
     docker:
-      - image: circleci/node:14.15.0
+      - image: cimg/node:14.15.0
     working_directory: ~/db-replication
     steps:
       - checkout
@@ -53,8 +53,8 @@ jobs:
 
   build_and_test:
     docker:
-      - image: circleci/node:14.15.0
-      - image: postgres:9.6-alpine
+      - image: cimg/node:14.15.0
+      - image: postgres:12-alpine
         environment:
           POSTGRES_USER: postgres
           POSTGRES_HOST_AUTH_METHOD: trust
@@ -78,7 +78,7 @@ jobs:
       - run :
           name : Install psql
           command: |
-            sudo apt-get install postgresql-client
+            sudo apt-get install postgresql-client-12
       - run:
           name: Waiting for PostgreSQL to start
           command: |
