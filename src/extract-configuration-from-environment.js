@@ -54,10 +54,6 @@ const removeConfigurationFromEnvironmentVariable = function() {
   delete process.env.SOURCE_DATABASE_URL;
   delete process.env.TARGET_DATABASE_URL;
   delete process.env.DATABASE_URL;
-
-  // Do not unset these variables, as they are indirectly used for backup download
-  // delete process.env.SCALINGO_APP;
-  // delete process.env.SCALINGO_API_TOKEN;
 };
 
 module.exports = extractConfigurationFromEnvironment;

@@ -7,7 +7,7 @@ const extractConfigurationFromEnvironment = require ('./src/extract-configuratio
 const configuration = extractConfigurationFromEnvironment();
 
 async function main() {
-  await steps.scalingoSetup(configuration);
+  await steps.pgclientSetup(configuration);
   return steps.fullReplicationAndEnrichment(configuration);
 }
 

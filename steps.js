@@ -5,8 +5,6 @@ const execa = require('execa');
 const fs = require('fs');
 const retry = require('p-retry');
 
-const ScalingoClient = require('./src/scalingo/client');
-const { getTodayBackup } = require('./src/scalingo/utils');
 const airtableData = require('./airtable-data');
 const enrichment = require('./enrichment');
 const logger = require('./logger');
@@ -75,21 +73,9 @@ function installPostgresClient(configuration) {
   return exec('dbclient-fetcher', [ 'pgsql', configuration.PG_CLIENT_VERSION ]);
 }
 
-async function scalingoSetup(configuration) {
-  await setupPath();
-  return installPostgresClient(configuration);
-}
-
-async function extractBackup({ compressedBackup }) {
-  // MACOS: exec('tar', [ 'xvzf', compressedBackup ]);
-  logger.info('Start Extract backup');
-  await exec('tar', [ 'xvzf', compressedBackup, '--wildcards', '*.pgsql']);
-  const backupFile = fs.readdirSync('.').find((f) => /.*\.pgsql$/.test(f));
-  if (!backupFile) {
-    throw new Error(`Could not find .pgsql file in ${compressedBackup}`);
-  }
-  logger.info('End Extract backup');
-  return backupFile;
+async function pgclientSetup(configuration) {
+  setupPath();
+  installPostgresClient(configuration);
 }
 
 function dropCurrentObjects(configuration) {
@@ -159,30 +145,6 @@ async function createBackup(configuration) {
     ...excludeOptions,
   ]);
   return backupFilename;
-}
-
-async function getScalingoBackup() {
-  const client = await ScalingoClient.getInstance({
-    app: process.env.SCALINGO_APP,
-    token: process.env.SCALINGO_API_TOKEN,
-    region: process.env.SCALINGO_REGION,
-  });
-
-  const addon = await client.getAddon('postgresql');
-  logger.info('Add-on ID: ' + addon.id);
-
-  const dbClient = await client.getDatabaseClient(addon.id);
-
-  const backups = await dbClient.getBackups();
-  const backup = getTodayBackup(backups);
-  logger.info('Backup ID: ' + backup.id);
-
-  logger.info('Start download backup');
-  const compressedBackup = './backup.tar.gz';
-  await dbClient.downloadBackup(backup.id, compressedBackup);
-  logger.info('Fin download backup');
-
-  return extractBackup({ compressedBackup });
 }
 
 async function dropObjectAndRestoreBackup(backupFile, configuration) {
@@ -295,6 +257,6 @@ module.exports = {
   importAirtableData,
   restoreBackup,
   retryFunction,
-  scalingoSetup,
+  pgclientSetup,
   createBackup,
 };
