@@ -240,21 +240,25 @@ async function addEnrichment(configuration) {
   logger.info('enrichment.add - Ended');
 }
 
-async function fullReplicationAndEnrichment(configuration) {
-  logger.info('Start replication and enrichment');
-
-  logger.info('Download and restore backup');
+async function backupAndRestore(configuration) {
   let retriesAlarm;
   try {
     retriesAlarm = setRetriesTimeout(configuration.RETRIES_TIMEOUT_MINUTES);
     await retryFunction(async () => {
-      const backup = await getScalingoBackup();
+      const backup = await createBackup(configuration);
       logger.info('Start replication and enrichment');
       await dropObjectAndRestoreBackup(backup, configuration);
     }, configuration.MAX_RETRY_COUNT, configuration.MIN_TIMEOUT, configuration.MAX_TIMEOUT);
   } finally {
     clearTimeout(retriesAlarm);
   }
+}
+
+async function fullReplicationAndEnrichment(configuration) {
+  logger.info('Start replication and enrichment');
+
+  logger.info('Download and restore backup');
+  await backupAndRestore(configuration);
 
   logger.info('Retrieve AirTable data to database ');
   await importAirtableData(configuration);
@@ -285,6 +289,7 @@ function _filterObjectLines(objectLines, configuration) {
 }
 
 module.exports = {
+  backupAndRestore,
   dropObjectAndRestoreBackup,
   fullReplicationAndEnrichment,
   importAirtableData,

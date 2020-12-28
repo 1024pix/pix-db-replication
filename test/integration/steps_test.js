@@ -1,5 +1,5 @@
 const { expect } = require('chai');
-const { createBackupAndCreateEmptyDatabase, createBackup } = require('./test-helper');
+const { createBackupAndCreateEmptyDatabase, createAndFillDatabase, createBackup } = require('./test-helper');
 const Database = require('../utils/database');
 const pgUrlParser = require('pg-connection-string').parse;
 const nock = require('nock');
@@ -7,6 +7,104 @@ const nock = require('nock');
 const steps = require('../../steps');
 
 describe('Integration | steps.js', () => {
+
+  describe('#backupAndRestore', () => {
+    // CircleCI set up environment variables to access DB, so we need to read them here
+    // eslint-disable-next-line no-process-env
+    const SOURCE_DATABASE_URL = process.env.SOURCE_DATABASE_URL || 'postgres://pix@localhost:5432/replication_source';
+    // eslint-disable-next-line no-process-env
+    const TARGET_DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://pix@localhost:5432/replication_target';
+    let sourceDatabase;
+    let targetDatabase;
+    let sourceDatabaseConfig;
+    let targetDatabaseConfig;
+
+    before(async() => {
+      const rawSourceDataBaseConfig = pgUrlParser(SOURCE_DATABASE_URL);
+
+      sourceDatabaseConfig = {
+        serverUrl: `postgres://${rawSourceDataBaseConfig.user}@${rawSourceDataBaseConfig.host}:${rawSourceDataBaseConfig.port}`,
+        databaseName: rawSourceDataBaseConfig.database,
+        tableName: 'test_table',
+        tableRowCount: 100000,
+      };
+
+      sourceDatabaseConfig.databaseUrl = `${sourceDatabaseConfig.serverUrl}/${sourceDatabaseConfig.databaseName}`;
+
+      const rawTargetDataBaseConfig = pgUrlParser(TARGET_DATABASE_URL);
+
+      targetDatabaseConfig = {
+        serverUrl: `postgres://${rawSourceDataBaseConfig.user}@${rawTargetDataBaseConfig.host}:${rawTargetDataBaseConfig.port}`,
+        databaseName: rawTargetDataBaseConfig.database,
+        tableName: 'test_table',
+        tableRowCount: 100000,
+      };
+
+      targetDatabaseConfig.databaseUrl = `${targetDatabaseConfig.serverUrl}/${targetDatabaseConfig.databaseName}`;
+
+    });
+
+    afterEach(async function() {
+      await sourceDatabase.dropDatabase();
+      await targetDatabase.dropDatabase();
+    });
+
+    it('backup and restore the database without answers and knowledge-elements ', async () => {
+      // given
+      const configuration = {
+        SOURCE_DATABASE_URL,
+        TARGET_DATABASE_URL,
+        DATABASE_URL: TARGET_DATABASE_URL,
+        RESTORE_ANSWERS_AND_KES: 'false',
+        PG_RESTORE_JOBS: 1,
+      };
+      sourceDatabase = await Database.create(sourceDatabaseConfig);
+      await createAndFillDatabase(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true });
+      targetDatabase = await Database.create(targetDatabaseConfig);
+
+      // when
+      await steps.backupAndRestore(configuration);
+
+      // then
+      const restoredRowCount = parseInt(await targetDatabase.runSql(`SELECT COUNT(*) FROM ${targetDatabaseConfig.tableName}`));
+      expect(restoredRowCount).to.equal(targetDatabaseConfig.tableRowCount);
+
+      const isAnswersRestored = parseInt(await targetDatabase.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'answers\''));
+      expect(isAnswersRestored).to.equal(0);
+
+      // then
+      const isKnowledgeElementsRestored = parseInt(await targetDatabase.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-elements\''));
+      expect(isKnowledgeElementsRestored).to.equal(0);
+    });
+
+    it('backup and restore the database with answers and knowledge-elements ', async () => {
+      // given
+      const configuration = {
+        SOURCE_DATABASE_URL,
+        TARGET_DATABASE_URL,
+        DATABASE_URL: TARGET_DATABASE_URL,
+        RESTORE_ANSWERS_AND_KES: 'true',
+        PG_RESTORE_JOBS: 1,
+      };
+      sourceDatabase = await Database.create(sourceDatabaseConfig);
+      await createAndFillDatabase(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true });
+      targetDatabase = await Database.create(targetDatabaseConfig);
+
+      // when
+      await steps.backupAndRestore(configuration);
+
+      // then
+      const restoredRowCount = parseInt(await targetDatabase.runSql(`SELECT COUNT(*) FROM ${targetDatabaseConfig.tableName}`));
+      expect(restoredRowCount).to.equal(targetDatabaseConfig.tableRowCount);
+
+      const isAnswersRestored = parseInt(await targetDatabase.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'answers\''));
+      expect(isAnswersRestored).to.equal(1);
+
+      // then
+      const isKnowledgeElementsRestored = parseInt(await targetDatabase.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-elements\''));
+      expect(isKnowledgeElementsRestored).to.equal(1);
+    });
+  });
 
   describe('#restoreBackup', () => {
 
@@ -467,4 +565,3 @@ describe('Integration | steps.js', () => {
   });
 
 });
-
