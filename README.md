@@ -188,7 +188,7 @@ psql postgres://postgres@localhost/pix_replication_test
 
 #### CI
 La CI exécute l'intégralité des tests (unitaire et intégration).
-Elle les exécute ur une version de PostgreSQL antérieure (9 au lieu de 12 en production)
+Elle les exécute sur une version de PostgreSQL antérieure (9 au lieu de 12 en production)
 
 ## Parser les logs
 L'analyse de ce qui prend du temps est complexe sur les logs brutes s'il y a : 
