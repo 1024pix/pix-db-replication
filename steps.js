@@ -134,6 +134,33 @@ async function restoreBackup({ backupFile, databaseUrl, configuration }) {
   logger.info('Restore done');
 }
 
+async function createBackup(configuration) {
+  const backupFilename = './dump.pgsql';
+
+  const excludeOptions = configuration.RESTORE_ANSWERS_AND_KES === 'true'
+    ? []
+    : [
+      '--exclude-table', 'knowledge-elements',
+      '--exclude-table', 'answers',
+    ];
+
+  await exec('pg_dump', [
+    '--clean',
+    '--if-exists',
+    '--format', 'c',
+    '--dbname', configuration.SOURCE_DATABASE_URL,
+    '--no-owner',
+    '--no-privileges',
+    '--no-comments',
+    '--exclude-schema',
+    'information_schema',
+    '--exclude-schema', '\'^pg_*\'',
+    '--file', backupFilename,
+    ...excludeOptions,
+  ]);
+  return backupFilename;
+}
+
 async function getScalingoBackup() {
   const client = await ScalingoClient.getInstance({
     app: process.env.SCALINGO_APP,
@@ -264,4 +291,5 @@ module.exports = {
   restoreBackup,
   retryFunction,
   scalingoSetup,
+  createBackup,
 };
