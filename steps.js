@@ -121,6 +121,7 @@ async function restoreBackup({ backupFile, databaseUrl, configuration }) {
 }
 
 async function createBackup(configuration) {
+  logger.info('Start create Backup');
   const backupFilename = './dump.pgsql';
 
   const excludeOptions = configuration.RESTORE_ANSWERS_AND_KES === 'true'
@@ -144,6 +145,7 @@ async function createBackup(configuration) {
     '--file', backupFilename,
     ...excludeOptions,
   ]);
+  logger.info('End create Backup');
   return backupFilename;
 }
 
@@ -208,7 +210,6 @@ async function backupAndRestore(configuration) {
     retriesAlarm = setRetriesTimeout(configuration.RETRIES_TIMEOUT_MINUTES);
     await retryFunction(async () => {
       const backup = await createBackup(configuration);
-      logger.info('Start replication and enrichment');
       await dropObjectAndRestoreBackup(backup, configuration);
     }, configuration.MAX_RETRY_COUNT, configuration.MIN_TIMEOUT, configuration.MAX_TIMEOUT);
   } finally {
@@ -219,7 +220,7 @@ async function backupAndRestore(configuration) {
 async function fullReplicationAndEnrichment(configuration) {
   logger.info('Start replication and enrichment');
 
-  logger.info('Download and restore backup');
+  logger.info('Create and restore backup');
   await backupAndRestore(configuration);
 
   logger.info('Retrieve AirTable data to database ');
