@@ -130,6 +130,7 @@ async function createBackup(configuration) {
       '--exclude-table', 'knowledge-elements',
       '--exclude-table', 'answers',
     ];
+  const verboseOptions = process.env.NODE_ENV === 'test' ? [] : ['--verbose'];
 
   await exec('pg_dump', [
     '--clean',
@@ -143,6 +144,7 @@ async function createBackup(configuration) {
     'information_schema',
     '--exclude-schema', '\'^pg_*\'',
     '--file', backupFilename,
+    ...verboseOptions,
     ...excludeOptions,
   ]);
   logger.info('End create Backup');
