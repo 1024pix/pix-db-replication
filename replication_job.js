@@ -9,14 +9,30 @@ const parisTimezone = 'Europe/Paris';
 const extractConfigurationFromEnvironment = require ('./src/extract-configuration-from-environment');
 const configuration = extractConfigurationFromEnvironment();
 
-steps.scalingoSetup(configuration);
+async function main() {
+  await steps.scalingoSetup(configuration);
+  new CronJob(configuration.SCHEDULE, async function() {
+    try {
+      await steps.fullReplicationAndEnrichment(configuration);
+    } catch (error) {
+      logger.error(error);
+      process.exit(1);
+    }
+  }, null, true, parisTimezone);
+}
 
-new CronJob(configuration.SCHEDULE, async function() {
-  try {
-    await steps.fullReplicationAndEnrichment(configuration);
-  } catch (error) {
+main()
+  .catch((error) => {
     logger.error(error);
     process.exit(1);
-  }
-}, null, true, parisTimezone);
+  });
 
+function exitOnSignal(signal) {
+  logger.info(`Received signal ${signal}.`);
+  process.exit(1);
+}
+
+process.on('uncaughtException', () => { exitOnSignal('uncaughtException'); });
+process.on('unhandledRejection', () => { exitOnSignal('unhandledRejection'); });
+process.on('SIGTERM', () => { exitOnSignal('SIGTERM'); });
+process.on('SIGINT', () => { exitOnSignal('SIGINT'); });

@@ -39,10 +39,11 @@ describe('Integration | steps.js', () => {
         const configuration = { RESTORE_FK_CONSTRAINTS: 'false', PG_RESTORE_JOBS: 4 };
 
         // when
-        steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl, configuration });
+        await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl, configuration });
 
         // then
-        const restoredRowCount = parseInt(await database.runSql(`SELECT COUNT(*) FROM ${databaseConfig.tableName}`));
+        const countOfTable = await database.runSql(`SELECT COUNT(*) FROM ${databaseConfig.tableName}`);
+        const restoredRowCount = parseInt(countOfTable);
         expect(restoredRowCount).to.equal(databaseConfig.tableRowCount);
 
         // then

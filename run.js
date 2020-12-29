@@ -6,9 +6,12 @@ const steps = require('./steps');
 const extractConfigurationFromEnvironment = require ('./src/extract-configuration-from-environment');
 const configuration = extractConfigurationFromEnvironment();
 
-steps.scalingoSetup(configuration);
+async function main() {
+  await steps.scalingoSetup(configuration);
+  return steps.fullReplicationAndEnrichment(configuration);
+}
 
-steps.fullReplicationAndEnrichment(configuration)
+main()
   .then(() => {
     process.exit(0);
   })
@@ -17,3 +20,12 @@ steps.fullReplicationAndEnrichment(configuration)
     process.exit(1);
   });
 
+function exitOnSignal(signal) {
+  logger.info(`Received signal ${signal}.`);
+  process.exit(1);
+}
+
+process.on('uncaughtException', () => { exitOnSignal('uncaughtException'); });
+process.on('unhandledRejection', () => { exitOnSignal('unhandledRejection'); });
+process.on('SIGTERM', () => { exitOnSignal('SIGTERM'); });
+process.on('SIGINT', () => { exitOnSignal('SIGINT'); });
