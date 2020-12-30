@@ -10,7 +10,7 @@ const extractConfigurationFromEnvironment = require ('./src/extract-configuratio
 const configuration = extractConfigurationFromEnvironment();
 
 async function main() {
-  await steps.scalingoSetup(configuration);
+  await steps.pgclientSetup(configuration);
   new CronJob(configuration.SCHEDULE, async function() {
     try {
       await steps.fullReplicationAndEnrichment(configuration);

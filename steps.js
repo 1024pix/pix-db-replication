@@ -5,8 +5,6 @@ const execa = require('execa');
 const fs = require('fs');
 const retry = require('p-retry');
 
-const ScalingoClient = require('./src/scalingo/client');
-const { getTodayBackup } = require('./src/scalingo/utils');
 const airtableData = require('./airtable-data');
 const enrichment = require('./enrichment');
 const logger = require('./logger');
@@ -75,21 +73,9 @@ function installPostgresClient(configuration) {
   return exec('dbclient-fetcher', [ 'pgsql', configuration.PG_CLIENT_VERSION ]);
 }
 
-async function scalingoSetup(configuration) {
-  await setupPath();
-  return installPostgresClient(configuration);
-}
-
-async function extractBackup({ compressedBackup }) {
-  // MACOS: exec('tar', [ 'xvzf', compressedBackup ]);
-  logger.info('Start Extract backup');
-  await exec('tar', [ 'xvzf', compressedBackup, '--wildcards', '*.pgsql']);
-  const backupFile = fs.readdirSync('.').find((f) => /.*\.pgsql$/.test(f));
-  if (!backupFile) {
-    throw new Error(`Could not find .pgsql file in ${compressedBackup}`);
-  }
-  logger.info('End Extract backup');
-  return backupFile;
+async function pgclientSetup(configuration) {
+  setupPath();
+  installPostgresClient(configuration);
 }
 
 function dropCurrentObjects(configuration) {
@@ -115,10 +101,11 @@ async function restoreBackup({ backupFile, databaseUrl, configuration }) {
   logger.info('Start restore');
 
   try {
+    const verboseOptions = process.env.NODE_ENV === 'test' ? [] : ['--verbose'];
     await writeListFileForReplication({ backupFile, configuration });
     // TODO: pass DATABASE_URL by argument
     await exec('pg_restore', [
-      '--verbose',
+      ...verboseOptions,
       '--jobs', configuration.PG_RESTORE_JOBS,
       '--no-owner',
       '--use-list', RESTORE_LIST_FILENAME,
@@ -133,28 +120,35 @@ async function restoreBackup({ backupFile, databaseUrl, configuration }) {
   logger.info('Restore done');
 }
 
-async function getScalingoBackup() {
-  const client = await ScalingoClient.getInstance({
-    app: process.env.SCALINGO_APP,
-    token: process.env.SCALINGO_API_TOKEN,
-    region: process.env.SCALINGO_REGION,
-  });
+async function createBackup(configuration) {
+  logger.info('Start create Backup');
+  const backupFilename = './dump.pgsql';
 
-  const addon = await client.getAddon('postgresql');
-  logger.info('Add-on ID: ' + addon.id);
+  const excludeOptions = configuration.RESTORE_ANSWERS_AND_KES === 'true'
+    ? []
+    : [
+      '--exclude-table', 'knowledge-elements',
+      '--exclude-table', 'answers',
+    ];
+  const verboseOptions = process.env.NODE_ENV === 'test' ? [] : ['--verbose'];
 
-  const dbClient = await client.getDatabaseClient(addon.id);
-
-  const backups = await dbClient.getBackups();
-  const backup = getTodayBackup(backups);
-  logger.info('Backup ID: ' + backup.id);
-
-  logger.info('Start download backup');
-  const compressedBackup = './backup.tar.gz';
-  await dbClient.downloadBackup(backup.id, compressedBackup);
-  logger.info('Fin download backup');
-
-  return extractBackup({ compressedBackup });
+  await exec('pg_dump', [
+    '--clean',
+    '--if-exists',
+    '--format', 'c',
+    '--dbname', configuration.SOURCE_DATABASE_URL,
+    '--no-owner',
+    '--no-privileges',
+    '--no-comments',
+    '--exclude-schema',
+    'information_schema',
+    '--exclude-schema', '\'^pg_*\'',
+    '--file', backupFilename,
+    ...verboseOptions,
+    ...excludeOptions,
+  ]);
+  logger.info('End create Backup');
+  return backupFilename;
 }
 
 async function dropObjectAndRestoreBackup(backupFile, configuration) {
@@ -212,21 +206,24 @@ async function addEnrichment(configuration) {
   logger.info('enrichment.add - Ended');
 }
 
-async function fullReplicationAndEnrichment(configuration) {
-  logger.info('Start replication and enrichment');
-
-  logger.info('Download and restore backup');
+async function backupAndRestore(configuration) {
   let retriesAlarm;
   try {
     retriesAlarm = setRetriesTimeout(configuration.RETRIES_TIMEOUT_MINUTES);
     await retryFunction(async () => {
-      const backup = await getScalingoBackup();
-      logger.info('Start replication and enrichment');
+      const backup = await createBackup(configuration);
       await dropObjectAndRestoreBackup(backup, configuration);
     }, configuration.MAX_RETRY_COUNT, configuration.MIN_TIMEOUT, configuration.MAX_TIMEOUT);
   } finally {
     clearTimeout(retriesAlarm);
   }
+}
+
+async function fullReplicationAndEnrichment(configuration) {
+  logger.info('Start replication and enrichment');
+
+  logger.info('Create and restore backup');
+  await backupAndRestore(configuration);
 
   logger.info('Retrieve AirTable data to database ');
   await importAirtableData(configuration);
@@ -257,10 +254,12 @@ function _filterObjectLines(objectLines, configuration) {
 }
 
 module.exports = {
+  backupAndRestore,
   dropObjectAndRestoreBackup,
   fullReplicationAndEnrichment,
   importAirtableData,
   restoreBackup,
   retryFunction,
-  scalingoSetup,
+  pgclientSetup,
+  createBackup,
 };

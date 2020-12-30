@@ -25,8 +25,6 @@ Les possibilités suivantes sont disponibles :
 ## Pré-requis
 Ce projet est prévu pour être déployé sur une application Scalingo associée à une base de donnée PostgreSQL.
 
-Pour importer des données, il faut récupérer le backup créé automatiquement par Scalingo.
-
 Des variables d'environnement sont mises en place afin de garder un seul repository partagé par les applications.
 
 ## Déploiement sur Scalingo
@@ -82,7 +80,7 @@ Checking versions...
 Créer un fichier `.env` à partir du fichier [sample.env](sample.env)
 
 ### Réplication complète
-Elle débute par le téléchargent du backup d'une application Scalingo distante.
+Elle débute par la création d'un backup de la base de données source.
 Elle ne peut pas être exécutée en local (utilisation du binaire `dbclient-fetcher` disponible uniquement sur Scalingo ).
 
 Pour n'exécuter :
@@ -153,7 +151,7 @@ $ scalingo -a pix-api-review-pr1973 pgsql-console
 NOM_APPLICATION=pix-datawarehouse-pr47
 ```
 
-- Lancer l'import du backup 
+- Lancer le process de création et d'import du backup
 ``` bash
 scalingo run --region osc-fr1 --app pix-datawarehouse-pr<NUMERO-PR> --size S --detached node run.js
 ```
@@ -188,7 +186,6 @@ psql postgres://postgres@localhost/pix_replication_test
 
 #### CI
 La CI exécute l'intégralité des tests (unitaire et intégration).
-Elle les exécute sur une version de PostgreSQL antérieure (9 au lieu de 12 en production)
 
 ## Parser les logs
 L'analyse de ce qui prend du temps est complexe sur les logs brutes s'il y a : 
