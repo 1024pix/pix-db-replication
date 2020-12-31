@@ -2,7 +2,7 @@
 const fs = require('fs');
 
 let DATE;
-const START_BACKUP = 'Backup ID:';
+const START_BACKUP = 'Start create Backup';
 const START_REPLICATION = 'Start restore';
 const START_ENRICHMENT = 'Restore done';
 
@@ -211,7 +211,7 @@ async function main() {
     const startReplicationTimestamp = _extractTimestampFromContent(logLines, START_REPLICATION);
     const startEnrichmentTimestamp = _extractTimestampFromContent(logLines, START_ENRICHMENT);
     const endTimestamp = _extractTimestampFromLogLine(logLines.slice(-1));
-    log(`Durée de récupération du backup: ${_printPrettyTimeElapsedBetweenTwoDates(startBackupTimestamp, startReplicationTimestamp)}`);
+    log(`Durée de création du backup: ${_printPrettyTimeElapsedBetweenTwoDates(startBackupTimestamp, startReplicationTimestamp)}`);
     log(`Durée de réplication: ${_printPrettyTimeElapsedBetweenTwoDates(startReplicationTimestamp, startEnrichmentTimestamp)}`);
     log(`Durée de l'enrichissement: ${_printPrettyTimeElapsedBetweenTwoDates(startEnrichmentTimestamp, endTimestamp)}`);
     log(`Durée totale: ${_printPrettyTimeElapsedBetweenTwoDates(startBackupTimestamp, endTimestamp)}`);
