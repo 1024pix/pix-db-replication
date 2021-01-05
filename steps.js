@@ -128,6 +128,8 @@ async function createBackup(configuration) {
     ? []
     : [
       '--exclude-table', 'knowledge-elements',
+      '--exclude-table', 'knowledge-element-snapshots',
+      '--exclude-table', 'knowledge-element-snapshots_id_seq',
       '--exclude-table', 'answers',
     ];
   const verboseOptions = process.env.NODE_ENV === 'test' ? [] : ['--verbose'];
