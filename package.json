@@ -26,7 +26,6 @@
   "main": "replication_job.js",
   "dependencies": {
     "airtable": "^0.10.0",
-    "axios": "^0.21.0",
     "bunyan": "^1.8.14",
     "check-engine": "^1.9.0",
     "cron": "^1.8.2",
@@ -37,7 +36,6 @@
     "p-retry": "4.2.0",
     "pg": "^8.4.1",
     "pg-format": "^1.0.4",
-    "scalingo": "^0.2.2",
     "sinon-chai": "3.5.0"
   },
   "devDependencies": {
