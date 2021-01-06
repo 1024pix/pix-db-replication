@@ -26,7 +26,7 @@
   "main": "replication_job.js",
   "dependencies": {
     "airtable": "^0.10.0",
-    "axios": "^0.21.0",
+    "axios": "^0.21.1",
     "bunyan": "^1.8.14",
     "check-engine": "^1.9.0",
     "cron": "^1.8.2",
