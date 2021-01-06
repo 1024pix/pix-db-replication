@@ -220,18 +220,19 @@ async function backupAndRestore(configuration) {
 }
 
 async function fullReplicationAndEnrichment(configuration) {
-  logger.info('Start replication and enrichment');
 
-  logger.info('Create and restore backup');
+  logger.info('Start import and enrichment');
+
+  logger.info('Import data from API database');
   await backupAndRestore(configuration);
 
-  logger.info('Retrieve AirTable data to database ');
+  logger.info('Import data from AirTable');
   await importAirtableData(configuration);
 
-  logger.info('Enrich');
+  logger.info('Enrich imported data');
   await addEnrichment(configuration);
 
-  logger.info('Full replication and enrichment done');
+  logger.info('Import and enrichment done');
 
 }
 
