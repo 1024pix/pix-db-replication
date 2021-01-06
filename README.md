@@ -79,6 +79,17 @@ Checking versions...
 ### Paramétrage
 Créer un fichier `.env` à partir du fichier [sample.env](sample.env)
 
+### Import AirTable
+``` bash
+node -e "steps=require('./steps'); steps.importAirtableData(require ('./src/extract-configuration-from-environment')())"
+```
+
+### Enrichissement
+Création index, vues..
+``` bash
+node -e "steps=require('./steps'); steps.addEnrichment(require ('./src/extract-configuration-from-environment')())"
+```
+
 ### Réplication complète
 Elle débute par la création d'un backup de la base de données source.
 Elle ne peut pas être exécutée en local (utilisation du binaire `dbclient-fetcher` disponible uniquement sur Scalingo ).

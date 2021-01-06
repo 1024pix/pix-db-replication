@@ -254,12 +254,13 @@ function _filterObjectLines(objectLines, configuration) {
 }
 
 module.exports = {
+  addEnrichment,
   backupAndRestore,
+  createBackup,
   dropObjectAndRestoreBackup,
   fullReplicationAndEnrichment,
   importAirtableData,
-  restoreBackup,
-  retryFunction,
   pgclientSetup,
-  createBackup,
+  restoreBackup,
+  retryFunction
 };
