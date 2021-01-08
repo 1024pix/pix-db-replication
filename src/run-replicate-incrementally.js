@@ -4,11 +4,22 @@ const runner = require('./replicate-incrementally');
 const extractConfigurationFromEnvironment = require ('./extract-configuration-from-environment');
 const configuration = extractConfigurationFromEnvironment();
 
-try {
-  runner.run(configuration);
-  process.exit(0);
+async function main() {
+  await runner.run(configuration);
 }
-catch (error)  {
-  logger.error(error);
+
+main()
+  .catch((error) => {
+    logger.error(error);
+    process.exit(1);
+  });
+
+function exitOnSignal(signal) {
+  logger.info(`Received signal ${signal}.`);
   process.exit(1);
 }
+
+process.on('uncaughtException', () => { exitOnSignal('uncaughtException'); });
+process.on('unhandledRejection', () => { exitOnSignal('unhandledRejection'); });
+process.on('SIGTERM', () => { exitOnSignal('SIGTERM'); });
+process.on('SIGINT', () => { exitOnSignal('SIGINT'); });

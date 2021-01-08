@@ -2,22 +2,14 @@ version: '3'
 
 services:
 
-  replication-source:
-    container_name: replication-source-db
+  database:
+    container_name: database
     image: postgres:12.4-alpine
-    ports:
-      - "5431:5432"
     environment:
-      POSTGRES_DB: replication_source
       POSTGRES_HOST_AUTH_METHOD: trust
     restart: unless-stopped
+    volumes:
+      - ./local-setup/script/create-databases.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - 5432:5432
 
-  replication-target:
-    container_name: replication-target-db
-    image: postgres:12.4-alpine
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_DB: replication_target
-      POSTGRES_HOST_AUTH_METHOD: trust
-    restart: unless-stopped

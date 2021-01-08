@@ -10,6 +10,9 @@
     "npm": "6.14.10"
   },
   "scripts": {
+    "local:setup-databases": "npm run local:create-databases && npm run local:load-databases",
+    "local:create-databases": "./local-setup/script/create-databases.sh",
+    "local:load-databases": "./local-setup/script/load-databases.sh",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "preinstall": "npx check-engine",
