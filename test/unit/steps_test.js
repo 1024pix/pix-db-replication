@@ -5,7 +5,7 @@ chai.use(sinonChai);
 const { expect } = chai;
 const proxyquire = require('proxyquire').noPreserveCache();
 
-const { retryFunction } = require('../../steps');
+const { retryFunction } = require('../../src/steps');
 
 function catchErr(promiseFn, ctx) {
   return async (...args) => {
@@ -84,7 +84,7 @@ describe('Unit | steps.js', () => {
 
     beforeEach(() => {
       execStub = sinon.stub();
-      const newSteps = proxyquire('../../steps', {
+      const newSteps = proxyquire('../../src/steps', {
         execa: execStub
       });
       createBackup = newSteps.createBackup;

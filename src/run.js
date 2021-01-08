@@ -3,7 +3,7 @@ require('dotenv').config();
 const logger = require('./logger');
 const steps = require('./steps');
 
-const extractConfigurationFromEnvironment = require ('./src/extract-configuration-from-environment');
+const extractConfigurationFromEnvironment = require ('./extract-configuration-from-environment');
 const configuration = extractConfigurationFromEnvironment();
 
 async function main() {

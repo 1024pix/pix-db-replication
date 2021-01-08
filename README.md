@@ -44,12 +44,12 @@ Un traitement peut être lancé immédiatement (hors tâche planifiée) en exéc
 #### Réplication complète
 Sur la BDD destinée aux internes :
 ``` bash
-scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-production --size M --detached node run.js
+scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-production --size M --detached node ./src/run.js
 ```
 
 Sur la BDD destinée aux externes :
 ``` bash
-scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-ex-production --size M --detached node run.js
+scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-ex-production --size M --detached node ./src/run.js
 ```
 
 #### Réplication incrémentale
@@ -63,13 +63,13 @@ Dans certains cas, le besoin est de relancer uniquement les opérations de fin d
 
 ##### Import AirTable
 ``` bash
-node -e "steps=require('./steps'); steps.importAirtableData(require ('./src/extract-configuration-from-environment')())"
+node -e "steps=require('./src/steps'); steps.importAirtableData(require ('./src/extract-configuration-from-environment')())"
 ```
 
 ##### Enrichissement
 Création index, vues..
 ``` bash
-node -e "steps=require('./steps'); steps.addEnrichment(require ('./src/extract-configuration-from-environment')())"
+node -e "steps=require('./src/steps'); steps.addEnrichment(require ('./src/extract-configuration-from-environment')())"
 ```
 
 ## Développement et exécution en local
@@ -115,7 +115,7 @@ RESTORE_ANSWERS_AND_KES_INCREMENTALLY=false
 
 Lancer la réplication
 ``` bash
-node -e "steps=require('./steps'); steps.fullReplicationAndEnrichment(require ('./src/extract-configuration-from-environment')())"
+node -e "steps=require('./src/steps'); steps.fullReplicationAndEnrichment(require ('./src/extract-configuration-from-environment')())"
 ```
 
 Au bout de 5 minutes, vous devez obtenir le message
@@ -171,7 +171,7 @@ Il est donc important d'effectuer un test manuel en RA avant de merger une PR, m
 #### Local
 Récupérer les données Airtable : 
 ``` bash
-node -e "steps=require('./steps'); steps.importAirtableData();"
+node -e "steps=require('./src/steps'); steps.importAirtableData();"
 ```
 
 #### RA Scalingo
@@ -192,7 +192,7 @@ NOM_APPLICATION=pix-datawarehouse-pr47
 
 - Lancer le process de création et d'import du backup
 ``` bash
-scalingo run --region osc-fr1 --app pix-datawarehouse-pr<NUMERO-PR> --size S --detached node run.js
+scalingo run --region osc-fr1 --app pix-datawarehouse-pr<NUMERO-PR> --size S --detached node ./src/run.js
 ```
 
 - Vérifier le résultat

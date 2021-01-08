@@ -6,7 +6,7 @@ const logger = require('./logger');
 const CronJob = require('cron').CronJob;
 const parisTimezone = 'Europe/Paris';
 
-const extractConfigurationFromEnvironment = require ('./src/extract-configuration-from-environment');
+const extractConfigurationFromEnvironment = require ('./extract-configuration-from-environment');
 const configuration = extractConfigurationFromEnvironment();
 
 async function main() {
