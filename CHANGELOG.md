@@ -1,5 +1,9 @@
 # pix-db-replication Changelog
 
+## v1.6.0 (08/01/2021)
+
+- [#65](https://github.com/1024pix/pix-db-replication/pull/65) Ne pas restaurer les snapshot de KE pour les internes
+
 ## v1.5.0 (07/01/2021)
 
 - [#71](https://github.com/1024pix/pix-db-replication/pull/71) [TECH] Mettre à jour l'image docker de postgresql utilisée par la CI
