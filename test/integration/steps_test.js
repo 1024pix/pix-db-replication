@@ -3,6 +3,8 @@ const { createBackupAndCreateEmptyDatabase, createAndFillDatabase, createBackup 
 const Database = require('../utils/database');
 const pgUrlParser = require('pg-connection-string').parse;
 const nock = require('nock');
+const fs = require('fs');
+const execa = require('execa');
 
 const steps = require('../../steps');
 
@@ -562,6 +564,70 @@ describe('Integration | steps.js', () => {
 
     });
 
+  });
+
+  describe('#createBackup', () => {
+
+    // eslint-disable-next-line no-process-env
+    const SOURCE_DATABASE_URL = process.env.SOURCE_DATABASE_URL || 'postgres://postgres@localhost:5432/replication_source';
+
+    let sourceDatabase;
+    let sourceDatabaseConfig;
+
+    before(async() => {
+      const rawSourceDataBaseConfig = pgUrlParser(SOURCE_DATABASE_URL);
+
+      sourceDatabaseConfig = {
+        serverUrl: `postgres://${rawSourceDataBaseConfig.user}@${rawSourceDataBaseConfig.host}:${rawSourceDataBaseConfig.port}`,
+        databaseName: rawSourceDataBaseConfig.database,
+        tableName: 'test_table',
+        tableRowCount: 100000,
+      };
+
+      sourceDatabaseConfig.databaseUrl = `${sourceDatabaseConfig.serverUrl}/${sourceDatabaseConfig.databaseName}`;
+
+      sourceDatabase = await Database.create(sourceDatabaseConfig);
+      await createAndFillDatabase(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true });
+    });
+
+    after(async function() {
+      await sourceDatabase.dropDatabase();
+    });
+
+    it('should create a file', async () => {
+      // given
+      const configuration = {
+        RESTORE_ANSWERS_AND_KES: false,
+        SOURCE_DATABASE_URL,
+      };
+
+      // when
+      const dumpFile = await steps.createBackup(configuration);
+      const result = fs.existsSync(dumpFile);
+
+      // then
+      expect(result).to.be.true;
+    });
+
+    context('when incremental replication', () => {
+
+      it('should not export knowledge-element-snapshots', async () => {
+        // given
+        const configuration = {
+          RESTORE_ANSWERS_AND_KES: false,
+          SOURCE_DATABASE_URL,
+        };
+
+        // when
+        const dumpFile = await steps.createBackup(configuration);
+
+        // then
+        const cmd = 'pg_restore';
+        const args = [ dumpFile, '-l'];
+        const { stdout } = await execa(cmd, args, { stderr: 'inherit' });
+        expect(stdout.includes('knowledge-element-snapshots')).to.be.false;
+      });
+    });
   });
 
 });
