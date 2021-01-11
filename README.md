@@ -27,7 +27,7 @@ Ce projet est prévu pour être déployé sur une application Scalingo associée
 
 Des variables d'environnement sont mises en place afin de garder un seul repository partagé par les applications.
 
-## Déploiement sur Scalingo
+## Utilisation sur Scalingo
 
 ### Paramétrage
 Alimenter les variables d'environnement documentées dans le fichier [sample.env](sample.env)
@@ -41,7 +41,7 @@ Une fois l'application créée et déployée une première fois, il faut :
 ### Exécution hors tâche planifiée
 Un traitement peut être lancé immédiatement (hors tâche planifiée) en exécutant un script dédié un conteneur one-off 
 
-### Réplication complète
+#### Réplication complète
 Sur la BDD destinée aux internes :
 ``` bash
 scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-production --size M --detached node run.js
@@ -52,73 +52,90 @@ Sur la BDD destinée aux externes :
 scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-ex-production --size M --detached node run.js
 ```
 
-### Réplication incrémentale
+#### Réplication incrémentale
 Sur la BDD destinée aux internes
 ``` bash
 scalingo run --region osc-secnum-fr1 -a <NOM_APPLICATION> --size M --detached node ./src/run-replicate-incrementally.js
 ```
 
+#### Exécution partielle
+Dans certains cas, le besoin est de relancer uniquement les opérations de fin de réplication
+
+##### Import AirTable
+``` bash
+node -e "steps=require('./steps'); steps.importAirtableData(require ('./src/extract-configuration-from-environment')())"
+```
+
+##### Enrichissement
+Création index, vues..
+``` bash
+node -e "steps=require('./steps'); steps.addEnrichment(require ('./src/extract-configuration-from-environment')())"
+```
+
 ## Développement et exécution en local
 
 ### Installation
-- Exécuter les commandes suivantes : 
+Installez le dépôt 
 ``` bash
 git clone git@github.com:1024pix/pix-db-replication.git && cd pix-db-replication
 nvm use
 npm run preinstall
 ```
 
-Vérifiez que vous obtenez :
-```
-Checking versions... 
-✔ node was validated with ** 
-✔ npm was validated with **
- Environment looks good!
-```
+Démarrer le serveur de BDD
+````shell
+docker-compose up --detach
+````
+
+Créer et chargers les BDD
+````shell
+npm run local:setup-databases
+````
+
+Vérifiez que la source et la cible sont accessibles et qu'elles contiennent des données
+````shell
+psql postgres://source_user@localhost/source_database
+psql postgres://target_user@localhost/target_database
+````
 
 ### Paramétrage
 Créer un fichier `.env` à partir du fichier [sample.env](sample.env)
 
-### Import AirTable
+### Exécution
+
+#### Réplication complète
+
+Modifier le .env
 ``` bash
-node -e "steps=require('./steps'); steps.importAirtableData(require ('./src/extract-configuration-from-environment')())"
+DATABASE_URL=postgresql://target_user@localhost/target_database
+RESTORE_ANSWERS_AND_KES=true
+RESTORE_FK_CONSTRAINTS=true
+RESTORE_ANSWERS_AND_KES_INCREMENTALLY=false
+``` 
+
+Lancer la réplication
+``` bash
+node -e "steps=require('./steps'); steps.fullReplicationAndEnrichment(require ('./src/extract-configuration-from-environment')())"
 ```
 
-### Enrichissement
-Création index, vues..
+Au bout de 5 minutes, vous devez obtenir le message
 ``` bash
-node -e "steps=require('./steps'); steps.addEnrichment(require ('./src/extract-configuration-from-environment')())"
-```
-
-### Réplication complète
-Elle débute par la création d'un backup de la base de données source.
-Elle ne peut pas être exécutée en local (utilisation du binaire `dbclient-fetcher` disponible uniquement sur Scalingo ).
-
-Pour n'exécuter :
-- que la restauration
-- en utilisant le backup `./data/source.pgsql`
-
-``` bash
-node -e "steps=require('./steps'); steps.dropObjectAndRestoreBackup('./data/source.pgsql', require ('./src/extract-configuration-from-environment')())"
-```
+"msg":"enrichment.add - Ended","time":"2021-01-08T08:26:13.000Z","v":0}
+"msg":"Import and enrichment done","time":"2021-01-08T08:26:13.000Z","v":0}
+``` 
 
 Pensez à recréer le backup sur le filesystem local, supprimé par la restauration
 ``` bash
 git checkout data/source.pgsql
 ```
 
-### Réplication incrémentale
+#### Réplication incrémentale
 
-#### Initialiser l'environnement
-Importer les dumps du répertoire `./data` :
-``` bash
-pg_restore --verbose --no-owner -d postgresql://postgres@localhost:5431/replication_source ./data/source.pgsql
-pg_restore --verbose --no-owner -d postgresql://postgres@localhost:5432/replication_target ./data/target.pgsql
-```
+##### Initialiser l'environnement
 
 Supprimer les FK sortantes des tables à copier
 ``` bash
-psql postgresql://postgres@localhost:5432/replication_target
+psql postgresql://target_user@localhost/target_database
 ```
 
 ```sql
@@ -128,9 +145,20 @@ ALTER TABLE "knowledge-elements" DROP CONSTRAINT "knowledge_elements_assessmenti
 ALTER TABLE "knowledge-elements" DROP CONSTRAINT "knowledge_elements_userid_foreign";
 ```
 
-#### Exécuter
+##### Paramétrer
+Modifier le .env
 ``` bash
-node ./src/run-replicate-incrementally.js
+SOURCE_DATABASE_URL=postgresql://source_user@localhost/source_database
+TARGET_DATABASE_URL=postgresql://target_user@localhost/target_database
+RESTORE_ANSWERS_AND_KES=true
+RESTORE_FK_CONSTRAINTS=false
+RESTORE_ANSWERS_AND_KES_INCREMENTALLY=true
+``` 
+
+##### Exécuter
+Exécuter
+``` bash
+node node ./src/run-replicate-incrementally.js 
 ```
 
 ## Tests
