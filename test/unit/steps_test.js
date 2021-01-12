@@ -79,7 +79,6 @@ describe('Unit | steps.js', () => {
   });
 
   describe('#createBackup', () => {
-
     let execStub;
     let createBackup;
 
@@ -122,8 +121,7 @@ describe('Unit | steps.js', () => {
       expect(backupFilename).to.equal('./dump.pgsql');
     });
 
-    context('when answers and knowledge elements are restored incrementally', () => {
-
+    context('when anwers and knowledge elements are restored incrementally', () => {
       it('should not backup answers and knowledge-elements tables', async () => {
         // given
         const configuration = {
@@ -150,15 +148,14 @@ describe('Unit | steps.js', () => {
             '--exclude-schema', '\'^pg_*\'',
             '--file', './dump.pgsql',
             '--exclude-table', 'knowledge-elements',
-            '--exclude-table', 'knowledge-element-snapshots',
-            '--exclude-table', 'knowledge-element-snapshots_id_seq',
-            '--exclude-table', 'answers',
-
+            '--exclude-table', 'answers'
           ],
           { stdio: 'inherit' }
         );
+
       });
     });
+
   });
 
 });

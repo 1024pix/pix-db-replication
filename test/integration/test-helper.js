@@ -49,9 +49,7 @@ async function createTablesThatMayNotBeRestored(database) {
   await database.runSql('CREATE TABLE answers (id int NOT NULL PRIMARY KEY, "challengeId" CHARACTER VARYING(255) )');
   await database.runSql('INSERT INTO answers (id, "challengeId") VALUES (1,2)');
   await database.runSql('CREATE TABLE "knowledge-elements" (id int NOT NULL PRIMARY KEY, "userId" INTEGER, "createdAt" TIMESTAMP WITH TIME ZONE)');
-  await database.runSql('CREATE TABLE "knowledge-element-snapshots" (id serial)');
-  await database.runSql('INSERT INTO "knowledge-elements" (id, "userId", "createdAt") VALUES (1, 2, CURRENT_TIMESTAMP)');
-  await database.runSql('INSERT INTO "knowledge-element-snapshots" DEFAULT VALUES');
+  await database.runSql('INSERT INTO "knowledge-elements"  (id, "userId", "createdAt") VALUES (1, 2, CURRENT_TIMESTAMP)');
   await database.runSql('CREATE INDEX "knowledge_elements_userid_index" ON "knowledge-elements" ("userId")');
 }
 

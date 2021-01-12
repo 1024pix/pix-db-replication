@@ -4,7 +4,6 @@ const Database = require('../utils/database');
 const pgUrlParser = require('pg-connection-string').parse;
 const nock = require('nock');
 const fs = require('fs');
-const execa = require('execa');
 
 const steps = require('../../steps');
 
@@ -607,26 +606,6 @@ describe('Integration | steps.js', () => {
 
       // then
       expect(result).to.be.true;
-    });
-
-    context('when incremental replication', () => {
-
-      it('should not export knowledge-element-snapshots', async () => {
-        // given
-        const configuration = {
-          RESTORE_ANSWERS_AND_KES: false,
-          SOURCE_DATABASE_URL,
-        };
-
-        // when
-        const dumpFile = await steps.createBackup(configuration);
-
-        // then
-        const cmd = 'pg_restore';
-        const args = [ dumpFile, '-l'];
-        const { stdout } = await execa(cmd, args, { stderr: 'inherit' });
-        expect(stdout.includes('knowledge-element-snapshots')).to.be.false;
-      });
     });
   });
 
