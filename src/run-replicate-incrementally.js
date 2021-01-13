@@ -1,4 +1,4 @@
-const logger = require('../logger');
+const logger = require('./logger');
 const runner = require('./replicate-incrementally');
 
 const extractConfigurationFromEnvironment = require ('./extract-configuration-from-environment');

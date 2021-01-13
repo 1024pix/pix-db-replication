@@ -7,7 +7,8 @@ const DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://pix@localhos
 
 const { createAndFillDatabase } = require('./test-helper');
 const Database = require('../utils/database');
-const { add } = require('../../enrichment');
+
+const { add } = require('../../src/enrichment');
 
 describe('Integration | enrichment.js', () => {
 

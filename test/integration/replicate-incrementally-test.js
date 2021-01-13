@@ -4,8 +4,8 @@ chai.use(require('chai-as-promised'));
 const pgUrlParser = require('pg-connection-string').parse;
 const Database = require('../utils/database');
 const { createAndFillDatabase, createBackup } = require('./test-helper');
-const steps = require('../../steps');
 
+const steps = require('../../src/steps');
 const { run } = require('../../src/replicate-incrementally');
 
 describe('Integration | replicate-incrementally.js', () => {

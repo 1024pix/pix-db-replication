@@ -5,7 +5,7 @@ const pgUrlParser = require('pg-connection-string').parse;
 const nock = require('nock');
 const fs = require('fs');
 
-const steps = require('../../steps');
+const steps = require('../../src/steps');
 
 describe('Integration | steps.js', () => {
 

@@ -2,7 +2,8 @@
 
 const { execSync } = require('child_process');
 const execa = require('execa');
-const logger = require('../logger');
+
+const logger = require('./logger');
 
 async function execStdOut(cmd, args) {
   const { stdout } = await execa(cmd, args, { stderr: 'inherit' });
@@ -57,7 +58,7 @@ async function run(configuration) {
 
   const kECopyMessage = execSync(kesSqlCopyCommand);
   logger.info('Knowledge-elements table copy returned: ' + kECopyMessage);
-  
+
   const maxAnswerIdStrAfterReplication = await execStdOut('psql', [configuration.TARGET_DATABASE_URL, '--tuples-only', '--command', 'SELECT MAX(id) FROM answers']);
   const answersLastRecordIndexTargetAfterReplication = parseInt(maxAnswerIdStrAfterReplication);
   logger.info('Answers last record index target after replication ' + answersLastRecordIndexTargetAfterReplication);
