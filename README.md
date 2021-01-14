@@ -41,21 +41,26 @@ Une fois l'application créée et déployée une première fois, il faut :
 ### Exécution hors tâche planifiée
 Un traitement peut être lancé immédiatement (hors tâche planifiée) en exécutant un script dédié un conteneur one-off 
 
-#### Réplication complète
-Sur la BDD destinée aux internes :
+#### Sur la BDD destinée aux internes
+
+Deux traitements (dump et incrémentale) sont exécutés chaque nuit
+* si l'un d'eux échoue, le relancer
+* si les deux échouent, les relancer parallèle 
+
+Lancer la réplication par dump
 ``` bash
 scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-production --size M --detached node ./src/run.js
 ```
 
-Sur la BDD destinée aux externes :
+Lancer la réplication incrémentale
 ``` bash
-scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-ex-production --size M --detached node ./src/run.js
+scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-production --size M --detached node ./src/run-replicate-incrementally.js
 ```
 
-#### Réplication incrémentale
-Sur la BDD destinée aux internes
+#### Sur la BDD destinée aux externes
+Lancer la réplication par dump
 ``` bash
-scalingo run --region osc-secnum-fr1 -a <NOM_APPLICATION> --size M --detached node ./src/run-replicate-incrementally.js
+scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-ex-production --size M --detached node ./src/run.js
 ```
 
 #### Exécution partielle
