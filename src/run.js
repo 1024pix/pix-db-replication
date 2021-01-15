@@ -28,8 +28,7 @@ function exitOnSignal(signal) {
 process.on('uncaughtException', () => { exitOnSignal('uncaughtException'); });
 
 process.on('unhandledRejection', (reason, promise) => {
-  // eslint-disable-next-line no-console
-  console.log('Unhandled Rejection at:', promise, 'reason:', reason);
+  logger.info('Unhandled Rejection at:', promise, 'reason:', reason);
   exitOnSignal('unhandledRejection');
 });
 
