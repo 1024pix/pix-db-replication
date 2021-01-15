@@ -20,6 +20,9 @@ function exitOnSignal(signal) {
 }
 
 process.on('uncaughtException', () => { exitOnSignal('uncaughtException'); });
-process.on('unhandledRejection', () => { exitOnSignal('unhandledRejection'); });
+process.on('unhandledRejection', (reason, promise) => {
+  logger.info('Unhandled Rejection at:', promise, 'reason:', reason);
+  exitOnSignal('unhandledRejection');
+});
 process.on('SIGTERM', () => { exitOnSignal('SIGTERM'); });
 process.on('SIGINT', () => { exitOnSignal('SIGINT'); });
