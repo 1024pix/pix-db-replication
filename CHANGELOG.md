@@ -1,5 +1,10 @@
 # pix-db-replication Changelog
 
+## v1.8.0 (15/01/2021)
+
+- [#74](https://github.com/1024pix/pix-db-replication/pull/74) Ajouter des tests d'acceptance
+- [#73](https://github.com/1024pix/pix-db-replication/pull/73) Grouper le code de production dans un dossier dédié
+
 ## v1.7.0 (12/01/2021)
 
 - [#75](https://github.com/1024pix/pix-db-replication/pull/75) [TECH]  Annule la non réplication des ke snapshots
