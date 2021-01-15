@@ -74,8 +74,8 @@ function installPostgresClient(configuration) {
 }
 
 async function pgclientSetup(configuration) {
-  setupPath();
-  installPostgresClient(configuration);
+  await setupPath();
+  return installPostgresClient(configuration);
 }
 
 function dropCurrentObjects(configuration) {
