@@ -1,5 +1,10 @@
 # pix-db-replication Changelog
 
+## v1.10.0 (15/01/2021)
+
+- [#79](https://github.com/1024pix/pix-db-replication/pull/79) [TECH] Implémenter correctement l'installation asynchrone du client de BDD 
+- [#78](https://github.com/1024pix/pix-db-replication/pull/78) [TECH] Détailler et corriger les instructions de relance.
+
 ## v1.9.0 (15/01/2021)
 
 - [#77](https://github.com/1024pix/pix-db-replication/pull/77) [TECH] Tracer l'origine des promesses rejetées.
