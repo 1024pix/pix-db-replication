@@ -1,5 +1,9 @@
 # pix-db-replication Changelog
 
+## v1.9.0 (15/01/2021)
+
+- [#77](https://github.com/1024pix/pix-db-replication/pull/77) [TECH] Tracer l'origine des promesses rejetées.
+
 ## v1.8.0 (15/01/2021)
 
 - [#74](https://github.com/1024pix/pix-db-replication/pull/74) Ajouter des tests d'acceptance
