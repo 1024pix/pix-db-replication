@@ -28,6 +28,7 @@
   "homepage": "https://github.com/1024pix/pix-db-replication/blob/master/README.md",
   "main": "replication_job.js",
   "dependencies": {
+    "@sentry/node": "^6.1.0",
     "airtable": "^0.10.1",
     "bunyan": "^1.8.14",
     "check-engine": "^1.10.0",
