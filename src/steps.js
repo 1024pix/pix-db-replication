@@ -3,7 +3,6 @@
 
 const execa = require('execa');
 const fs = require('fs');
-const retry = require('p-retry');
 
 const airtableData = require('./airtable-data');
 const enrichment = require('./enrichment');
@@ -22,44 +21,6 @@ function exec(cmd, args) {
 async function execStdOut(cmd, args) {
   const { stdout } = await execa(cmd, args, { stderr: 'inherit' });
   return stdout;
-}
-
-function setRetriesTimeout(maxMinutes) {
-  const milliseconds = maxMinutes * 60000;
-  return setTimeout(() => {
-    logger.warn('Les tentatives de réplication ont dépassé %d minutes !', maxMinutes);
-  }, milliseconds);
-}
-
-function setAirTableRetriesTimeout(maxMinutes) {
-  const milliseconds = maxMinutes * 60000;
-  return setTimeout(() => {
-    logger.warn('Les tentatives de réplication AirTable ont dépassé %d minutes !', maxMinutes);
-  }, milliseconds);
-}
-
-function retryFunction(fn, maxRetryCount, minTimeout, maxTimeout) {
-  return retry(fn, {
-    onFailedAttempt: (error) => {
-      logger.error('retryFunction', error);
-    },
-    retries: maxRetryCount,
-    minTimeout: minTimeout,
-    maxTimeout: maxTimeout,
-  });
-}
-
-function retryFunctionAirTable(fn, maxRetryCount) {
-  return retry(fn, {
-    onFailedAttempt: (error) => {
-      logger.error(error);
-      // TODO: execute this code only for Airtable, not for database dump download
-      if (error.message !== '503 - SERVICE_UNAVAILABLE - The service is temporarily unavailable. Please retry shortly.') {
-        throw error;
-      }
-    },
-    retries: maxRetryCount
-  });
 }
 
 // dbclient-fetch assumes $HOME/bin is in the PATH
@@ -166,39 +127,9 @@ async function dropObjectAndRestoreBackup(backupFile, configuration) {
 }
 
 async function importAirtableData(configuration) {
-
-  const wrappedCall = async function() {
-    try {
-      await airtableData.fetchAndSaveData(configuration);
-    } catch (error) {
-      logger.error(error);
-      // An AirTableError is throw => {
-      //   "error": "SERVICE_UNAVAILABLE",
-      //   "message": "The service is temporarily unavailable. Please retry shortly.",
-      //   "statusCode": 503
-      // }
-      // If let as-is, it will be intercepted by p-retry which performs a type check
-      // It must be Error, otherwise an error is thrown instead of retrying the action (its actual purpose)
-      // https://github.com/sindresorhus/p-retry/blob/master/index.js#L44
-      // To avoid this, we create a brand-new error with the right type and throw it to p-retry
-      if (error instanceof Error) {
-        throw error;
-      } else {
-        throw new Error(`${error.statusCode} - ${error.error} - ${error.message}`);
-      }
-    }
-  };
-
-  let airtableRetriesAlarm;
   logger.info('airtableData.fetchAndSaveData - Started');
-  try {
-    airtableRetriesAlarm = setAirTableRetriesTimeout(configuration.RETRIES_TIMEOUT_MINUTES);
-    await retryFunctionAirTable(wrappedCall, configuration.MAX_RETRY_COUNT);
-  } finally {
-    clearTimeout(airtableRetriesAlarm);
-  }
+  await airtableData.fetchAndSaveData(configuration);
   logger.info('airtableData.fetchAndSaveData - Ended');
-
 }
 
 async function addEnrichment(configuration) {
@@ -213,17 +144,8 @@ async function addEnrichment(configuration) {
 }
 
 async function backupAndRestore(configuration) {
-  let retriesAlarm;
-  try {
-    retriesAlarm = setRetriesTimeout(configuration.RETRIES_TIMEOUT_MINUTES);
-    await retryFunction(async () => {
-      const backup = await createBackup(configuration);
-      await dropObjectAndRestoreBackup(backup, configuration);
-    }, configuration.MAX_RETRY_COUNT, configuration.MIN_TIMEOUT, configuration.MAX_TIMEOUT);
-  } finally {
-    logger.info('finally backupAndRestore');
-    clearTimeout(retriesAlarm);
-  }
+  const backup = await createBackup(configuration);
+  await dropObjectAndRestoreBackup(backup, configuration);
 }
 
 async function fullReplicationAndEnrichment(configuration) {
@@ -232,9 +154,6 @@ async function fullReplicationAndEnrichment(configuration) {
 
   logger.info('Import data from API database');
   await backupAndRestore(configuration);
-
-  logger.info('Import data from AirTable');
-  await importAirtableData(configuration);
 
   logger.info('Enrich imported data');
   await addEnrichment(configuration);
@@ -269,6 +188,5 @@ module.exports = {
   fullReplicationAndEnrichment,
   importAirtableData,
   pgclientSetup,
-  restoreBackup,
-  retryFunction
+  restoreBackup
 };

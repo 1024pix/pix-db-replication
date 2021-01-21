@@ -41,6 +41,7 @@ const extractConfigurationFromEnvironmentVariable = function() {
     SENTRY_MAX_BREADCRUMBS: process.env.SENTRY_MAX_BREADCRUMBS,
     SENTRY_DEBUG: process.env.SENTRY_DEBUG,
     SENTRY_MAX_VALUE_LENGTH: 1000,
+    REDIS_URL : process.env.REDIS_URL || 'redis://redis/1'
   };
 };
 
