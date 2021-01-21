@@ -1,5 +1,6 @@
 require('dotenv').config();
-require('../sentry-config');
+require('./sentry-config');
+const Sentry = require('@sentry/node');
 
 const steps = require('./steps');
 const logger = require('./logger');
@@ -11,7 +12,22 @@ const extractConfigurationFromEnvironment = require ('./extract-configuration-fr
 const configuration = extractConfigurationFromEnvironment();
 
 async function main() {
-  await steps.pgclientSetup(configuration);
+  try {
+    await steps.pgclientSetup(configuration);
+    await startReplicationAndEnrichment();
+  } catch (error) {
+    logger.error(error);
+    Sentry.captureException(error);
+  }
+}
+
+main()
+  .catch((error) => {
+    logger.error(error);
+    process.exit(1);
+  });
+
+function startReplicationAndEnrichment() {
   new CronJob(configuration.SCHEDULE, async function() {
     try {
       await steps.fullReplicationAndEnrichment(configuration);
@@ -21,12 +37,6 @@ async function main() {
     }
   }, null, true, parisTimezone);
 }
-
-main()
-  .catch((error) => {
-    logger.error(error);
-    process.exit(1);
-  });
 
 function exitOnSignal(signal) {
   logger.info(`Received signal ${signal}.`);

@@ -1,11 +1,19 @@
 const logger = require('./logger');
 const runner = require('./replicate-incrementally');
 
+require('./sentry-config');
+const Sentry = require('@sentry/node');
+
 const extractConfigurationFromEnvironment = require ('./extract-configuration-from-environment');
 const configuration = extractConfigurationFromEnvironment();
 
 async function main() {
-  await runner.run(configuration);
+  try {
+    await runner.run(configuration);
+  } catch (error) {
+    logger.error(error);
+    Sentry.captureException(error);
+  }
 }
 
 main()

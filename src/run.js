@@ -3,12 +3,19 @@ require('dotenv').config();
 const logger = require('./logger');
 const steps = require('./steps');
 
+const Sentry = require('@sentry/node');
+
 const extractConfigurationFromEnvironment = require ('./extract-configuration-from-environment');
 const configuration = extractConfigurationFromEnvironment();
 
 async function main() {
-  await steps.pgclientSetup(configuration);
-  return steps.fullReplicationAndEnrichment(configuration);
+  try {
+    await steps.pgclientSetup(configuration);
+    return steps.fullReplicationAndEnrichment(configuration);
+  } catch (error) {
+    logger.error(error);
+    Sentry.captureException(error);
+  }
 }
 
 main()

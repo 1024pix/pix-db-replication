@@ -1,6 +1,6 @@
 const Sentry = require('@sentry/node');
 
-const extractConfigurationFromEnvironment = require ('./src/extract-configuration-from-environment');
+const extractConfigurationFromEnvironment = require ('./extract-configuration-from-environment');
 const configuration = extractConfigurationFromEnvironment();
 
 function isFeatureEnabled(environmentVariable) {

@@ -171,6 +171,7 @@ async function importAirtableData(configuration) {
     try {
       await airtableData.fetchAndSaveData(configuration);
     } catch (error) {
+      logger.error(error);
       // An AirTableError is throw => {
       //   "error": "SERVICE_UNAVAILABLE",
       //   "message": "The service is temporarily unavailable. Please retry shortly.",
@@ -201,9 +202,14 @@ async function importAirtableData(configuration) {
 }
 
 async function addEnrichment(configuration) {
-  logger.info('enrichment.add - Started');
-  await enrichment.add(configuration);
-  logger.info('enrichment.add - Ended');
+  try {
+    logger.info('enrichment.add - Started');
+    await enrichment.add(configuration);
+    logger.info('enrichment.add - Ended');
+  } catch (error) {
+    logger.error(error);
+    throw new Error(error);
+  }
 }
 
 async function backupAndRestore(configuration) {

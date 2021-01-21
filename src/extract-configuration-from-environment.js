@@ -1,9 +1,13 @@
 /* eslint no-process-env: "off" */
 
+const logger = require('./logger');
+
 const extractConfigurationFromEnvironment = function() {
   loadEnvironmentVariableFromFileIfNotOnPaas();
   const extractedConfiguration = extractConfigurationFromEnvironmentVariable();
   removeConfigurationFromEnvironmentVariable();
+
+  logger.info(extractedConfiguration, { extractedConfiguration });
   return extractedConfiguration;
 };
 
