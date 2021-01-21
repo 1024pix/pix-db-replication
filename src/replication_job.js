@@ -13,9 +13,15 @@ const parisTimezone = 'Europe/Paris';
 const extractConfigurationFromEnvironment = require('./extract-configuration-from-environment');
 const configuration = extractConfigurationFromEnvironment();
 
-const replicationQueue = addQueueEventsListeners(new Queue('Replication queue', configuration.REDIS_URL));
-const airtableReplicationQueue = addQueueEventsListeners(new Queue('Airtable replication queue', configuration.REDIS_URL));
-const incrementalReplicationQueue = addQueueEventsListeners(new Queue('Increment replication queue', configuration.REDIS_URL));
+function createQueue(name) {
+  const queue = new Queue(name, configuration.REDIS_URL);
+  addQueueEventsListeners(queue);
+  return queue;
+}
+
+const replicationQueue = createQueue('Replication queue');
+const airtableReplicationQueue = createQueue('Airtable replication queue');
+const incrementalReplicationQueue = createQueue('Increment replication queue');
 
 function addQueueEventsListeners(queue) {
   return queue
@@ -39,10 +45,15 @@ function addQueueEventsListeners(queue) {
 async function main() {
   initSentry(configuration);
   await steps.pgclientSetup(configuration);
+  const jobOptions = {
+    attempts: configuration.MAX_RETRY_COUNT,
+    repeat: { cron: configuration.SCHEDULE, tz: parisTimezone },
+    backoff: { type: 'exponential', delay: 100 }
+  };
 
   replicationQueue.process(async function() {
     await steps.fullReplicationAndEnrichment(configuration);
-    airtableReplicationQueue.add({});
+    airtableReplicationQueue.add({}, jobOptions);
   });
 
   airtableReplicationQueue.process(function() {
@@ -52,10 +63,9 @@ async function main() {
   incrementalReplicationQueue.process(function() {
     return replicateIncrementally.run(configuration);
   });
-
-  replicationQueue.add({}, { repeat: { cron: configuration.SCHEDULE, tz: parisTimezone } });
+  replicationQueue.add({}, jobOptions);
   if (configuration.RESTORE_ANSWERS_AND_KES_INCREMENTALLY && configuration.RESTORE_ANSWERS_AND_KES_INCREMENTALLY === 'true') {
-    incrementalReplicationQueue.add({}, { repeat: { cron: configuration.SCHEDULE, tz: parisTimezone } });
+    incrementalReplicationQueue.add({}, jobOptions);
   }
 }
 
