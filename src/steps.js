@@ -41,7 +41,7 @@ function setAirTableRetriesTimeout(maxMinutes) {
 function retryFunction(fn, maxRetryCount, minTimeout, maxTimeout) {
   return retry(fn, {
     onFailedAttempt: (error) => {
-      logger.error(error);
+      logger.error('retryFunction', error);
     },
     retries: maxRetryCount,
     minTimeout: minTimeout,
@@ -208,7 +208,7 @@ async function addEnrichment(configuration) {
     logger.info('enrichment.add - Ended');
   } catch (error) {
     logger.error(error);
-    throw new Error(error);
+    throw error;
   }
 }
 
@@ -221,6 +221,7 @@ async function backupAndRestore(configuration) {
       await dropObjectAndRestoreBackup(backup, configuration);
     }, configuration.MAX_RETRY_COUNT, configuration.MIN_TIMEOUT, configuration.MAX_TIMEOUT);
   } finally {
+    logger.info('finally backupAndRestore');
     clearTimeout(retriesAlarm);
   }
 }

@@ -4,12 +4,16 @@ const logger = require('./logger');
 const steps = require('./steps');
 
 const Sentry = require('@sentry/node');
+const initSentry = require('./sentry-init');
 
 const extractConfigurationFromEnvironment = require ('./extract-configuration-from-environment');
 const configuration = extractConfigurationFromEnvironment();
 
 async function main() {
+  
   try {
+    initSentry(configuration);
+
     await steps.pgclientSetup(configuration);
     return steps.fullReplicationAndEnrichment(configuration);
   } catch (error) {

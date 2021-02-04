@@ -1,6 +1,6 @@
 require('dotenv').config();
-require('./sentry-config');
 const Sentry = require('@sentry/node');
+const initSentry = require('./sentry-init');
 
 const steps = require('./steps');
 const logger = require('./logger');
@@ -13,6 +13,7 @@ const configuration = extractConfigurationFromEnvironment();
 
 async function main() {
   try {
+    initSentry(configuration);
     await steps.pgclientSetup(configuration);
     await startReplicationAndEnrichment();
   } catch (error) {
