@@ -20,6 +20,7 @@ const tables = [{
     { name:'name', type:'text', airtableName:'Référence' },
     { name:'code', type:'text', airtableName:'Sous-domaine' },
     { name:'title', type:'text', airtableName:'Titre' },
+    { name:'origin', type:'text', airtableName:'Origine' },
     { name:'areaId', type:'text', airtableName:'Domaine (id persistant)', isArray:false }
   ],
   airtableId:'id persistant',
