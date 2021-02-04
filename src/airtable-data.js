@@ -61,6 +61,7 @@ const tables = [{
     { name:'firstSkillId', type:'text', extractor: (record) => _.get(record.get('Acquix (id persistant)'), 0) },
     { name:'secondSkillId', type:'text', extractor: (record) => _.get(record.get('Acquix (id persistant)'), 1) },
     { name:'thirdSkillId', type:'text', extractor: (record) => _.get(record.get('Acquix (id persistant)'), 2) },
+    { name:'languages', type:'text []', airtableName:'Langues', isArray:true },
   ],
   airtableId:'id persistant',
   indices: ['firstSkillId']
