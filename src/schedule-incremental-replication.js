@@ -16,6 +16,7 @@ new CronJob(configuration.SCHEDULE, async function() {
   } catch (error) {
     logger.error(error);
     Sentry.captureException(error);
+    await Sentry.close(2000);
     process.exit(1);
   }
 }, null, true, parisTimezone);

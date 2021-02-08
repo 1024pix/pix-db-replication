@@ -8,23 +8,21 @@ const extractConfigurationFromEnvironment = require ('./extract-configuration-fr
 const configuration = extractConfigurationFromEnvironment();
 
 async function main() {
-  try {
-    initSentry(configuration);  
-    await runner.run(configuration);
-  } catch (error) {
-    logger.error(error);
-    Sentry.captureException(error);
-  }
+  initSentry(configuration);
+  await runner.run(configuration);
 }
 
 main()
-  .catch((error) => {
+  .catch(async (error) => {
     logger.error(error);
+    Sentry.captureException(error);
+    await Sentry.close(2000);
     process.exit(1);
   });
 
-function exitOnSignal(signal) {
+async function exitOnSignal(signal) {
   logger.info(`Received signal ${signal}.`);
+  await Sentry.close(2000);
   process.exit(1);
 }
 

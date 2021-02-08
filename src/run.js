@@ -8,9 +8,10 @@ const initSentry = require('./sentry-init');
 
 const extractConfigurationFromEnvironment = require ('./extract-configuration-from-environment');
 const configuration = extractConfigurationFromEnvironment();
+const TIMEOUT = 2000;
 
 async function main() {
-  
+
   try {
     initSentry(configuration);
 
@@ -23,17 +24,22 @@ async function main() {
 }
 
 main()
-  .then(() => {
-    process.exit(0);
+  .then(async () => {
+    await flushSentryAndExit(0);
   })
-  .catch((error) => {
-    logger.error(error);
-    process.exit(1);
+  .catch(async (error) => {
+    logger.error('run main catch', { error });
+    await flushSentryAndExit(1);
   });
 
-function exitOnSignal(signal) {
+async function exitOnSignal(signal) {
   logger.info(`Received signal ${signal}.`);
-  process.exit(1);
+  await flushSentryAndExit(1);
+}
+
+async function flushSentryAndExit(exitCode) {
+  await Sentry.close(TIMEOUT);
+  process.exit(exitCode);
 }
 
 process.on('uncaughtException', () => { exitOnSignal('uncaughtException'); });

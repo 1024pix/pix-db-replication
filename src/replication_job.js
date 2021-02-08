@@ -8,24 +8,26 @@ const logger = require('./logger');
 const CronJob = require('cron').CronJob;
 const parisTimezone = 'Europe/Paris';
 
-const extractConfigurationFromEnvironment = require ('./extract-configuration-from-environment');
+const extractConfigurationFromEnvironment = require('./extract-configuration-from-environment');
 const configuration = extractConfigurationFromEnvironment();
 
 async function main() {
-  try {
-    initSentry(configuration);
-    await steps.pgclientSetup(configuration);
-    await startReplicationAndEnrichment();
-  } catch (error) {
-    logger.error(error);
-    Sentry.captureException(error);
-  }
+  initSentry(configuration);
+  await steps.pgclientSetup(configuration);
+  await startReplicationAndEnrichment();
+}
+
+async function flushSentryAndExit() {
+  const TIMEOUT = 2000;
+  await Sentry.close(TIMEOUT);
+  process.exit(1);
 }
 
 main()
-  .catch((error) => {
+  .catch(async (error) => {
+    Sentry.captureException(error);
     logger.error(error);
-    process.exit(1);
+    await flushSentryAndExit();
   });
 
 function startReplicationAndEnrichment() {
@@ -34,20 +36,26 @@ function startReplicationAndEnrichment() {
       await steps.fullReplicationAndEnrichment(configuration);
     } catch (error) {
       logger.error(error);
-      process.exit(1);
+      await flushSentryAndExit();
     }
   }, null, true, parisTimezone);
 }
 
-function exitOnSignal(signal) {
+async function exitOnSignal(signal) {
   logger.info(`Received signal ${signal}.`);
-  process.exit(1);
+  await flushSentryAndExit();
 }
 
-process.on('uncaughtException', () => { exitOnSignal('uncaughtException'); });
+process.on('uncaughtException', () => {
+  exitOnSignal('uncaughtException');
+});
 process.on('unhandledRejection', (reason, promise) => {
   logger.info('Unhandled Rejection at:', promise, 'reason:', reason);
   exitOnSignal('unhandledRejection');
 });
-process.on('SIGTERM', () => { exitOnSignal('SIGTERM'); });
-process.on('SIGINT', () => { exitOnSignal('SIGINT'); });
+process.on('SIGTERM', () => {
+  exitOnSignal('SIGTERM');
+});
+process.on('SIGINT', () => {
+  exitOnSignal('SIGINT');
+});
