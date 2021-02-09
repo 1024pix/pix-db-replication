@@ -1,4 +1,5 @@
 require('dotenv').config();
+require('../sentry-config');
 
 const steps = require('./steps');
 const logger = require('./logger');
