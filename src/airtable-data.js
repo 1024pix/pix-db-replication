@@ -20,6 +20,7 @@ const tables = [{
     { name:'name', type:'text', airtableName:'Référence' },
     { name:'code', type:'text', airtableName:'Sous-domaine' },
     { name:'title', type:'text', airtableName:'Titre' },
+    { name:'origin', type:'text', airtableName:'Origine' },
     { name:'areaId', type:'text', airtableName:'Domaine (id persistant)', isArray:false }
   ],
   airtableId:'id persistant',
@@ -61,6 +62,7 @@ const tables = [{
     { name:'firstSkillId', type:'text', extractor: (record) => _.get(record.get('Acquix (id persistant)'), 0) },
     { name:'secondSkillId', type:'text', extractor: (record) => _.get(record.get('Acquix (id persistant)'), 1) },
     { name:'thirdSkillId', type:'text', extractor: (record) => _.get(record.get('Acquix (id persistant)'), 2) },
+    { name:'languages', type:'text []', airtableName:'Langues', isArray:true },
   ],
   airtableId:'id persistant',
   indices: ['firstSkillId']
