@@ -5,7 +5,6 @@ const logger = require('./logger');
 const extractConfigurationFromEnvironment = function() {
   loadEnvironmentVariableFromFileIfNotOnPaas();
   const extractedConfiguration = extractConfigurationFromEnvironmentVariable();
-  removeConfigurationFromEnvironmentVariable();
 
   logger.info(extractedConfiguration, { extractedConfiguration });
   return extractedConfiguration;
@@ -47,23 +46,6 @@ const extractConfigurationFromEnvironmentVariable = function() {
 
 const extractInteger = function(arg) {
   return parseInt(arg, 10);
-};
-
-const removeConfigurationFromEnvironmentVariable = function() {
-
-  delete process.env.PG_CLIENT_VERSION;
-  delete process.env.RETRIES_TIMEOUT_MINUTES;
-  delete process.env.AIRTABLE_API_KEY;
-  delete process.env.AIRTABLE_BASE;
-  delete process.env.SCHEDULE;
-  delete process.env.MAX_RETRY_COUNT;
-  delete process.env.PG_RESTORE_JOBS;
-  delete process.env.RESTORE_FK_CONSTRAINTS;
-  delete process.env.RESTORE_ANSWERS_AND_KES;
-  delete process.env.RESTORE_ANSWERS_AND_KES_INCREMENTALLY;
-  delete process.env.SOURCE_DATABASE_URL;
-  delete process.env.TARGET_DATABASE_URL;
-  delete process.env.DATABASE_URL;
 };
 
 module.exports = extractConfigurationFromEnvironment;
