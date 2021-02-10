@@ -163,7 +163,7 @@ RESTORE_ANSWERS_AND_KES_INCREMENTALLY=true
 ##### Exécuter
 Exécuter
 ``` bash
-node node ./src/run-replicate-incrementally.js 
+node ./src/run-replicate-incrementally.js 
 ```
 
 ## Tests
