@@ -1,5 +1,9 @@
 # pix-db-replication Changelog
 
+## v1.11.0 (10/02/2021)
+
+- [#82](https://github.com/1024pix/pix-db-replication/pull/82) [TECH] Ajout de données supplémentaires provenant du référentiel pour exploitation contenus
+
 ## v1.10.0 (15/01/2021)
 
 - [#79](https://github.com/1024pix/pix-db-replication/pull/79) [TECH] Implémenter correctement l'installation asynchrone du client de BDD 
