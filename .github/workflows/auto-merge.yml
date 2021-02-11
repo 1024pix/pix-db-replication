@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: automerge
         uses: "pascalgn/automerge-action@v0.13.0"
+        with:
+          args: "--trace"
         env:
           GITHUB_TOKEN: "${{ secrets.PIX_SERVICE_ACTIONS_TOKEN }}"
           MERGE_LABELS: ":rocket: Ready to Merge"
