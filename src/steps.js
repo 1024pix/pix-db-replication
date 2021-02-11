@@ -41,7 +41,7 @@ function setAirTableRetriesTimeout(maxMinutes) {
 function retryFunction(fn, maxRetryCount, minTimeout, maxTimeout) {
   return retry(fn, {
     onFailedAttempt: (error) => {
-      logger.error(error);
+      logger.error('retryFunction', error);
     },
     retries: maxRetryCount,
     minTimeout: minTimeout,
@@ -171,6 +171,7 @@ async function importAirtableData(configuration) {
     try {
       await airtableData.fetchAndSaveData(configuration);
     } catch (error) {
+      logger.error(error);
       // An AirTableError is throw => {
       //   "error": "SERVICE_UNAVAILABLE",
       //   "message": "The service is temporarily unavailable. Please retry shortly.",
@@ -201,9 +202,14 @@ async function importAirtableData(configuration) {
 }
 
 async function addEnrichment(configuration) {
-  logger.info('enrichment.add - Started');
-  await enrichment.add(configuration);
-  logger.info('enrichment.add - Ended');
+  try {
+    logger.info('enrichment.add - Started');
+    await enrichment.add(configuration);
+    logger.info('enrichment.add - Ended');
+  } catch (error) {
+    logger.error(error);
+    throw error;
+  }
 }
 
 async function backupAndRestore(configuration) {
@@ -215,6 +221,7 @@ async function backupAndRestore(configuration) {
       await dropObjectAndRestoreBackup(backup, configuration);
     }, configuration.MAX_RETRY_COUNT, configuration.MIN_TIMEOUT, configuration.MAX_TIMEOUT);
   } finally {
+    logger.info('finally backupAndRestore');
     clearTimeout(retriesAlarm);
   }
 }
