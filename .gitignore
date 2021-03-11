@@ -4,3 +4,4 @@
 restore.list
 backup.tar.gz
 logs.txt
+dump.pgsql
