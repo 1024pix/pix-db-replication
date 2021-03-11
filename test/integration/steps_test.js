@@ -484,8 +484,8 @@ describe('Integration | steps.js', () => {
 
         // when
         const configuration = {
-          AIRTABLE_API_KEY : 'key8BhNMj8YDSHTpa',
-          AIRTABLE_BASE : 'appHAIFk9u1qqglhX',
+          AIRTABLE_API_KEY : 'keyblo10ZCvCqBAJg',
+          AIRTABLE_BASE : 'app3fvsqhtHJntXaC',
           DATABASE_URL: targetDatabaseConfig.databaseUrl,
           MAX_RETRY_COUNT : 10 ,
           RETRIES_TIMEOUT_MINUTES : 180
@@ -500,8 +500,6 @@ describe('Integration | steps.js', () => {
       });
 
       it('if available but credentials are invalid, should not retry the expect time, but throw', async function() {
-
-        // given
 
         // given
         const configuration = {
@@ -534,14 +532,14 @@ describe('Integration | steps.js', () => {
         // given
         const configuration = {
           DATABASE_URL : targetDatabaseConfig.databaseUrl,
-          AIRTABLE_API_KEY : 'key8BhNMj8YDSHTpa',
-          AIRTABLE_BASE : 'appHAIFk9u1qqglhX',
+          AIRTABLE_API_KEY : 'keyblo10ZCvCqBAJg',
+          AIRTABLE_BASE : 'app3fvsqhtHJntXaC',
           MAX_RETRY_COUNT : 1000 ,
           RETRIES_TIMEOUT_MINUTES : 1
         };
 
         const baseUrl = 'https://api.airtable.com';
-        const path = '/v0/appHAIFk9u1qqglhX/Domaines?fields%5B%5D=Nom&fields%5B%5D=id+persistant';
+        const path = `/v0/${configuration.AIRTABLE_BASE}/Domaines?fields%5B%5D=Nom&fields%5B%5D=id+persistant`;
         const UNAVAILABLE_STATUS_CODE = 503;
 
         const domainesAirtableCall = nock(baseUrl,  { allowUnmocked: true })
