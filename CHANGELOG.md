@@ -1,5 +1,12 @@
 # pix-db-replication Changelog
 
+## v1.12.0 (16/03/2021)
+
+- [#80](https://github.com/1024pix/pix-db-replication/pull/80) [TECH] Notifier les développeurs des erreurs d'exécution
+- [#86](https://github.com/1024pix/pix-db-replication/pull/86) Mise à jour des credentials Airtable
+- [#84](https://github.com/1024pix/pix-db-replication/pull/84) Remove trace
+- [#83](https://github.com/1024pix/pix-db-replication/pull/83) :zap: Ajout de l'automerge
+
 ## v1.11.0 (10/02/2021)
 
 - [#82](https://github.com/1024pix/pix-db-replication/pull/82) [TECH] Ajout de données supplémentaires provenant du référentiel pour exploitation contenus
