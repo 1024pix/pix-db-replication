@@ -22,6 +22,7 @@ function createQueue(name) {
 const replicationQueue = createQueue('Replication queue');
 const airtableReplicationQueue = createQueue('Airtable replication queue');
 const incrementalReplicationQueue = createQueue('Increment replication queue');
+const testQueue = createQueue('Test queue');
 
 function addQueueEventsListeners(queue) {
   return queue
@@ -67,6 +68,23 @@ async function main() {
   if (configuration.RESTORE_ANSWERS_AND_KES_INCREMENTALLY && configuration.RESTORE_ANSWERS_AND_KES_INCREMENTALLY === 'true') {
     incrementalReplicationQueue.add({}, jobOptions);
   }
+
+  testQueue.process(async function() {
+    logger.info('Test queue is processing a job');
+    return new Promise((res) =>
+      setTimeout(function() {
+        logger.info('Test queue finished processing job');
+        res('Time is out!');
+      }, 3 * 1000 * 60)
+    );
+  });
+
+  const testJobOptions = {
+    attempts: configuration.MAX_RETRY_COUNT,
+    backoff: { type: 'exponential', delay: 100 }
+  };
+
+  testQueue.add({}, testJobOptions);
 }
 
 async function flushSentryAndExit() {
