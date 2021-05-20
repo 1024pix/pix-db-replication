@@ -1,30 +1,69 @@
 require('dotenv').config();
-const Sentry = require('@sentry/node');
-const initSentry = require('./sentry-init');
-
-const steps = require('./steps');
-const logger = require('./logger');
-const replicateIncrementally = require('./replicate-incrementally');
-
 const Queue = require('bull');
-
-const parisTimezone = 'Europe/Paris';
-
+const Sentry = require('@sentry/node');
+const logger = require('./logger');
 const extractConfigurationFromEnvironment = require('./extract-configuration-from-environment');
+
 const configuration = extractConfigurationFromEnvironment();
 
-function createQueue(name) {
+const testQueue = _createQueue('Test queue');
+
+async function main() {
+  testQueue.process(async function() {
+    logger.info('Test queue is processing a job');
+    return new Promise((res) =>
+      setTimeout(function() {
+        logger.info('Test queue finished processing job');
+        res('Time is out!');
+      }, 1000 * 10)
+    );
+  });
+
+  const testJobOptions = {
+    jobId: 'Job A',
+    removeOnCompleted: true,
+    attempts: configuration.MAX_RETRY_COUNT,
+    backoff: { type: 'exponential', delay: 100 }
+  };
+
+  testQueue.add({}, testJobOptions);
+}
+
+main()
+  .catch(async (error) => {
+    Sentry.captureException(error);
+    logger.error(error);
+    process.exit(1);
+  });
+
+async function exitOnSignal(signal) {
+  logger.info(`Received signal ${signal}.`);
+  process.exit(1);
+}
+
+process.on('uncaughtException', () => {
+  exitOnSignal('uncaughtException');
+});
+process.on('unhandledRejection', (reason, promise) => {
+  logger.info('Unhandled Rejection at:', promise, 'reason:', reason);
+  exitOnSignal('unhandledRejection');
+});
+process.on('SIGTERM', () => {
+  logger.info('SIGTERM received');
+  exitOnSignal('SIGTERM');
+});
+process.on('SIGINT', () => {
+  logger.info('SIGINT received');
+  exitOnSignal('SIGINT');
+});
+
+function _createQueue(name) {
   const queue = new Queue(name, configuration.REDIS_URL);
-  addQueueEventsListeners(queue);
+  _addQueueEventsListeners(queue);
   return queue;
 }
 
-const replicationQueue = createQueue('Replication queue');
-const airtableReplicationQueue = createQueue('Airtable replication queue');
-const incrementalReplicationQueue = createQueue('Increment replication queue');
-const testQueue = createQueue('Test queue');
-
-function addQueueEventsListeners(queue) {
+function _addQueueEventsListeners(queue) {
   return queue
     .on('error', function(error) {
       logger.error(`Error in ${queue.name}: ${error}`);
@@ -42,80 +81,3 @@ function addQueueEventsListeners(queue) {
       logger.error(`Failed job in ${queue.name}: ${job.id} ${err} (Number of attempts: ${job.attemptsMade}/${job.opts.attempts})`);
     });
 }
-
-async function main() {
-  initSentry(configuration);
-  await steps.pgclientSetup(configuration);
-  const jobOptions = {
-    attempts: configuration.MAX_RETRY_COUNT,
-    repeat: { cron: configuration.SCHEDULE, tz: parisTimezone },
-    backoff: { type: 'exponential', delay: 100 }
-  };
-
-  replicationQueue.process(async function() {
-    await steps.fullReplicationAndEnrichment(configuration);
-    airtableReplicationQueue.add({}, jobOptions);
-  });
-
-  airtableReplicationQueue.process(function() {
-    return steps.importAirtableData(configuration);
-  });
-
-  incrementalReplicationQueue.process(function() {
-    return replicateIncrementally.run(configuration);
-  });
-  replicationQueue.add({}, jobOptions);
-  if (configuration.RESTORE_ANSWERS_AND_KES_INCREMENTALLY && configuration.RESTORE_ANSWERS_AND_KES_INCREMENTALLY === 'true') {
-    incrementalReplicationQueue.add({}, jobOptions);
-  }
-
-  testQueue.process(async function() {
-    logger.info('Test queue is processing a job');
-    return new Promise((res) =>
-      setTimeout(function() {
-        logger.info('Test queue finished processing job');
-        res('Time is out!');
-      }, 3 * 1000 * 60)
-    );
-  });
-
-  const testJobOptions = {
-    attempts: configuration.MAX_RETRY_COUNT,
-    backoff: { type: 'exponential', delay: 100 }
-  };
-
-  testQueue.add({}, testJobOptions);
-}
-
-async function flushSentryAndExit() {
-  const TIMEOUT = 2000;
-  await Sentry.close(TIMEOUT);
-  process.exit(1);
-}
-
-main()
-  .catch(async (error) => {
-    Sentry.captureException(error);
-    logger.error(error);
-    await flushSentryAndExit();
-  });
-
-async function exitOnSignal(signal) {
-  logger.info(`Received signal ${signal}.`);
-  await flushSentryAndExit();
-}
-
-process.on('uncaughtException', () => {
-  exitOnSignal('uncaughtException');
-});
-process.on('unhandledRejection', (reason, promise) => {
-  logger.info('Unhandled Rejection at:', promise, 'reason:', reason);
-  exitOnSignal('unhandledRejection');
-});
-process.on('SIGTERM', () => {
-  exitOnSignal('SIGTERM');
-});
-process.on('SIGINT', () => {
-  exitOnSignal('SIGINT');
-});
-
