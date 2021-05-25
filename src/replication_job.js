@@ -26,26 +26,31 @@ async function main() {
   await steps.pgclientSetup(configuration);
   const jobOptions = {
     attempts: configuration.MAX_RETRY_COUNT,
-    repeat: { cron: configuration.SCHEDULE, tz: parisTimezone },
     backoff: { type: 'exponential', delay: 100 }
+  };
+  const repeatableJobOptions = {
+    ...jobOptions,
+    repeat: { cron: configuration.SCHEDULE, tz: parisTimezone },
   };
 
   replicationQueue.process(async function() {
     await steps.fullReplicationAndEnrichment(configuration);
+    incrementalReplicationQueue.add({}, jobOptions);
+  });
+
+  incrementalReplicationQueue.process(async function() {
+    if (configuration.RESTORE_ANSWERS_AND_KES_INCREMENTALLY === 'true') {
+      await replicateIncrementally.run(configuration);
+    }
     airtableReplicationQueue.add({}, jobOptions);
   });
 
-  airtableReplicationQueue.process(function() {
-    return steps.importAirtableData(configuration);
+  airtableReplicationQueue.process(async function() {
+    await steps.importAirtableData(configuration);
+    logger.info('Import and enrichment done');
   });
 
-  incrementalReplicationQueue.process(function() {
-    return replicateIncrementally.run(configuration);
-  });
-  replicationQueue.add({}, jobOptions);
-  if (configuration.RESTORE_ANSWERS_AND_KES_INCREMENTALLY && configuration.RESTORE_ANSWERS_AND_KES_INCREMENTALLY === 'true') {
-    incrementalReplicationQueue.add({}, jobOptions);
-  }
+  replicationQueue.add({}, repeatableJobOptions);
 }
 
 async function _exitOnSignal(signal) {

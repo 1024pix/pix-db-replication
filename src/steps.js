@@ -158,8 +158,6 @@ async function fullReplicationAndEnrichment(configuration) {
   logger.info('Enrich imported data');
   await addEnrichment(configuration);
 
-  logger.info('Import and enrichment done');
-
 }
 
 function _filterObjectLines(objectLines, configuration) {
