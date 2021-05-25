@@ -15,11 +15,12 @@ async function main() {
       setTimeout(function() {
         logger.info('Test queue finished processing job');
         res('Time is out!');
-      }, 1000 * 10)
+      }, 1000 * 30)
     );
   });
 
   const testJobOptions = {
+    repeat: { cron: '*/1 * * * *' },
     jobId: 'Job A',
     removeOnCompleted: true,
     attempts: configuration.MAX_RETRY_COUNT,
@@ -27,6 +28,12 @@ async function main() {
   };
 
   testQueue.add({}, testJobOptions);
+
+  const activeJobs = await testQueue.getActive();
+  logger.info(`Active jobs count: ${activeJobs.length}`);
+
+  const waitingJobs = await testQueue.getWaiting();
+  logger.info(`Waiting jobs count: ${waitingJobs.length}`);
 }
 
 main()
@@ -56,6 +63,14 @@ process.on('SIGINT', () => {
   logger.info('SIGINT received');
   exitOnSignal('SIGINT');
 });
+
+async function _handleActiveJobs() {
+  const activeJobs = await testQueue.getActive();
+  logger.info(`Active jobs count: ${activeJobs.length}`);
+  for (const job of activeJobs) {
+    await job.moveToFailed({ message: 'Container stopped while job is active.' }, true);
+  }
+}
 
 function _createQueue(name) {
   const queue = new Queue(name, configuration.REDIS_URL);
