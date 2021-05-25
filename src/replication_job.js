@@ -51,6 +51,18 @@ async function main() {
   });
 
   replicationQueue.add({}, repeatableJobOptions);
+
+  await _setInterruptedJobsAsFailed();
+}
+
+async function _setInterruptedJobsAsFailed() {
+  const promises = [replicationQueue, airtableReplicationQueue, incrementalReplicationQueue].map(async (queue) => {
+    const activeJobs = await queue.getActive();
+    for (const job of activeJobs) {
+      await job.moveToFailed();
+    }
+  });
+  return Promise.all(promises);
 }
 
 async function _exitOnSignal(signal) {
