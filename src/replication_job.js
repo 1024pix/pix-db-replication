@@ -1,46 +1,25 @@
 require('dotenv').config();
 const Sentry = require('@sentry/node');
+const Queue = require('bull');
 const initSentry = require('./sentry-init');
-
 const steps = require('./steps');
 const logger = require('./logger');
 const replicateIncrementally = require('./replicate-incrementally');
+const extractConfigurationFromEnvironment = require('./extract-configuration-from-environment');
 
-const Queue = require('bull');
-
+const configuration = extractConfigurationFromEnvironment();
 const parisTimezone = 'Europe/Paris';
 
-const extractConfigurationFromEnvironment = require('./extract-configuration-from-environment');
-const configuration = extractConfigurationFromEnvironment();
+const replicationQueue = _createQueue('Replication queue');
+const airtableReplicationQueue = _createQueue('Airtable replication queue');
+const incrementalReplicationQueue = _createQueue('Incremental replication queue');
 
-function createQueue(name) {
-  const queue = new Queue(name, configuration.REDIS_URL);
-  addQueueEventsListeners(queue);
-  return queue;
-}
-
-const replicationQueue = createQueue('Replication queue');
-const airtableReplicationQueue = createQueue('Airtable replication queue');
-const incrementalReplicationQueue = createQueue('Increment replication queue');
-
-function addQueueEventsListeners(queue) {
-  return queue
-    .on('error', function(error) {
-      logger.error(`Error in ${queue.name}: ${error}`);
-    })
-    .on('active', function(job) {
-      logger.info(`Starting job in ${queue.name}: ${job.id}`);
-    })
-    .on('stalled', function(job) {
-      logger.error(`Stalled job in ${queue.name}: ${job.id}`);
-    })
-    .on('completed', function(job) {
-      logger.info(`Completed job in ${queue.name}: ${job.id}`);
-    })
-    .on('failed', function(job, err) {
-      logger.error(`Failed job in ${queue.name}: ${job.id} ${err} (Number of attempts: ${job.attemptsMade}/${job.opts.attempts})`);
-    });
-}
+main()
+  .catch(async (error) => {
+    Sentry.captureException(error);
+    logger.error(error);
+    await _flushSentryAndExit();
+  });
 
 async function main() {
   initSentry(configuration);
@@ -69,35 +48,53 @@ async function main() {
   }
 }
 
-async function flushSentryAndExit() {
+async function _exitOnSignal(signal) {
+  logger.info(`Received signal ${signal}.`);
+  await _flushSentryAndExit();
+}
+
+process.on('uncaughtException', () => {
+  _exitOnSignal('uncaughtException');
+});
+process.on('unhandledRejection', (reason, promise) => {
+  logger.info('Unhandled Rejection at:', promise, 'reason:', reason);
+  _exitOnSignal('unhandledRejection');
+});
+process.on('SIGTERM', () => {
+  _exitOnSignal('SIGTERM');
+});
+process.on('SIGINT', () => {
+  _exitOnSignal('SIGINT');
+});
+
+function _createQueue(name) {
+  const queue = new Queue(name, configuration.REDIS_URL);
+  _addQueueEventsListeners(queue);
+  return queue;
+}
+
+function _addQueueEventsListeners(queue) {
+  return queue
+    .on('error', function(error) {
+      logger.error(`Error in ${queue.name}: ${error}`);
+    })
+    .on('active', function(job) {
+      logger.info(`Starting job in ${queue.name}: ${job.id}`);
+    })
+    .on('stalled', function(job) {
+      logger.error(`Stalled job in ${queue.name}: ${job.id}`);
+    })
+    .on('completed', function(job) {
+      logger.info(`Completed job in ${queue.name}: ${job.id}`);
+    })
+    .on('failed', function(job, err) {
+      logger.error(`Failed job in ${queue.name}: ${job.id} ${err} (Number of attempts: ${job.attemptsMade}/${job.opts.attempts})`);
+    });
+}
+
+async function _flushSentryAndExit() {
   const TIMEOUT = 2000;
   await Sentry.close(TIMEOUT);
   process.exit(1);
 }
-
-main()
-  .catch(async (error) => {
-    Sentry.captureException(error);
-    logger.error(error);
-    await flushSentryAndExit();
-  });
-
-async function exitOnSignal(signal) {
-  logger.info(`Received signal ${signal}.`);
-  await flushSentryAndExit();
-}
-
-process.on('uncaughtException', () => {
-  exitOnSignal('uncaughtException');
-});
-process.on('unhandledRejection', (reason, promise) => {
-  logger.info('Unhandled Rejection at:', promise, 'reason:', reason);
-  exitOnSignal('unhandledRejection');
-});
-process.on('SIGTERM', () => {
-  exitOnSignal('SIGTERM');
-});
-process.on('SIGINT', () => {
-  exitOnSignal('SIGINT');
-});
 
