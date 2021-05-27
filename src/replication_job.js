@@ -5,10 +5,7 @@ const initSentry = require('./sentry-init');
 const steps = require('./steps');
 const logger = require('./logger');
 const replicateIncrementally = require('./replicate-incrementally');
-const extractConfigurationFromEnvironment = require('./extract-configuration-from-environment');
-
-const configuration = extractConfigurationFromEnvironment();
-const parisTimezone = 'Europe/Paris';
+const { configuration, jobOptions, repeatableJobOptions } = require('./config');
 
 const replicationQueue = _createQueue('Replication queue');
 const airtableReplicationQueue = _createQueue('Airtable replication queue');
@@ -24,14 +21,6 @@ main()
 async function main() {
   initSentry(configuration);
   await steps.pgclientSetup(configuration);
-  const jobOptions = {
-    attempts: configuration.MAX_RETRY_COUNT,
-    backoff: { type: 'exponential', delay: 100 }
-  };
-  const repeatableJobOptions = {
-    ...jobOptions,
-    repeat: { cron: configuration.SCHEDULE, tz: parisTimezone },
-  };
 
   replicationQueue.process(async function() {
     await steps.fullReplicationAndEnrichment(configuration);

@@ -1,6 +1,6 @@
 /* eslint no-process-env: "off" */
 
-const logger = require('./logger');
+const logger = require('../logger');
 
 const extractConfigurationFromEnvironment = function() {
   loadEnvironmentVariableFromFileIfNotOnPaas();
@@ -41,7 +41,7 @@ const extractConfigurationFromEnvironmentVariable = function() {
     SENTRY_MAX_BREADCRUMBS: process.env.SENTRY_MAX_BREADCRUMBS,
     SENTRY_DEBUG: process.env.SENTRY_DEBUG,
     SENTRY_MAX_VALUE_LENGTH: 1000,
-    REDIS_URL : process.env.REDIS_URL || 'redis://redis/1'
+    REDIS_URL : process.env.REDIS_URL || 'redis://127.0.0.1:6379'
   };
 };
 
