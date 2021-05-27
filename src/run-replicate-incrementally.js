@@ -4,8 +4,7 @@ const runner = require('./replicate-incrementally');
 const Sentry = require('@sentry/node');
 const initSentry = require('./sentry-init');
 
-const extractConfigurationFromEnvironment = require ('./extract-configuration-from-environment');
-const configuration = extractConfigurationFromEnvironment();
+const { configuration } = require('./config');
 
 async function main() {
   initSentry(configuration);

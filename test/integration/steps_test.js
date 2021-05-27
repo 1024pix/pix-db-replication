@@ -2,7 +2,6 @@ const { expect } = require('chai');
 const { createBackupAndCreateEmptyDatabase, createAndFillDatabase, createBackup } = require('./test-helper');
 const Database = require('../utils/database');
 const pgUrlParser = require('pg-connection-string').parse;
-const nock = require('nock');
 const fs = require('fs');
 
 const steps = require('../../src/steps');
@@ -478,7 +477,7 @@ describe('Integration | steps.js', () => {
       targetDatabase = await Database.create(targetDatabaseConfig);
     });
 
-    context('according to AirTable API status', () => {
+    context('according to Airtable API status', () => {
 
       it('if available, should import data', async function() {
 
@@ -522,40 +521,8 @@ describe('Integration | steps.js', () => {
         const elapsedTimeMinutes = Math.round((endedAt - startedAt) / 1000 / 60);
 
         // then
-        expect(errorMessage).to.eq('404 - NOT_FOUND - Could not find what you are looking for');
+        expect(errorMessage).to.eq('Could not find what you are looking for');
         expect(elapsedTimeMinutes).to.eq(0);
-
-      });
-
-      it('if unavailable, should retry at most the expected time', async function() {
-
-        // given
-        const configuration = {
-          DATABASE_URL : targetDatabaseConfig.databaseUrl,
-          AIRTABLE_API_KEY : 'keyblo10ZCvCqBAJg',
-          AIRTABLE_BASE : 'app3fvsqhtHJntXaC',
-          MAX_RETRY_COUNT : 1000 ,
-          RETRIES_TIMEOUT_MINUTES : 1
-        };
-
-        const baseUrl = 'https://api.airtable.com';
-        const path = `/v0/${configuration.AIRTABLE_BASE}/Domaines?fields%5B%5D=Nom&fields%5B%5D=id+persistant`;
-        const UNAVAILABLE_STATUS_CODE = 503;
-
-        const domainesAirtableCall = nock(baseUrl,  { allowUnmocked: true })
-          .get(path)
-          .reply(UNAVAILABLE_STATUS_CODE, {});
-
-        // when
-        const startedAt = new Date();
-        await steps.importAirtableData(configuration);
-        const endedAt = new Date();
-        const elapsedTimeMinutes = Math.round((endedAt - startedAt) / 1000 / 60);
-
-        // then
-        expect(domainesAirtableCall.isDone()).to.be.true;
-        expect(elapsedTimeMinutes).to.be.at.least(configuration.RETRIES_TIMEOUT_MINUTES - 1);
-        expect(elapsedTimeMinutes).to.be.at.most(configuration.RETRIES_TIMEOUT_MINUTES);
 
       });
 

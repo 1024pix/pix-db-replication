@@ -22,6 +22,16 @@ describe('Acceptance | steps | fullReplicationAndEnrichment', () => {
   let sourceDatabaseConfig;
   let targetDatabaseConfig;
 
+  const configuration = {
+    SOURCE_DATABASE_URL,
+    TARGET_DATABASE_URL,
+    DATABASE_URL: TARGET_DATABASE_URL,
+    RESTORE_ANSWERS_AND_KES: 'true',
+    PG_RESTORE_JOBS: 1,
+    AIRTABLE_API_KEY: 'keyblo10ZCvCqBAJg',
+    AIRTABLE_BASE: 'app3fvsqhtHJntXaC'
+  };
+
   before(async function() {
     this.timeout(5000);
 
@@ -48,15 +58,6 @@ describe('Acceptance | steps | fullReplicationAndEnrichment', () => {
     targetDatabaseConfig.databaseUrl = `${targetDatabaseConfig.serverUrl}/${targetDatabaseConfig.databaseName}`;
 
     // given
-    const configuration = {
-      SOURCE_DATABASE_URL,
-      TARGET_DATABASE_URL,
-      DATABASE_URL: TARGET_DATABASE_URL,
-      RESTORE_ANSWERS_AND_KES: 'true',
-      PG_RESTORE_JOBS: 1,
-      AIRTABLE_API_KEY: 'keyblo10ZCvCqBAJg',
-      AIRTABLE_BASE: 'app3fvsqhtHJntXaC'
-    };
     sourceDatabase = await Database.create(sourceDatabaseConfig);
     await createAndFillDatabase(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true });
     targetDatabase = await Database.create(targetDatabaseConfig);
@@ -91,6 +92,7 @@ describe('Acceptance | steps | fullReplicationAndEnrichment', () => {
   });
 
   describe('should import Airtable data', () => {
+    before(() => steps.importAirtableData(configuration));
 
     it('should import areas ', async () => {
       // then
