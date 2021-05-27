@@ -1,5 +1,9 @@
 # pix-db-replication Changelog
 
+## v1.13.0 (27/05/2021)
+
+- [#81](https://github.com/1024pix/pix-db-replication/pull/81) [TECH] Pouvoir relancer un traitement interrompu avec la job queue Bull.
+
 ## v1.12.0 (16/03/2021)
 
 - [#80](https://github.com/1024pix/pix-db-replication/pull/80) [TECH] Notifier les développeurs des erreurs d'exécution
