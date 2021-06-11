@@ -92,7 +92,7 @@ Démarrer le serveur de BDD
 docker-compose up --detach
 ````
 
-Créer et chargers les BDD
+Créer et charger les BDD
 ````shell
 npm run local:setup-databases
 ````
@@ -102,6 +102,10 @@ Vérifiez que la source et la cible sont accessibles et qu'elles contiennent des
 psql postgres://source_user@localhost/source_database
 psql postgres://target_user@localhost/target_database
 ````
+
+Installez le CLI Bull
+`npm install bull-repl -g`
+
 
 ### Paramétrage
 Créer un fichier `.env` à partir du fichier [sample.env](sample.env)
@@ -165,6 +169,69 @@ Exécuter
 ``` bash
 node ./src/run-replicate-incrementally.js 
 ```
+
+#### Ordonnanceur
+
+Il est possible de faire tourner l'ordonnanceur en local.
+
+Mettez la planification à toutes les minutes dans le fichier `.env`
+
+`SCHEDULE=* * * * *`
+
+Démarrez l'ordonnanceur
+
+`node ./src/replication_job.js | ./node_modules/.bin/bunyan`
+
+Vérifiez que le traitement se lance
+```shell
+[2021-06-11T14:11:01.944Z]  INFO: pix-db-replication/83294 on OCTO-TOPI: Starting job in Airtable replication queue: 10
+```
+Vérifiez que bull a pu joindre redis
+```shell
+redis-cli
+keys bull:*
+```
+
+Connectez-vous au CLI Bull pour suivre l'avancement.
+
+Pour la réplication par dump
+```shell
+bull-repl
+connect "Replication queue"
+stats
+```
+
+Pour la réplication incrémentale
+```shell
+bull-repl
+connect "Incremental replication queue"
+stats
+```
+
+Pour l'import Airtable
+```shell
+bull-repl
+connect "Airtable replication queue"
+stats
+```
+
+Vous obtenez, par exemple 
+- en cours d'exécution d'un traitement
+- après 14 exécution avec succès 
+
+```shell
+┌───────────┬────────┐
+│  (index)  │ Values │
+├───────────┼────────┤
+│  waiting  │   0    │
+│  active   │   1    │
+│ completed │   14   │
+│  failed   │   0    │
+│  delayed  │   0    │
+│  paused   │   0    │
+└───────────┴────────┘
+```
+
 
 ## Tests
 Une partie du code n'est pas testable de manière automatisée.
