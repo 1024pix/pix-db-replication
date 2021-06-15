@@ -45,56 +45,42 @@ async function run(configuration) {
 
   logger.info('Start COPY FROM/TO through STDIN/OUT');
 
-  const answersSqlCopyCommand = `
-    psql \\
-        ${configuration.SOURCE_DATABASE_URL} \\
-        --command "\\copy (SELECT * FROM answers WHERE id>${answersLastRecordIndexTargetBeforeReplication}) to stdout" | \\
-    psql \\
-        ${configuration.TARGET_DATABASE_URL} \\
-        --command "\\copy answers from stdin"`;
+  const tablesAndLastRecordIndex = [
+    {
+      name: 'answers',
+      lastRecordIndex: answersLastRecordIndexTargetBeforeReplication,
+    },
+    {
+      name: '\\"knowledge-elements\\"',
+      lastRecordIndex: kELastRecordIndexTargetBeforeReplication,
+    },
+    {
+      name: '\\"knowledge-element-snapshots\\"',
+      lastRecordIndex: kESnapshotsLastRecordIndexTargetBeforeReplication,
+    },
+  ];
 
-  const answersCopyMessage = execSync(answersSqlCopyCommand);
-  logger.info('Answers table copy returned: ' + answersCopyMessage);
+  tablesAndLastRecordIndex.forEach((table) => {
+    const sqlCopyCommand = `
+      psql \\
+          ${configuration.SOURCE_DATABASE_URL} \\
+          --command "\\copy (SELECT * FROM ${table.name} WHERE id>${table.lastRecordIndex}) to stdout" | \\
+      psql \\
+          ${configuration.TARGET_DATABASE_URL} \\
+          --command "\\copy ${table.name} from stdin"`;
 
-  const kesSqlCopyCommand = `
-    psql \\
-        ${configuration.SOURCE_DATABASE_URL} \\
-        --command "\\copy (SELECT * FROM \\"knowledge-elements\\" WHERE id>${kELastRecordIndexTargetBeforeReplication}) to stdout" | \\
-    psql \\
-        ${configuration.TARGET_DATABASE_URL} \\
-        --command "\\copy \\"knowledge-elements\\" from stdin"`;
+    const copyMessage = execSync(sqlCopyCommand);
+    logger.info(`${table.name} table copy returned: ` + copyMessage);
+  });
 
-  const kECopyMessage = execSync(kesSqlCopyCommand);
-  logger.info('Knowledge-elements table copy returned: ' + kECopyMessage);
+  tablesAndLastRecordIndex.forEach(async(table) => {
 
-  const keSnapshotSqlCopyCommand = `
-    psql \\
-        ${configuration.SOURCE_DATABASE_URL} \\
-        --command "\\copy (SELECT * FROM \\"knowledge-element-snapshots\\" WHERE id>${kESnapshotsLastRecordIndexTargetBeforeReplication}) to stdout" | \\
-    psql \\
-        ${configuration.TARGET_DATABASE_URL} \\
-        --command "\\copy \\"knowledge-element-snapshots\\" from stdin"`;
+    const maxIdStrAfterReplication = await execStdOut('psql', [configuration.TARGET_DATABASE_URL, '--tuples-only', '--command', `SELECT MAX(id) FROM ${table.name}`]);
+    const lastRecordIndexTargetAfterReplication = parseInt(maxIdStrAfterReplication);
+    logger.info(`${table.name} last record index target after replication ` + lastRecordIndexTargetAfterReplication);
 
-  const kESnapshotCopyMessage = execSync(keSnapshotSqlCopyCommand);
-  logger.info('Knowledge-element-snapshots table copy returned: ' + kESnapshotCopyMessage);
-
-  const maxAnswerIdStrAfterReplication = await execStdOut('psql', [configuration.TARGET_DATABASE_URL, '--tuples-only', '--command', 'SELECT MAX(id) FROM answers']);
-  const answersLastRecordIndexTargetAfterReplication = parseInt(maxAnswerIdStrAfterReplication);
-  logger.info('Answers last record index target after replication ' + answersLastRecordIndexTargetAfterReplication);
-
-  logger.info('Total of Answers imported ' + (answersLastRecordIndexTargetAfterReplication - answersLastRecordIndexTargetBeforeReplication));
-
-  const maxKEIdStrAfterReplication = await execStdOut('psql', [configuration.TARGET_DATABASE_URL, '--tuples-only', '--command', 'SELECT MAX(id) FROM "knowledge-elements"']);
-  const kELastRecordIndexTargetAfterReplication = parseInt(maxKEIdStrAfterReplication);
-  logger.info('KE last record index target after replication ' + kELastRecordIndexTargetAfterReplication);
-
-  logger.info('Total of KE imported ' + (kELastRecordIndexTargetAfterReplication - kELastRecordIndexTargetBeforeReplication));
-
-  const maxKESnapshotsIdStrAfterReplication = await execStdOut('psql', [configuration.TARGET_DATABASE_URL, '--tuples-only', '--command', 'SELECT MAX(id) FROM "knowledge-elements"']);
-  const kESnapshotsLastRecordIndexTargetAfterReplication = parseInt(maxKESnapshotsIdStrAfterReplication);
-  logger.info('KE Snapshots last record index target after replication ' + kESnapshotsLastRecordIndexTargetAfterReplication);
-
-  logger.info('Total of KE Snapshots imported ' + (kESnapshotsLastRecordIndexTargetAfterReplication - kESnapshotsLastRecordIndexTargetBeforeReplication));
+    logger.info(`Total of ${table.name} imported ` + (lastRecordIndexTargetAfterReplication - table.lastRecordIndex));
+  });
 
   logger.info('Incremental replication done');
 }
