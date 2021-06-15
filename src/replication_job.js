@@ -28,7 +28,7 @@ async function main() {
   });
 
   incrementalReplicationQueue.process(async function() {
-    if (configuration.RESTORE_ANSWERS_AND_KES_INCREMENTALLY === 'true') {
+    if (configuration.RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY === 'true') {
       await replicateIncrementally.run(configuration);
     }
     airtableReplicationQueue.add({}, jobOptions);

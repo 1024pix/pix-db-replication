@@ -39,7 +39,7 @@ describe('Integration | enrichment.js', () => {
         await createAndFillDatabase(database, databaseConfig, { createTablesNotToBeImported: true });
 
         // when
-        const configuration = { RESTORE_ANSWERS_AND_KES: 'true', DATABASE_URL : databaseConfig.databaseUrl };
+        const configuration = { RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: 'true', DATABASE_URL : databaseConfig.databaseUrl };
         await add(configuration);
 
         // then
@@ -54,7 +54,7 @@ describe('Integration | enrichment.js', () => {
         await createAndFillDatabase(database, databaseConfig, { createTablesNotToBeImported: true });
 
         // when
-        const configuration = { RESTORE_ANSWERS_AND_KES: 'true', DATABASE_URL : databaseConfig.databaseUrl };
+        const configuration = { RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: 'true', DATABASE_URL : databaseConfig.databaseUrl };
         await add(configuration);
 
         // then
@@ -77,12 +77,16 @@ describe('Integration | enrichment.js', () => {
         await createAndFillDatabase(database, databaseConfig, { createTablesNotToBeImported : true });
 
         // when
-        const configuration = { RESTORE_ANSWERS_AND_KES: 'true', DATABASE_URL : databaseConfig.databaseUrl };
+        const configuration = { RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: 'true', DATABASE_URL : databaseConfig.databaseUrl };
         await add(configuration);
 
         // then
         const KEIndexCount = parseInt(await database.runSql('SELECT COUNT(1) FROM pg_indexes ndx WHERE ndx.indexname = \'knowledge-elements_createdAt_idx\''));
         expect(KEIndexCount).to.equal(1);
+
+        // then
+        const KESnapshotsIndexCount = parseInt(await database.runSql('SELECT COUNT(1) FROM pg_indexes ndx WHERE ndx.indexname = \'knowledge-element-snapshots_snappedAt_idx\''));
+        expect(KESnapshotsIndexCount).to.equal(1);
 
         // then
         const answersIndexCount = parseInt(await database.runSql('SELECT COUNT(1) FROM pg_indexes ndx WHERE ndx.indexname = \'answers_challengeId_idx\''));

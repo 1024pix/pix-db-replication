@@ -49,13 +49,13 @@ describe('Integration | steps.js', () => {
       await targetDatabase.dropDatabase();
     });
 
-    it('backup and restore the database without answers and knowledge-elements ', async () => {
+    it('backup and restore the database without answers, knowledge-elements & knowledge-element-snapshots', async () => {
       // given
       const configuration = {
         SOURCE_DATABASE_URL,
         TARGET_DATABASE_URL,
         DATABASE_URL: TARGET_DATABASE_URL,
-        RESTORE_ANSWERS_AND_KES: 'false',
+        RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: 'false',
         PG_RESTORE_JOBS: 1,
       };
       sourceDatabase = await Database.create(sourceDatabaseConfig);
@@ -83,7 +83,7 @@ describe('Integration | steps.js', () => {
         SOURCE_DATABASE_URL,
         TARGET_DATABASE_URL,
         DATABASE_URL: TARGET_DATABASE_URL,
-        RESTORE_ANSWERS_AND_KES: 'true',
+        RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: 'true',
         PG_RESTORE_JOBS: 1,
       };
       sourceDatabase = await Database.create(sourceDatabaseConfig);
@@ -168,7 +168,7 @@ describe('Integration | steps.js', () => {
             // given
             database = await Database.create(databaseConfig);
             const backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, { createTablesNotToBeImported: true });
-            const configuration = { RESTORE_ANSWERS_AND_KES: undefined, RESTORE_FK_CONSTRAINTS: 'false', PG_RESTORE_JOBS: 4  };
+            const configuration = { RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: undefined, RESTORE_FK_CONSTRAINTS: 'false', PG_RESTORE_JOBS: 4  };
 
             // when
             await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl, configuration });
@@ -198,7 +198,7 @@ describe('Integration | steps.js', () => {
             // given
             database = await Database.create(databaseConfig);
             const backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, { createTablesNotToBeImported: true });
-            const configuration = { RESTORE_ANSWERS_AND_KES: 'true', RESTORE_FK_CONSTRAINTS: 'false',  PG_RESTORE_JOBS: 4   };
+            const configuration = { RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: 'true', RESTORE_FK_CONSTRAINTS: 'false',  PG_RESTORE_JOBS: 4   };
 
             // when
             await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl, configuration });
@@ -348,101 +348,111 @@ describe('Integration | steps.js', () => {
       await steps.restoreBackup({ backupFile, databaseUrl: targetDatabaseUrl, configuration });
     }
 
-    it('if backup restore is disabled and increment restore is enabled on specific tables, should preserve data', async function() {
-      // given
+    context('On specific tables, when restore is done incrementally (and not by backup)', () => {
 
-      // Day 1
-      const firstDayConfiguration = { RESTORE_ANSWERS_AND_KES : 'true', PG_RESTORE_JOBS: 4 };
-      await createBackUpFromSourceAndRestoreToTarget(sourceDatabase, sourceDatabaseConfig, targetDatabaseConfig.databaseUrl, firstDayConfiguration);
+      it('should preserve data', async function() {
+        // given
 
-      const answersCountBefore = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM answers'));
-      expect(answersCountBefore).not.to.equal(0);
+        // Day 1
+        const firstDayConfiguration = { RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS : 'true', PG_RESTORE_JOBS: 4 };
+        await createBackUpFromSourceAndRestoreToTarget(sourceDatabase, sourceDatabaseConfig, targetDatabaseConfig.databaseUrl, firstDayConfiguration);
 
-      const knowledgeElementsCountBefore = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM "knowledge-elements"'));
-      expect(knowledgeElementsCountBefore).not.to.equal(0);
+        const answersCountBefore = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM answers'));
+        expect(answersCountBefore).not.to.equal(0);
 
-      await sourceDatabase.dropDatabase();
+        const knowledgeElementsCountBefore = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM "knowledge-elements"'));
+        expect(knowledgeElementsCountBefore).not.to.equal(0);
 
-      // Day 2
-      await sourceDatabase.createDatabase();
-      const secondDayBackupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true });
+        const knowledgeElementSnapshotsCountBefore = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM "knowledge-element-snapshots"'));
+        expect(knowledgeElementSnapshotsCountBefore).not.to.equal(0);
 
-      // when
-      const secondDayConfiguration = { RESTORE_ANSWERS_AND_KES_INCREMENTALLY : 'true', DATABASE_URL : targetDatabase._databaseUrl, PG_RESTORE_JOBS: 4   };
-      await steps.dropObjectAndRestoreBackup(secondDayBackupFile, secondDayConfiguration);
+        await sourceDatabase.dropDatabase();
 
-      // then
-      const answersCountAfter = parseInt(await targetDatabase.runSql('SELECT  COUNT(1) FROM answers'));
-      expect(answersCountBefore).to.equal(answersCountAfter);
+        // Day 2
+        await sourceDatabase.createDatabase();
+        const secondDayBackupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true });
 
-      // then
-      const knowledgeElementsCountAfter = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM "knowledge-elements"'));
-      expect(knowledgeElementsCountBefore).to.equal(knowledgeElementsCountAfter);
-    });
+        // when
+        const secondDayConfiguration = { RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY : 'true', DATABASE_URL : targetDatabase._databaseUrl, PG_RESTORE_JOBS: 4   };
+        await steps.dropObjectAndRestoreBackup(secondDayBackupFile, secondDayConfiguration);
 
-    it('if backup restore is disabled and increment restore is enabled on specific tables, should restore data on other tables', async function() {
-      // Day 1
+        // then
+        const answersCountAfter = parseInt(await targetDatabase.runSql('SELECT  COUNT(1) FROM answers'));
+        expect(answersCountBefore).to.equal(answersCountAfter);
 
-      // Source: create backup
-      const sourceDatabase = await Database.create(sourceDatabaseConfig);
-      const firstDaySourceBackupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true, createForeignKeys: true, dropDatabase : false });
+        // then
+        const knowledgeElementsCountAfter = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM "knowledge-elements"'));
+        expect(knowledgeElementsCountBefore).to.equal(knowledgeElementsCountAfter);
 
-      // Target : restore backup
-      const targetDatabase = await Database.create(targetDatabaseConfig);
+        // then
+        const knowledgeElementSnapshotsCountAfter = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM "knowledge-element-snapshots"'));
+        expect(knowledgeElementSnapshotsCountBefore).to.equal(knowledgeElementSnapshotsCountAfter);
+      });
 
-      const firstDayTargetConfiguration = {
-        PG_RESTORE_JOBS: 4,
-        DATABASE_URL : targetDatabase._databaseUrl,
-        RESTORE_FK_CONSTRAINTS: 'true',
-        RESTORE_ANSWERS_AND_KES: 'true',
-        RESTORE_ANSWERS_AND_KES_INCREMENTALLY: 'false'
-      };
+      it('should restore data on other tables', async function() {
+        // Day 1
 
-      await steps.dropObjectAndRestoreBackup(firstDaySourceBackupFile, firstDayTargetConfiguration);
+        // Source: create backup
+        const sourceDatabase = await Database.create(sourceDatabaseConfig);
+        const firstDaySourceBackupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true, createForeignKeys: true, dropDatabase : false });
 
-      const referencingCountBefore = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM referencing'));
-      expect(referencingCountBefore).not.to.equal(0);
+        // Target : restore backup
+        const targetDatabase = await Database.create(targetDatabaseConfig);
 
-      // Day 2
+        const firstDayTargetConfiguration = {
+          PG_RESTORE_JOBS: 4,
+          DATABASE_URL : targetDatabase._databaseUrl,
+          RESTORE_FK_CONSTRAINTS: 'true',
+          RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: 'true',
+          RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY: 'false'
+        };
 
-      // Source : add data and create backup
-      await sourceDatabase.runSql(`INSERT INTO ${sourceDatabaseConfig.tableName}(id) VALUES(${sourceDatabaseConfig.tableRowCount + 1})`);
-      await sourceDatabase.runSql('INSERT INTO referencing (id) VALUES (3)');
-      const secondDaySourceBackupFile = await sourceDatabase.createBackup();
+        await steps.dropObjectAndRestoreBackup(firstDaySourceBackupFile, firstDayTargetConfiguration);
 
-      // Target : restore backup
-      const secondDayTargetConfiguration = {
-        PG_RESTORE_JOBS: 4,
-        DATABASE_URL : targetDatabase._databaseUrl,
-        RESTORE_FK_CONSTRAINTS: 'false',
-        RESTORE_ANSWERS_AND_KES: 'false',
-        RESTORE_ANSWERS_AND_KES_INCREMENTALLY: 'true'
-      };
+        const referencingCountBefore = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM referencing'));
+        expect(referencingCountBefore).not.to.equal(0);
 
-      // when
-      await steps.dropObjectAndRestoreBackup(secondDaySourceBackupFile, secondDayTargetConfiguration);
+        // Day 2
 
-      // then
-      const countAfter = parseInt(await targetDatabase.runSql(`SELECT COUNT(1) FROM ${sourceDatabaseConfig.tableName}`));
-      expect(countAfter).to.equal(sourceDatabaseConfig.tableRowCount + 1);
+        // Source : add data and create backup
+        await sourceDatabase.runSql(`INSERT INTO ${sourceDatabaseConfig.tableName}(id) VALUES(${sourceDatabaseConfig.tableRowCount + 1})`);
+        await sourceDatabase.runSql('INSERT INTO referencing (id) VALUES (3)');
+        const secondDaySourceBackupFile = await sourceDatabase.createBackup();
 
-      const referencingCountAfter = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM referencing'));
-      expect(referencingCountAfter).to.equal(referencingCountBefore + 1);
+        // Target : restore backup
+        const secondDayTargetConfiguration = {
+          PG_RESTORE_JOBS: 4,
+          DATABASE_URL : targetDatabase._databaseUrl,
+          RESTORE_FK_CONSTRAINTS: 'false',
+          RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: 'false',
+          RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY: 'true'
+        };
 
+        // when
+        await steps.dropObjectAndRestoreBackup(secondDaySourceBackupFile, secondDayTargetConfiguration);
+
+        // then
+        const countAfter = parseInt(await targetDatabase.runSql(`SELECT COUNT(1) FROM ${sourceDatabaseConfig.tableName}`));
+        expect(countAfter).to.equal(sourceDatabaseConfig.tableRowCount + 1);
+
+        const referencingCountAfter = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM referencing'));
+        expect(referencingCountAfter).to.equal(referencingCountBefore + 1);
+
+      });
     });
 
     it('should not fail when database contains plpgsql source', async function() {
       // given
 
       // Day 1
-      const firstDayTargetConfiguration = { RESTORE_ANSWERS_AND_KES : 'true', PG_RESTORE_JOBS: 4 };
+      const firstDayTargetConfiguration = { RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS : 'true', PG_RESTORE_JOBS: 4 };
       await createBackUpFromSourceAndRestoreToTarget(sourceDatabase, sourceDatabaseConfig, targetDatabaseConfig.databaseUrl, firstDayTargetConfiguration);
       await sourceDatabase.dropDatabase();
 
       // Day 2
       sourceDatabase = await Database.create(sourceDatabaseConfig);
       const secondDayBackupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true, createFunction: true });
-      const secondDayTargetConfiguration = { RESTORE_ANSWERS_AND_KES_INCREMENTALLY : 'true', DATABASE_URL : targetDatabase._databaseUrl, PG_RESTORE_JOBS: 4 };
+      const secondDayTargetConfiguration = { RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY : 'true', DATABASE_URL : targetDatabase._databaseUrl, PG_RESTORE_JOBS: 4 };
 
       const dropObjectAndRestoreBackupWithArguments = function() {
         steps.dropObjectAndRestoreBackup(secondDayBackupFile, secondDayTargetConfiguration);
@@ -561,7 +571,7 @@ describe('Integration | steps.js', () => {
     it('should create a file', async () => {
       // given
       const configuration = {
-        RESTORE_ANSWERS_AND_KES: false,
+        RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: false,
         SOURCE_DATABASE_URL,
       };
 

@@ -45,7 +45,7 @@ function dropCurrentObjects(configuration) {
 }
 
 async function dropCurrentObjectsButKesAndAnswers(configuration) {
-  const dropTableQuery = await execStdOut('psql', [ configuration.DATABASE_URL, '--tuples-only', '--command', 'select string_agg(\'drop table "\' || tablename || \'" CASCADE\', \'; \') from pg_tables where schemaname = \'public\' and tablename not in (\'knowledge-elements\', \'answers\');' ]);
+  const dropTableQuery = await execStdOut('psql', [ configuration.DATABASE_URL, '--tuples-only', '--command', 'select string_agg(\'drop table "\' || tablename || \'" CASCADE\', \'; \') from pg_tables where schemaname = \'public\' and tablename not in (\'knowledge-elements\',\'knowledge-element-snapshots\', \'answers\');' ]);
   const dropFunction = await execStdOut('psql', [ configuration.DATABASE_URL, '--tuples-only', '--command', 'select string_agg(\'drop function "\' || proname || \'"\', \'; \') FROM pg_proc pp INNER JOIN pg_roles pr ON pp.proowner = pr.oid WHERE pr.rolname = current_user ' ]);
   await exec('psql', [ configuration.DATABASE_URL, '--set', 'ON_ERROR_STOP=on', '--echo-all' , '--command', dropTableQuery ]);
   return exec('psql', [ configuration.DATABASE_URL, '--set', 'ON_ERROR_STOP=on', '--echo-all' , '--command', dropFunction ]);
@@ -85,10 +85,11 @@ async function createBackup(configuration) {
   logger.info('Start create Backup');
   const backupFilename = './dump.pgsql';
 
-  const excludeOptions = configuration.RESTORE_ANSWERS_AND_KES === 'true'
+  const excludeOptions = configuration.RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS === 'true'
     ? []
     : [
       '--exclude-table', 'knowledge-elements',
+      '--exclude-table', 'knowledge-element-snapshots',
       '--exclude-table', 'answers',
     ];
   const verboseOptions = process.env.NODE_ENV === 'test' ? [] : ['--verbose'];
@@ -114,7 +115,7 @@ async function createBackup(configuration) {
 
 async function dropObjectAndRestoreBackup(backupFile, configuration) {
   logger.info('Start drop Objects AndRestoreBackup');
-  if (configuration.RESTORE_ANSWERS_AND_KES_INCREMENTALLY && configuration.RESTORE_ANSWERS_AND_KES_INCREMENTALLY === 'true') {
+  if (configuration.RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY && configuration.RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY === 'true') {
     await dropCurrentObjectsButKesAndAnswers(configuration);
   } else {
     await dropCurrentObjects(configuration);
@@ -162,16 +163,17 @@ async function fullReplicationAndEnrichment(configuration) {
 
 function _filterObjectLines(objectLines, configuration) {
   const restoreFkConstraints = configuration.RESTORE_FK_CONSTRAINTS === 'true';
-  const restoreAnswersAndKes = configuration.RESTORE_ANSWERS_AND_KES === 'true';
+  const restoreAnswersAndKesAndKeSnapshots = configuration.RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS === 'true';
   let filteredObjectLines = objectLines
     .filter((line) => !/ COMMENT /.test(line));
   if (!restoreFkConstraints) {
     filteredObjectLines = filteredObjectLines.filter((line) => !/FK CONSTRAINT/.test(line));
   }
-  if (!restoreAnswersAndKes) {
+  if (!restoreAnswersAndKesAndKeSnapshots) {
     filteredObjectLines = filteredObjectLines
       .filter((line) => !/answers/.test(line))
       .filter((line) => !/knowledge-elements/.test(line))
+      .filter((line) => !/knowledge-element-snapshots/.test(line))
       .filter((line) => !/knowledge_elements/.test(line));
   }
 

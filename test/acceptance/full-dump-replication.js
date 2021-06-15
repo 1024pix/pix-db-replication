@@ -26,7 +26,7 @@ describe('Acceptance | steps | fullReplicationAndEnrichment', () => {
     SOURCE_DATABASE_URL,
     TARGET_DATABASE_URL,
     DATABASE_URL: TARGET_DATABASE_URL,
-    RESTORE_ANSWERS_AND_KES: 'true',
+    RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: 'true',
     PG_RESTORE_JOBS: 1,
     AIRTABLE_API_KEY: 'keyblo10ZCvCqBAJg',
     AIRTABLE_BASE: 'app3fvsqhtHJntXaC'
@@ -73,7 +73,7 @@ describe('Acceptance | steps | fullReplicationAndEnrichment', () => {
 
   describe('should import database data', () => {
 
-    it('should replicate answers and knowledge-elements ', async () => {
+    it('should replicate answers and knowledge-elements and knowledge-element-snapshots', async () => {
       // then
       const restoredRowCount = await getCountFromTable({ targetDatabase, tableName: targetDatabaseConfig.tableName });
 
@@ -85,6 +85,10 @@ describe('Acceptance | steps | fullReplicationAndEnrichment', () => {
       // then
       const isKnowledgeElementsRestored = parseInt(await targetDatabase.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-elements\''));
       expect(isKnowledgeElementsRestored).to.equal(1);
+
+      // then
+      const isKnowledgeElementSnapshotsRestored = parseInt(await targetDatabase.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-element-snapshots\''));
+      expect(isKnowledgeElementSnapshotsRestored).to.equal(1);
 
       const indexCount = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM pg_indexes ndx WHERE ndx.indexname = \'users_createdAt_idx\''));
       expect(indexCount).to.equal(1);
@@ -141,6 +145,10 @@ describe('Acceptance | steps | fullReplicationAndEnrichment', () => {
       // then
       const KEIndexCount = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM pg_indexes ndx WHERE ndx.indexname = \'knowledge-elements_createdAt_idx\''));
       expect(KEIndexCount).to.equal(1);
+
+      // then
+      const KESnapshotsIndexCount = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM pg_indexes ndx WHERE ndx.indexname = \'knowledge-element-snapshots_snappedAt_idx\''));
+      expect(KESnapshotsIndexCount).to.equal(1);
 
       // then
       const answersIndexCount = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM pg_indexes ndx WHERE ndx.indexname = \'answers_challengeId_idx\''));

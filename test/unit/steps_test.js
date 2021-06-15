@@ -23,7 +23,7 @@ describe('Unit | steps.js', () => {
       // given
       const configuration = {
         SOURCE_DATABASE_URL: 'postgresql://source.url',
-        RESTORE_ANSWERS_AND_KES: 'true',
+        RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: 'true',
       };
 
       // when
@@ -50,12 +50,12 @@ describe('Unit | steps.js', () => {
       expect(backupFilename).to.equal('./dump.pgsql');
     });
 
-    context('when anwers and knowledge elements are restored incrementally', () => {
-      it('should not backup answers and knowledge-elements tables', async () => {
+    context('when anwers, knowledge elements and knowledge element snapshots are restored incrementally', () => {
+      it('should not backup answers, knowledge-elements and knowledge-element-snapshots tables', async () => {
         // given
         const configuration = {
           SOURCE_DATABASE_URL: 'postgresql://source.url',
-          RESTORE_ANSWERS_AND_KES: 'false',
+          RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: 'false',
         };
 
         // when
@@ -77,6 +77,7 @@ describe('Unit | steps.js', () => {
             '--exclude-schema', '\'^pg_*\'',
             '--file', './dump.pgsql',
             '--exclude-table', 'knowledge-elements',
+            '--exclude-table', 'knowledge-element-snapshots',
             '--exclude-table', 'answers'
           ],
           { stdio: 'inherit' }
