@@ -113,9 +113,9 @@ Créer un fichier `.env` à partir du fichier [sample.env](sample.env)
 Modifier le .env
 ``` bash
 DATABASE_URL=postgresql://target_user@localhost/target_database
-RESTORE_ANSWERS_AND_KES=true
+RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS=true
 RESTORE_FK_CONSTRAINTS=true
-RESTORE_ANSWERS_AND_KES_INCREMENTALLY=false
+RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY=false
 ``` 
 
 Lancer la réplication
@@ -148,6 +148,8 @@ ALTER TABLE answers DROP CONSTRAINT "answers_assessmentid_foreign";
 ALTER TABLE "knowledge-elements" DROP CONSTRAINT "knowledge_elements_answerid_foreign";
 ALTER TABLE "knowledge-elements" DROP CONSTRAINT "knowledge_elements_assessmentid_foreign";
 ALTER TABLE "knowledge-elements" DROP CONSTRAINT "knowledge_elements_userid_foreign";
+ALTER TABLE "knowledge-element-snapshots" DROP CONSTRAINT "knowledge_element_snapshots_userid_foreign";
+ALTER TABLE "knowledge-element-snapshots" DROP CONSTRAINT "knowledge_element_snapshots_snappedat_foreign";
 ```
 
 ##### Paramétrer
@@ -155,9 +157,9 @@ Modifier le .env
 ``` bash
 SOURCE_DATABASE_URL=postgresql://source_user@localhost/source_database
 TARGET_DATABASE_URL=postgresql://target_user@localhost/target_database
-RESTORE_ANSWERS_AND_KES=true
+RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS=true
 RESTORE_FK_CONSTRAINTS=false
-RESTORE_ANSWERS_AND_KES_INCREMENTALLY=true
+RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY=true
 ``` 
 
 ##### Exécuter

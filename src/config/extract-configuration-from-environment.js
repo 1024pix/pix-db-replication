@@ -30,8 +30,8 @@ const extractConfigurationFromEnvironmentVariable = function() {
     MAX_TIMEOUT: extractInteger(process.env.MAX_TIMEOUT) || 900000, // 15 min
     PG_RESTORE_JOBS: extractInteger(process.env.PG_RESTORE_JOBS) || 4,
     RESTORE_FK_CONSTRAINTS: process.env.RESTORE_FK_CONSTRAINTS || 'true',
-    RESTORE_ANSWERS_AND_KES: process.env.RESTORE_ANSWERS_AND_KES || 'true',
-    RESTORE_ANSWERS_AND_KES_INCREMENTALLY: process.env.RESTORE_ANSWERS_AND_KES_INCREMENTALLY || 'false',
+    RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: process.env.RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS || 'true',
+    RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY: process.env.RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY || 'false',
     SOURCE_DATABASE_URL: process.env.SOURCE_DATABASE_URL || 'postgresql://source_user@localhost/source_database',
     TARGET_DATABASE_URL: process.env.TARGET_DATABASE_URL || 'postgresql://target_user@localhost/target_database',
     DATABASE_URL: process.env.DATABASE_URL || 'postgresql://target_user@localhost/target_database',
