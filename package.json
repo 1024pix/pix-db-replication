@@ -16,7 +16,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "preinstall": "npx check-engine",
-    "test": "NODE_ENV=test mocha --exit --recursive --reporter=dot -- -timeout 600000"
+    "test": "NODE_ENV=test mocha --exit --recursive --reporter=dot --timeout 600000"
   },
   "repository": {
     "type": "git",
