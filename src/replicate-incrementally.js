@@ -75,7 +75,7 @@ async function run(configuration) {
 
   tablesAndLastRecordIndex.forEach(async(table) => {
 
-    const maxIdStrAfterReplication = await execStdOut('psql', [configuration.TARGET_DATABASE_URL, '--tuples-only', '--command', `SELECT MAX(id) FROM ${table.name}`]);
+    const maxIdStrAfterReplication = await execStdOut('psql', [configuration.TARGET_DATABASE_URL, '--tuples-only', '--command', `SELECT MAX(id) FROM ${table.name.replace(/\\/g, '')}`]);
     const lastRecordIndexTargetAfterReplication = parseInt(maxIdStrAfterReplication);
     logger.info(`${table.name} last record index target after replication ` + lastRecordIndexTargetAfterReplication);
 
