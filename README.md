@@ -148,8 +148,6 @@ ALTER TABLE answers DROP CONSTRAINT "answers_assessmentid_foreign";
 ALTER TABLE "knowledge-elements" DROP CONSTRAINT "knowledge_elements_answerid_foreign";
 ALTER TABLE "knowledge-elements" DROP CONSTRAINT "knowledge_elements_assessmentid_foreign";
 ALTER TABLE "knowledge-elements" DROP CONSTRAINT "knowledge_elements_userid_foreign";
-ALTER TABLE "knowledge-element-snapshots" DROP CONSTRAINT "knowledge_element_snapshots_userid_foreign";
-ALTER TABLE "knowledge-element-snapshots" DROP CONSTRAINT "knowledge_element_snapshots_snappedat_foreign";
 ```
 
 ##### Paramétrer
