@@ -1,5 +1,10 @@
 # pix-db-replication Changelog
 
+## v1.14.0 (17/06/2021)
+
+- [#90](https://github.com/1024pix/pix-db-replication/pull/90) [FEATURE] Ajouter les ke snapshots à la réplication incrémentale
+- [#91](https://github.com/1024pix/pix-db-replication/pull/91) [BUGFIX ] Corriger les logs sur la réplication incrémentale
+
 ## v1.13.0 (27/05/2021)
 
 - [#81](https://github.com/1024pix/pix-db-replication/pull/81) [TECH] Pouvoir relancer un traitement interrompu avec la job queue Bull.
