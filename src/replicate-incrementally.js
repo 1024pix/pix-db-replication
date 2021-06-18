@@ -1,6 +1,5 @@
 'use strict';
 
-const { execSync } = require('child_process');
 const execa = require('execa');
 
 const logger = require('./logger');
@@ -8,6 +7,10 @@ const logger = require('./logger');
 async function execStdOut(cmd, args) {
   const { stdout } = await execa(cmd, args, { stderr: 'inherit' });
   return stdout;
+}
+
+function escapeSQLIdentifier(identifier) {
+  return `"${identifier.replace(/"/g, '""')}"`;
 }
 
 async function run(configuration) {
@@ -51,36 +54,50 @@ async function run(configuration) {
       lastRecordIndex: answersLastRecordIndexTargetBeforeReplication,
     },
     {
-      name: '\\"knowledge-elements\\"',
+      name: 'knowledge-elements',
       lastRecordIndex: kELastRecordIndexTargetBeforeReplication,
     },
     {
-      name: '\\"knowledge-element-snapshots\\"',
+      name: 'knowledge-element-snapshots',
       lastRecordIndex: kESnapshotsLastRecordIndexTargetBeforeReplication,
     },
   ];
 
-  tablesAndLastRecordIndex.forEach((table) => {
-    const sqlCopyCommand = `
-      psql \\
-          ${configuration.SOURCE_DATABASE_URL} \\
-          --command "\\copy (SELECT * FROM ${table.name} WHERE id>${table.lastRecordIndex}) to stdout" | \\
-      psql \\
-          ${configuration.TARGET_DATABASE_URL} \\
-          --command "\\copy ${table.name} from stdin"`;
+  for (const table of tablesAndLastRecordIndex) {
+    const copyToStdOutArgs = [
+      configuration.SOURCE_DATABASE_URL,
+      '--command',
+      `\\copy (SELECT * FROM ${escapeSQLIdentifier(table.name)} WHERE id > ${table.lastRecordIndex}) to stdout`
+    ];
+    const copyFromStdInArgs = [
+      configuration.TARGET_DATABASE_URL,
+      '--command',
+      `\\copy ${escapeSQLIdentifier(table.name)} from stdin`
+    ];
+    const copyToStdOutProcess = execa('psql', copyToStdOutArgs, {
+      stdin: 'ignore', stdout: 'pipe', stderr: 'inherit',
+      buffer: false // disable execa's buffering otherwise it interferes with the transfer
+    });
+    const copyFromStdInProcess = execa('psql', copyFromStdInArgs, {
+      stdin: copyToStdOutProcess.stdout,
+      all: true // join stdout and stderr
+    });
 
-    const copyMessage = execSync(sqlCopyCommand);
-    logger.info(`${table.name} table copy returned: ` + copyMessage);
-  });
+    const [ , copyFromStdInResult ] = await Promise.all([ copyToStdOutProcess, copyFromStdInProcess ]);
 
-  tablesAndLastRecordIndex.forEach(async(table) => {
+    logger.info(`${table.name} table copy returned: ` + copyFromStdInResult.all);
 
-    const maxIdStrAfterReplication = await execStdOut('psql', [configuration.TARGET_DATABASE_URL, '--tuples-only', '--command', `SELECT MAX(id) FROM ${table.name.replace(/\\/g, '')}`]);
+    const maxIdStrAfterReplication = await execStdOut('psql', [
+      configuration.TARGET_DATABASE_URL,
+      '--tuples-only',
+      '--command',
+      `SELECT MAX(id) FROM ${escapeSQLIdentifier(table.name)}`
+    ]);
     const lastRecordIndexTargetAfterReplication = parseInt(maxIdStrAfterReplication);
     logger.info(`${table.name} last record index target after replication ` + lastRecordIndexTargetAfterReplication);
 
     logger.info(`Total of ${table.name} imported ` + (lastRecordIndexTargetAfterReplication - table.lastRecordIndex));
-  });
+  }
 
   logger.info('Incremental replication done');
 }
