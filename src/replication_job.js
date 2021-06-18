@@ -47,9 +47,15 @@ async function main() {
 async function _setInterruptedJobsAsFailed() {
   const promises = [replicationQueue, airtableReplicationQueue, incrementalReplicationQueue].map(async (queue) => {
     const activeJobs = await queue.getActive();
+
     for (const job of activeJobs) {
-      await job.moveToFailed();
+      await job.moveToFailed({ message: 'Move interrupted job in failed queue' }, true);
     }
+
+    if (activeJobs.length === 0) {
+      logger.info(`No active jobs to be marked as failed for queue ${queue.name}`);
+    }
+
   });
   return Promise.all(promises);
 }
