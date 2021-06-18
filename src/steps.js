@@ -35,8 +35,10 @@ function installPostgresClient(configuration) {
 }
 
 async function pgclientSetup(configuration) {
-  await setupPath();
-  return installPostgresClient(configuration);
+  if (process.env.NODE_ENV === 'production') {
+    await setupPath();
+    await installPostgresClient(configuration);
+  }
 }
 
 function dropCurrentObjects(configuration) {
