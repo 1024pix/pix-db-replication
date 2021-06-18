@@ -1,5 +1,10 @@
 # pix-db-replication Changelog
 
+## v1.15.0 (18/06/2021)
+
+- [#88](https://github.com/1024pix/pix-db-replication/pull/88) [TECH] Permettre l'exécution de l'ordonnanceur en local.
+- [#92](https://github.com/1024pix/pix-db-replication/pull/92) Réplication incrémentale en asynchrone
+
 ## v1.14.0 (17/06/2021)
 
 - [#90](https://github.com/1024pix/pix-db-replication/pull/90) [FEATURE] Ajouter les ke snapshots à la réplication incrémentale
