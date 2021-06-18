@@ -1,5 +1,9 @@
 # pix-db-replication Changelog
 
+## v1.16.0 (18/06/2021)
+
+- [#93](https://github.com/1024pix/pix-db-replication/pull/93) [BUGFIX] Permettre le démarrage de l'ordonnanceur lors du premier déploiement.
+
 ## v1.15.0 (18/06/2021)
 
 - [#88](https://github.com/1024pix/pix-db-replication/pull/88) [TECH] Permettre l'exécution de l'ordonnanceur en local.
