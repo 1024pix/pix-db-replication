@@ -1,5 +1,9 @@
 # pix-db-replication Changelog
 
+## v1.17.0 (23/06/2021)
+
+- [#95](https://github.com/1024pix/pix-db-replication/pull/95) [TECH] Prévenir la mention de comptes dans les logs.
+
 ## v1.16.0 (18/06/2021)
 
 - [#93](https://github.com/1024pix/pix-db-replication/pull/93) [BUGFIX] Permettre le démarrage de l'ordonnanceur lors du premier déploiement.
