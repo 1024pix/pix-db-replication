@@ -167,6 +167,17 @@ RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY=true
 ##### Exécuter
 Exécuter
 ``` bash
+psql postgresql://source_user@localhost/source_database
+ALTER TABLE "knowledge-elements" DROP COLUMN id;
+exit;
+
+psql postgresql://target_user@localhost/target_database;
+ALTER TABLE "knowledge-elements" DROP COLUMN id;
+exit;
+```
+
+Exécuter
+``` bash
 node ./src/run-replicate-incrementally.js 
 ```
 
