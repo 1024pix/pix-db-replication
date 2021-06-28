@@ -1,0 +1,12 @@
+{
+    "javascript.implicitProjectConfig.experimentalDecorators": true,
+    "files.autoSave": "onFocusChange",
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true,
+    "html.format.endWithNewline": true,
+    "eslint.codeActionsOnSave.mode": "problems",
+    "editor.formatOnSaveMode": "modifications",
+    "eslint.format.enable": true,
+    "editor.tabSize": 2
+}
