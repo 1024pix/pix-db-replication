@@ -55,7 +55,7 @@ describe('Integration | steps.js', () => {
         SOURCE_DATABASE_URL,
         TARGET_DATABASE_URL,
         DATABASE_URL: TARGET_DATABASE_URL,
-        RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: 'false',
+        BACKUP_MODE: 'true',
         PG_RESTORE_JOBS: 1,
       };
       sourceDatabase = await Database.create(sourceDatabaseConfig);
@@ -83,7 +83,7 @@ describe('Integration | steps.js', () => {
         SOURCE_DATABASE_URL,
         TARGET_DATABASE_URL,
         DATABASE_URL: TARGET_DATABASE_URL,
-        RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: 'true',
+        BACKUP_MODE: 'false',
         PG_RESTORE_JOBS: 1,
       };
       sourceDatabase = await Database.create(sourceDatabaseConfig);
@@ -168,7 +168,7 @@ describe('Integration | steps.js', () => {
             // given
             database = await Database.create(databaseConfig);
             const backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, { createTablesNotToBeImported: true });
-            const configuration = { RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: undefined, RESTORE_FK_CONSTRAINTS: 'false', PG_RESTORE_JOBS: 4 };
+            const configuration = { BACKUP_MODE: 'true', RESTORE_FK_CONSTRAINTS: 'false', PG_RESTORE_JOBS: 4 };
 
             // when
             await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl, configuration });
@@ -198,7 +198,7 @@ describe('Integration | steps.js', () => {
             // given
             database = await Database.create(databaseConfig);
             const backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, { createTablesNotToBeImported: true });
-            const configuration = { RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: 'true', RESTORE_FK_CONSTRAINTS: 'false', PG_RESTORE_JOBS: 4 };
+            const configuration = { BACKUP_MODE: 'false', RESTORE_FK_CONSTRAINTS: 'false', PG_RESTORE_JOBS: 4 };
 
             // when
             await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl, configuration });
@@ -354,7 +354,7 @@ describe('Integration | steps.js', () => {
         // given
 
         // Day 1
-        const firstDayConfiguration = { RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: 'true', PG_RESTORE_JOBS: 4 };
+        const firstDayConfiguration = { BACKUP_MODE : 'false', PG_RESTORE_JOBS: 4 };
         await createBackUpFromSourceAndRestoreToTarget(sourceDatabase, sourceDatabaseConfig, targetDatabaseConfig.databaseUrl, firstDayConfiguration);
 
         const answersCountBefore = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM answers'));
@@ -373,7 +373,7 @@ describe('Integration | steps.js', () => {
         const secondDayBackupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true });
 
         // when
-        const secondDayConfiguration = { RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY: 'true', DATABASE_URL: targetDatabase._databaseUrl, PG_RESTORE_JOBS: 4 };
+        const secondDayConfiguration = { BACKUP_MODE: 'true', DATABASE_URL: targetDatabase._databaseUrl, PG_RESTORE_JOBS: 4 };
         await steps.dropObjectAndRestoreBackup(secondDayBackupFile, secondDayConfiguration);
 
         // then
@@ -403,8 +403,7 @@ describe('Integration | steps.js', () => {
           PG_RESTORE_JOBS: 4,
           DATABASE_URL: targetDatabase._databaseUrl,
           RESTORE_FK_CONSTRAINTS: 'true',
-          RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: 'true',
-          RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY: 'false',
+          BACKUP_MODE: 'false',
         };
 
         await steps.dropObjectAndRestoreBackup(firstDaySourceBackupFile, firstDayTargetConfiguration);
@@ -424,8 +423,7 @@ describe('Integration | steps.js', () => {
           PG_RESTORE_JOBS: 4,
           DATABASE_URL: targetDatabase._databaseUrl,
           RESTORE_FK_CONSTRAINTS: 'false',
-          RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: 'false',
-          RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY: 'true',
+          BACKUP_MODE: 'true',
         };
 
         // when
@@ -445,14 +443,14 @@ describe('Integration | steps.js', () => {
       // given
 
       // Day 1
-      const firstDayTargetConfiguration = { RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: 'true', PG_RESTORE_JOBS: 4 };
+      const firstDayTargetConfiguration = { BACKUP_MODE : 'false', PG_RESTORE_JOBS: 4 };
       await createBackUpFromSourceAndRestoreToTarget(sourceDatabase, sourceDatabaseConfig, targetDatabaseConfig.databaseUrl, firstDayTargetConfiguration);
       await sourceDatabase.dropDatabase();
 
       // Day 2
       sourceDatabase = await Database.create(sourceDatabaseConfig);
       const secondDayBackupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true, createFunction: true });
-      const secondDayTargetConfiguration = { RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY: 'true', DATABASE_URL: targetDatabase._databaseUrl, PG_RESTORE_JOBS: 4 };
+      const secondDayTargetConfiguration = { BACKUP_MODE: 'true', DATABASE_URL: targetDatabase._databaseUrl, PG_RESTORE_JOBS: 4 };
 
       const dropObjectAndRestoreBackupWithArguments = function() {
         steps.dropObjectAndRestoreBackup(secondDayBackupFile, secondDayTargetConfiguration);
@@ -571,7 +569,7 @@ describe('Integration | steps.js', () => {
     it('should create a file', async () => {
       // given
       const configuration = {
-        RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: false,
+        BACKUP_MODE: 'true',
         SOURCE_DATABASE_URL,
       };
 

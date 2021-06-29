@@ -28,7 +28,7 @@ async function main() {
   });
 
   incrementalReplicationQueue.process(async function() {
-    if (configuration.RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY === 'true') {
+    if (configuration.BACKUP_MODE === 'true') {
       await replicateIncrementally.run(configuration);
     }
     airtableReplicationQueue.add({}, jobOptions);
@@ -109,4 +109,3 @@ async function _flushSentryAndExit() {
   await Sentry.close(TIMEOUT);
   process.exit(1);
 }
-

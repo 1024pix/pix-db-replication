@@ -5,7 +5,7 @@ const logger = require('./logger');
 
 async function add(configuration) {
   await runDBOperation(async (client) => {
-    const restoreAnswersAndKesAndKeSnapshots = configuration.RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS === 'true';
+    const restoreAnswersAndKesAndKeSnapshots = configuration.BACKUP_MODE === 'false';
     if (restoreAnswersAndKesAndKeSnapshots) {
       logger.info('CREATE INDEX "knowledge-elements_createdAt_idx" - Started');
       await client.query('CREATE INDEX "knowledge-elements_createdAt_idx" on "knowledge-elements" (cast("createdAt" AT TIME ZONE \'UTC+1\' as date) DESC)');

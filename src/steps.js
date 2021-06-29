@@ -87,7 +87,7 @@ async function createBackup(configuration) {
   logger.info('Start create Backup');
   const backupFilename = './dump.pgsql';
 
-  const excludeOptions = configuration.RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS === 'true'
+  const excludeOptions = configuration.BACKUP_MODE === 'false'
     ? []
     : [
       '--exclude-table', 'knowledge-elements',
@@ -117,7 +117,7 @@ async function createBackup(configuration) {
 
 async function dropObjectAndRestoreBackup(backupFile, configuration) {
   logger.info('Start drop Objects AndRestoreBackup');
-  if (configuration.RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY && configuration.RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY === 'true') {
+  if (configuration.BACKUP_MODE && configuration.BACKUP_MODE === 'true') {
     await dropCurrentObjectsButKesAndAnswers(configuration);
   } else {
     await dropCurrentObjects(configuration);
@@ -165,7 +165,7 @@ async function fullReplicationAndEnrichment(configuration) {
 
 function _filterObjectLines(objectLines, configuration) {
   const restoreFkConstraints = configuration.RESTORE_FK_CONSTRAINTS === 'true';
-  const restoreAnswersAndKesAndKeSnapshots = configuration.RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS === 'true';
+  const restoreAnswersAndKesAndKeSnapshots = configuration.BACKUP_MODE === 'false';
   let filteredObjectLines = objectLines
     .filter((line) => !/ COMMENT /.test(line));
   if (!restoreFkConstraints) {

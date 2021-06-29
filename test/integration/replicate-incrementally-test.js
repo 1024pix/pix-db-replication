@@ -98,7 +98,7 @@ describe('Integration | replicate-incrementally.js', () => {
           targetDatabase = await Database.create(targetDatabaseConfig);
 
           // TODO: do not use production code to setup environment
-          const firstDayConfiguration = { RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: 'true', RESTORE_FK_CONSTRAINTS: 'false', RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY: undefined, PG_RESTORE_JOBS: 4 };
+          const firstDayConfiguration = { BACKUP_MODE : 'false', RESTORE_FK_CONSTRAINTS: 'false', PG_RESTORE_JOBS: 4 };
           await steps.restoreBackup({ backupFile, databaseUrl: targetDatabaseConfig.databaseUrl, configuration: firstDayConfiguration });
 
           // Day 2
@@ -113,7 +113,7 @@ describe('Integration | replicate-incrementally.js', () => {
 
           const configuration = { SOURCE_DATABASE_URL: SOURCE_DATABASE_URL,
             TARGET_DATABASE_URL: TARGET_DATABASE_URL,
-            RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY: 'true',
+            BACKUP_MODE: 'true',
             PG_RESTORE_JOBS: 4 };
 
           // when
@@ -135,7 +135,7 @@ describe('Integration | replicate-incrementally.js', () => {
         targetDatabase = await Database.create(targetDatabaseConfig);
 
         // TODO: do not use production code to setup environment
-        const firstDayConfiguration = { RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: 'true', RESTORE_FK_CONSTRAINTS: 'false', RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY: undefined, PG_RESTORE_JOBS: 4 };
+        const firstDayConfiguration = { BACKUP_MODE : 'false', RESTORE_FK_CONSTRAINTS: 'false', PG_RESTORE_JOBS: 4 };
         await steps.restoreBackup({ backupFile, databaseUrl: targetDatabaseConfig.databaseUrl, configuration: firstDayConfiguration });
 
         const answersCountBefore = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM answers'));
@@ -160,7 +160,7 @@ describe('Integration | replicate-incrementally.js', () => {
         await sourceDatabase.runSql('INSERT INTO "knowledge-element-snapshots"  (id, "userId", "snappedAt", "snapshot") VALUES (3, 2, CURRENT_TIMESTAMP, \'{"id": "3"}\'::jsonb)');
 
         // given
-        const configuration = { SOURCE_DATABASE_URL: SOURCE_DATABASE_URL, TARGET_DATABASE_URL: TARGET_DATABASE_URL, RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY: 'true', PG_RESTORE_JOBS: 4 };
+        const configuration = { SOURCE_DATABASE_URL: SOURCE_DATABASE_URL, TARGET_DATABASE_URL: TARGET_DATABASE_URL, BACKUP_MODE: 'true', PG_RESTORE_JOBS: 4 };
 
         // when
         await run(configuration);

@@ -15,8 +15,8 @@ function escapeSQLIdentifier(identifier) {
 
 async function run(configuration) {
 
-  if (!configuration.RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY || configuration.RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY === 'false') {
-    logger.info('Exit because RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY is falsy');
+  if (!configuration.BACKUP_MODE || configuration.BACKUP_MODE === 'false') {
+    logger.info('Exit because BACKUP_MODE is falsy');
     return;
   }
 

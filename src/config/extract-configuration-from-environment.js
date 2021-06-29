@@ -1,4 +1,5 @@
 /* eslint no-process-env: "off" */
+const logger = require('../logger');
 
 const extractConfigurationFromEnvironment = function() {
   loadEnvironmentVariableFromFileIfNotOnPaas();
@@ -15,6 +16,15 @@ const loadEnvironmentVariableFromFileIfNotOnPaas = function() {
 };
 
 const extractConfigurationFromEnvironmentVariable = function() {
+  let BACKUP_MODE;
+
+  try {
+    BACKUP_MODE = process.env.BACKUP_MODE ? JSON.parse(process.env.BACKUP_MODE) : {};
+  } catch (e) {
+    logger.error('BACKUP_INCREMENTALLY should be a JSON value');
+    throw e;
+  }
+
   return {
     PG_CLIENT_VERSION: process.env.PG_CLIENT_VERSION || 12,
     RETRIES_TIMEOUT_MINUTES: extractInteger(process.env.RETRIES_TIMEOUT_MINUTES) || 180,
@@ -26,8 +36,7 @@ const extractConfigurationFromEnvironmentVariable = function() {
     MAX_TIMEOUT: extractInteger(process.env.MAX_TIMEOUT) || 900000, // 15 min
     PG_RESTORE_JOBS: extractInteger(process.env.PG_RESTORE_JOBS) || 4,
     RESTORE_FK_CONSTRAINTS: process.env.RESTORE_FK_CONSTRAINTS || 'true',
-    RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: process.env.RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS || 'true',
-    RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY: process.env.RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY || 'false',
+    BACKUP_MODE,
     SOURCE_DATABASE_URL: process.env.SOURCE_DATABASE_URL || 'postgresql://source_user@localhost/source_database',
     TARGET_DATABASE_URL: process.env.TARGET_DATABASE_URL || 'postgresql://target_user@localhost/target_database',
     DATABASE_URL: process.env.DATABASE_URL || 'postgresql://target_user@localhost/target_database',
@@ -44,5 +53,4 @@ const extractConfigurationFromEnvironmentVariable = function() {
 const extractInteger = function(arg) {
   return parseInt(arg, 10);
 };
-
 module.exports = extractConfigurationFromEnvironment;
