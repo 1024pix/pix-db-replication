@@ -23,7 +23,7 @@ describe('Unit | steps.js', () => {
       // given
       const configuration = {
         SOURCE_DATABASE_URL: 'postgresql://source.url',
-        BACKUP_MODE: 'false',
+        BACKUP_MODE: {},
       };
 
       // when
@@ -55,7 +55,7 @@ describe('Unit | steps.js', () => {
         // given
         const configuration = {
           SOURCE_DATABASE_URL: 'postgresql://source.url',
-          BACKUP_MODE: 'true',
+          BACKUP_MODE: { 'knowledge-elements': 'incremental', 'knowledge-element-snapshots': 'incremental', 'answers': 'incremental' },
         };
 
         // when
