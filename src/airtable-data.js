@@ -95,6 +95,9 @@ const tables = [{
   fields: [
     { name:'title', type:'text', airtableName:'Titre' },
     { name:'link', type:'text', airtableName:'Lien' },
+    { name:'tutorialForSkills', type:'text []', airtableName:'Solution à', isArray: true },
+    { name:'furtherInformation', type:'text []', airtableName:'En savoir plus', isArray: true },
+    { name:'locale', type:'text', airtableName:'Langue' },
   ],
   airtableId:'id persistant',
   indices: ['title'],
