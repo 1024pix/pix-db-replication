@@ -44,7 +44,11 @@ const tables = [{
     { name:'level', type:'smallint', airtableName:'Level' },
     { name:'tubeId', type:'text', airtableName:'Tube (id persistant)', isArray:false },
     { name:'status', type:'text', airtableName:'Status' },
-    { name:'pixValue', type:'numeric(6,5)', airtableName:'PixValue' }
+    { name:'pixValue', type:'numeric(6,5)', airtableName:'PixValue' },
+    { name: 'hintStatus', type: 'text', airtableName: 'Statut de l\'indice' },
+    { name: 'tutorialIds', type: 'text []', airtableName: 'Comprendre (id persistant)', isArray:true },
+    { name: 'learningMoreTutorialIds', type: 'text []', airtableName: 'En savoir plus (id persistant)', isArray:true },
+    { name: 'internationalization', type: 'text', airtableName: 'Internationalisation' },
   ],
   airtableId:'id persistant',
   indices: ['tubeId']
