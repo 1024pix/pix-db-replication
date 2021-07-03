@@ -77,18 +77,18 @@ describe('Integration | replicate-incrementally.js', () => {
       [
         {
           name: 'answers',
-          errorMessage: 'Answers table must not be empty on target database',
+          errorMessage: 'answers table must not be empty on target database',
         },
         {
-          name: '"knowledge-elements"',
-          errorMessage: 'Knowledge-elements table must not be empty on target database',
+          name: 'knowledge-elements',
+          errorMessage: 'knowledge-elements table must not be empty on target database',
         },
         {
-          name: '"knowledge-element-snapshots"',
-          errorMessage: 'Knowledge-element-snapshots table must not be empty on target database',
+          name: 'knowledge-element-snapshots',
+          errorMessage: 'knowledge-element-snapshots table must not be empty on target database',
         },
-      ].forEach((table) => {
-        it(`should throw if table ${table.name} is empty`, async function() {
+      ].forEach(({ name, errorMessage }) => {
+        it(`should throw if table ${name} is empty`, async function() {
 
           // given
 
@@ -98,7 +98,7 @@ describe('Integration | replicate-incrementally.js', () => {
           targetDatabase = await Database.create(targetDatabaseConfig);
 
           // TODO: do not use production code to setup environment
-          const firstDayConfiguration = { BACKUP_MODE : 'false', RESTORE_FK_CONSTRAINTS: 'false', PG_RESTORE_JOBS: 4 };
+          const firstDayConfiguration = { BACKUP_MODE: { [name]: 'none' }, RESTORE_FK_CONSTRAINTS: 'false', PG_RESTORE_JOBS: 4 };
           await steps.restoreBackup({ backupFile, databaseUrl: targetDatabaseConfig.databaseUrl, configuration: firstDayConfiguration });
 
           // Day 2
@@ -109,18 +109,18 @@ describe('Integration | replicate-incrementally.js', () => {
 
           targetDatabase = await Database.create(targetDatabaseConfig);
           await createAndFillDatabase(targetDatabase, targetDatabaseConfig, { createTablesNotToBeImported: true });
-          await targetDatabase.runSql(`DELETE FROM ${table.name}`);
+          await targetDatabase.runSql(`DELETE FROM "${name}"`);
 
           const configuration = { SOURCE_DATABASE_URL: SOURCE_DATABASE_URL,
             TARGET_DATABASE_URL: TARGET_DATABASE_URL,
-            BACKUP_MODE: 'true',
+            BACKUP_MODE: { [name]: 'incremental' },
             PG_RESTORE_JOBS: 4 };
 
           // when
           const promise = run(configuration);
 
           // then
-          return expect(promise).to.be.rejectedWith(table.errorMessage);
+          return expect(promise).to.be.rejectedWith(errorMessage);
         });
       });
 
@@ -135,7 +135,7 @@ describe('Integration | replicate-incrementally.js', () => {
         targetDatabase = await Database.create(targetDatabaseConfig);
 
         // TODO: do not use production code to setup environment
-        const firstDayConfiguration = { BACKUP_MODE : 'false', RESTORE_FK_CONSTRAINTS: 'false', PG_RESTORE_JOBS: 4 };
+        const firstDayConfiguration = { BACKUP_MODE: {}, RESTORE_FK_CONSTRAINTS: 'false', PG_RESTORE_JOBS: 4 };
         await steps.restoreBackup({ backupFile, databaseUrl: targetDatabaseConfig.databaseUrl, configuration: firstDayConfiguration });
 
         const answersCountBefore = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM answers'));
@@ -160,7 +160,10 @@ describe('Integration | replicate-incrementally.js', () => {
         await sourceDatabase.runSql('INSERT INTO "knowledge-element-snapshots"  (id, "userId", "snappedAt", "snapshot") VALUES (3, 2, CURRENT_TIMESTAMP, \'{"id": "3"}\'::jsonb)');
 
         // given
-        const configuration = { SOURCE_DATABASE_URL: SOURCE_DATABASE_URL, TARGET_DATABASE_URL: TARGET_DATABASE_URL, BACKUP_MODE: 'true', PG_RESTORE_JOBS: 4 };
+        const configuration = {
+          BACKUP_MODE: { 'knowledge-elements': 'incremental', 'knowledge-element-snapshots': 'incremental', 'answers': 'incremental' },
+          SOURCE_DATABASE_URL: SOURCE_DATABASE_URL, TARGET_DATABASE_URL: TARGET_DATABASE_URL, PG_RESTORE_JOBS: 4,
+        };
 
         // when
         await run(configuration);
