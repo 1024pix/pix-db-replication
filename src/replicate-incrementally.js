@@ -1,6 +1,7 @@
 'use strict';
 
 const execa = require('execa');
+const toPairs = require('lodash/toPairs');
 
 const logger = require('./logger');
 
@@ -14,54 +15,33 @@ function escapeSQLIdentifier(identifier) {
 }
 
 async function run(configuration) {
-
-  if (!configuration.BACKUP_MODE || configuration.BACKUP_MODE === 'false') {
+  const incrementalTables = _getIncrementalTables(configuration);
+  if (incrementalTables.length === 0) {
     logger.info('Exit because BACKUP_MODE is falsy');
     return;
   }
 
   logger.info('Start incremental replication');
 
-  const maxAnswerIdStr = await execStdOut('psql', [configuration.TARGET_DATABASE_URL, '--tuples-only', '--command', 'SELECT MAX(id) FROM answers']);
-  const answersLastRecordIndexTargetBeforeReplication = parseInt(maxAnswerIdStr);
-  logger.info('Answers last record index target ' + answersLastRecordIndexTargetBeforeReplication);
+  const tablesAndLastRecordIndex = [];
+  for (const table of incrementalTables) {
+    const req = `SELECT MAX(id) FROM "${table}"`;
+    const maxIdStr = await execStdOut('psql', [configuration.TARGET_DATABASE_URL, '--tuples-only', '--command', req]);
+    const lastRecordIndexTargetBeforeReplication = parseInt(maxIdStr);
+    logger.info(`${table} last record index target ${lastRecordIndexTargetBeforeReplication}`);
 
-  if (isNaN(answersLastRecordIndexTargetBeforeReplication)) {
-    throw new Error('Answers table must not be empty on target database');
-  }
+    if (isNaN(lastRecordIndexTargetBeforeReplication)) {
+      throw new Error(`${table} table must not be empty on target database`);
+    }
 
-  const maxKEIdStr = await execStdOut('psql', [configuration.TARGET_DATABASE_URL, '--tuples-only', '--command', 'SELECT MAX(id) FROM "knowledge-elements"']);
-  const kELastRecordIndexTargetBeforeReplication = parseInt(maxKEIdStr);
-  logger.info('KE last record index target ' + kELastRecordIndexTargetBeforeReplication);
+    tablesAndLastRecordIndex.push({
+      name: table,
+      lastRecordIndex: lastRecordIndexTargetBeforeReplication,
+    });
 
-  if (isNaN(kELastRecordIndexTargetBeforeReplication)) {
-    throw new Error('Knowledge-elements table must not be empty on target database');
-  }
-
-  const maxKESnapshotsIdStr = await execStdOut('psql', [configuration.TARGET_DATABASE_URL, '--tuples-only', '--command', 'SELECT MAX(id) FROM "knowledge-element-snapshots"']);
-  const kESnapshotsLastRecordIndexTargetBeforeReplication = parseInt(maxKESnapshotsIdStr);
-  logger.info('KE last record index target ' + kESnapshotsLastRecordIndexTargetBeforeReplication);
-
-  if (isNaN(kESnapshotsLastRecordIndexTargetBeforeReplication)) {
-    throw new Error('Knowledge-element-snapshots table must not be empty on target database');
   }
 
   logger.info('Start COPY FROM/TO through STDIN/OUT');
-
-  const tablesAndLastRecordIndex = [
-    {
-      name: 'answers',
-      lastRecordIndex: answersLastRecordIndexTargetBeforeReplication,
-    },
-    {
-      name: 'knowledge-elements',
-      lastRecordIndex: kELastRecordIndexTargetBeforeReplication,
-    },
-    {
-      name: 'knowledge-element-snapshots',
-      lastRecordIndex: kESnapshotsLastRecordIndexTargetBeforeReplication,
-    },
-  ];
 
   for (const table of tablesAndLastRecordIndex) {
     const copyToStdOutArgs = [
@@ -100,6 +80,13 @@ async function run(configuration) {
   }
 
   logger.info('Incremental replication done');
+}
+
+function _getIncrementalTables(configuration) {
+  const tablePairs = toPairs(configuration.BACKUP_MODE);
+  return tablePairs
+    .filter(([_, mode]) => mode === 'incremental')
+    .map(([tableName, _]) => tableName);
 }
 
 module.exports = {
