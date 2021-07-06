@@ -27,7 +27,7 @@ describe('Acceptance | steps | fullReplicationAndEnrichment', () => {
     SOURCE_DATABASE_URL,
     TARGET_DATABASE_URL,
     DATABASE_URL: TARGET_DATABASE_URL,
-    BACKUP_MODE: 'false',
+    BACKUP_MODE: {},
     PG_RESTORE_JOBS: 1,
     AIRTABLE_API_KEY: 'keyblo10ZCvCqBAJg',
     AIRTABLE_BASE: 'app3fvsqhtHJntXaC',
