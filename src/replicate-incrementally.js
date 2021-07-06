@@ -17,7 +17,7 @@ function escapeSQLIdentifier(identifier) {
 async function run(configuration) {
   const incrementalTables = _getIncrementalTables(configuration);
   if (incrementalTables.length === 0) {
-    logger.info('Exit because BACKUP_MODE is falsy');
+    logger.info('Exit because BACKUP_MODE is not incremental');
     return;
   }
 
