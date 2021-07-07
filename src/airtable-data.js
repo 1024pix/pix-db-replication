@@ -14,6 +14,18 @@ const tables = [{
   airtableId:'id persistant',
   indices: []
 },{
+  name:'attachments',
+  airtableName:'Attachments',
+  fields: [
+    { name:'type', type:'text', airtableName:'type' },
+    { name:'challengeId', type:'text', airtableName:'challengeId persistant' },
+    { name:'alt', type:'text', airtableName:'alt' },
+    { name:'url', type:'text', airtableName:'url' },
+    { name:'size', type:'numeric', airtableName:'size' }
+  ],
+  airtableId:'Record ID',
+  indices: []
+},{
   name:'competences',
   airtableName:'Competences',
   fields: [
@@ -67,12 +79,8 @@ const tables = [{
     { name: 'secondSkillId', type: 'text', extractor: (record) => _.get(record.get('Acquix (id persistant)'), 1) },
     { name: 'thirdSkillId', type: 'text', extractor: (record) => _.get(record.get('Acquix (id persistant)'), 2) },
     { name: 'languages', type: 'text []', airtableName:'Langues', isArray: true },
-    { name: 'instructionIllustration', type: 'text', airtableName: 'Illustration de la consigne' },
-    { name: 'hasInstructionIllustration', type: 'boolean', extractor: (record) => !!record.get('Illustration de la consigne') },
     { name: 'embedUrl', type: 'text', airtableName: 'Embed URL' },
     { name: 'hasEmbedUrl', type: 'boolean', extractor: (record) => !!record.get('Embed URL') },
-    { name: 'illustrationAlternativeText', type: 'text', airtableName: 'Texte alternatif illustration' },
-    { name: 'hasIllustrationAlternativeText', type: 'boolean', extractor: (record) => !!record.get('Texte alternatif illustration') },
     { name: 'alternativeInstruction', type: 'text', airtableName: 'Consigne alternative' },
     { name: 'hasAlternativeInstruction', type: 'boolean', extractor: (record) => !!record.get('Consigne alternative') },
     { name: 'area', type: 'text', airtableName: 'Géographie' },
@@ -101,8 +109,7 @@ const tables = [{
   ],
   airtableId:'id persistant',
   indices: ['title'],
-}
-];
+}];
 
 async function fetchAndSaveData(configuration) {
   await Promise.all(tables.map(async (table) => {
@@ -135,12 +142,14 @@ async function _createTable(table, configuration) {
 }
 
 async function _saveItems(table, items, configuration) {
-  await runDBOperation(async (client) => {
-    const fields = ['id'].concat(table.fields.map((field) => field.name));
-    const values = items.map((item) => fields.map((field) => item[field]));
-    const saveQuery = format('INSERT INTO %I (%I) VALUES %L', table.name, fields, values);
-    await client.query(saveQuery);
-  }, configuration);
+  if (items.length) {
+    await runDBOperation(async (client) => {
+      const fields = ['id'].concat(table.fields.map((field) => field.name));
+      const values = items.map((item) => fields.map((field) => item[field]));
+      const saveQuery = format('INSERT INTO %I (%I) VALUES %L', table.name, fields, values);
+      await client.query(saveQuery);
+    }, configuration);
+  }
 }
 
 function _initAirtable(configuration) {

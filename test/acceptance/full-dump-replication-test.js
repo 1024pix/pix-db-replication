@@ -104,6 +104,12 @@ describe('Acceptance | steps | fullReplicationAndEnrichment', () => {
       expect(result).to.be.above(0);
     });
 
+    it('should import attachments ', async () => {
+      // then
+      const result = await getCountFromTable({ targetDatabase, tableName: 'attachments' });
+      expect(result).to.be.above(0);
+    });
+
     it('should import competences ', async () => {
       // then
       const result = await getCountFromTable({ targetDatabase, tableName: 'competences' });
