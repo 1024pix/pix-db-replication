@@ -13,6 +13,8 @@
     "local:setup-databases": "npm run local:create-databases && npm run local:load-databases",
     "local:create-databases": "./local-setup/script/create-databases.sh",
     "local:load-databases": "./local-setup/script/load-databases.sh",
+    "replication:api-database": "node -e \"steps=require('./src/steps'); steps.fullReplicationAndEnrichment(require ('./src/config/extract-configuration-from-environment')())\"",
+    "replication:airtable": "node -e \"steps=require('./src/steps'); steps.importAirtableData(require ('./src/config/extract-configuration-from-environment')())\"",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "preinstall": "npx check-engine",
