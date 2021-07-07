@@ -25,61 +25,61 @@ env:
 
 rules:
   arrow-parens:
-    - "error"
-    - "always"
+    - error
+    - always
   computed-property-spacing:
-    - "error"
+    - error
     - never
   eol-last:
-    - "error"
+    - error
   indent:
-    - "error"
+    - error
     - 2
     - SwitchCase: 1
   keyword-spacing:
-    - "error"
+    - error
   linebreak-style:
-    - "error"
+    - error
     - unix
   "mocha/no-exclusive-tests":
-    - "error"
+    - error
   "mocha/no-identical-title":
-    - "error"
+    - error
   "mocha/no-skipped-tests":
-    - "warn"
+    - warn
   no-multiple-empty-lines:
-    - "error"
+    - error
     - { max: 1, maxEOF: 1 }
   no-unused-vars:
-    - "error"
+    - error
     - { argsIgnorePattern: "_" }
   no-var:
-    - "error"
+    - error
   object-curly-spacing:
-    - "error"
+    - error
     - always
   prefer-const:
-    - "error"
+    - error
   quotes:
-    - "error"
+    - error
     - single
   semi:
-    - "error"
+    - error
     - always
   space-before-blocks:
-    - "error"
+    - error
   space-before-function-paren:
-    - "error"
+    - error
     - { anonymous: never, named: never, asyncArrow: ignore }
   space-in-parens:
-    - "error"
+    - error
   space-infix-ops:
-    - "error"
+    - error
   no-console:
-    - "error"
+    - error
   arrow-spacing:
-    - "error"
+    - error
   no-process-env:
-    - "error"
+    - error
 
 
