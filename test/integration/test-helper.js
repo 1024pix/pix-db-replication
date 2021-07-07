@@ -10,7 +10,7 @@ async function createBackup(database, databaseConfig, {
   createTablesNotToBeImported = false,
   createForeignKeys = false,
   createFunction = false,
-  dropDatabase = true
+  dropDatabase = true,
 }) {
   await createAndFillDatabase(database, databaseConfig, { createTablesNotToBeImported, createForeignKeys, createFunction });
   const backupFile = await database.createBackup();
@@ -23,7 +23,7 @@ async function createBackup(database, databaseConfig, {
 async function createAndFillDatabase(database, databaseConfig, {
   createTablesNotToBeImported = false,
   createForeignKeys = false,
-  createFunction = false
+  createFunction = false,
 }) {
   await createTables(database, databaseConfig);
   await fillTables(database, databaseConfig);
@@ -77,14 +77,14 @@ async function createTableToBeIndexed(database) {
 
 async function fillTables(database, databaseConfig) {
   await database.runSql(
-    `INSERT INTO ${databaseConfig.tableName}(id) SELECT x FROM generate_series(1, ${databaseConfig.tableRowCount}) s(x)`
+    `INSERT INTO ${databaseConfig.tableName}(id) SELECT x FROM generate_series(1, ${databaseConfig.tableRowCount}) s(x)`,
   );
 }
 
 async function createTables(database, databaseConfig) {
   await database.runSql(
     `CREATE TABLE ${databaseConfig.tableName}(id int NOT NULL PRIMARY KEY)`,
-    `COMMENT ON TABLE ${databaseConfig.tableName} IS 'test comment'`
+    `COMMENT ON TABLE ${databaseConfig.tableName} IS 'test comment'`,
   );
 }
 
@@ -95,7 +95,7 @@ async function createTestFunction(database) {
       BEGIN
       RETURN 0;
       END;
-      $value$ LANGUAGE plpgsql;`
+      $value$ LANGUAGE plpgsql;`,
   );
 }
 

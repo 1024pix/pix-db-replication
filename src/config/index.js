@@ -5,7 +5,7 @@ const parisTimezone = 'Europe/Paris';
 
 const jobOptions = {
   attempts: configuration.MAX_RETRY_COUNT,
-  backoff: { type: 'exponential', delay: 100 }
+  backoff: { type: 'exponential', delay: 100 },
 };
 
 const repeatableJobOptions = {

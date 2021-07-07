@@ -67,20 +67,20 @@ async function run(configuration) {
     const copyToStdOutArgs = [
       configuration.SOURCE_DATABASE_URL,
       '--command',
-      `\\copy (SELECT * FROM ${escapeSQLIdentifier(table.name)} WHERE id > ${table.lastRecordIndex}) to stdout`
+      `\\copy (SELECT * FROM ${escapeSQLIdentifier(table.name)} WHERE id > ${table.lastRecordIndex}) to stdout`,
     ];
     const copyFromStdInArgs = [
       configuration.TARGET_DATABASE_URL,
       '--command',
-      `\\copy ${escapeSQLIdentifier(table.name)} from stdin`
+      `\\copy ${escapeSQLIdentifier(table.name)} from stdin`,
     ];
     const copyToStdOutProcess = execa('psql', copyToStdOutArgs, {
       stdin: 'ignore', stdout: 'pipe', stderr: 'inherit',
-      buffer: false // disable execa's buffering otherwise it interferes with the transfer
+      buffer: false, // disable execa's buffering otherwise it interferes with the transfer
     });
     const copyFromStdInProcess = execa('psql', copyFromStdInArgs, {
       stdin: copyToStdOutProcess.stdout,
-      all: true // join stdout and stderr
+      all: true, // join stdout and stderr
     });
 
     const [ , copyFromStdInResult ] = await Promise.all([ copyToStdOutProcess, copyFromStdInProcess ]);
@@ -91,7 +91,7 @@ async function run(configuration) {
       configuration.TARGET_DATABASE_URL,
       '--tuples-only',
       '--command',
-      `SELECT MAX(id) FROM ${escapeSQLIdentifier(table.name)}`
+      `SELECT MAX(id) FROM ${escapeSQLIdentifier(table.name)}`,
     ]);
     const lastRecordIndexTargetAfterReplication = parseInt(maxIdStrAfterReplication);
     logger.info(`${table.name} last record index target after replication ` + lastRecordIndexTargetAfterReplication);
@@ -103,5 +103,5 @@ async function run(configuration) {
 }
 
 module.exports = {
-  run
+  run,
 };

@@ -39,7 +39,7 @@ describe('Integration | enrichment.js', () => {
         await createAndFillDatabase(database, databaseConfig, { createTablesNotToBeImported: true });
 
         // when
-        const configuration = { RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: 'true', DATABASE_URL : databaseConfig.databaseUrl };
+        const configuration = { RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: 'true', DATABASE_URL: databaseConfig.databaseUrl };
         await add(configuration);
 
         // then
@@ -54,7 +54,7 @@ describe('Integration | enrichment.js', () => {
         await createAndFillDatabase(database, databaseConfig, { createTablesNotToBeImported: true });
 
         // when
-        const configuration = { RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: 'true', DATABASE_URL : databaseConfig.databaseUrl };
+        const configuration = { RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: 'true', DATABASE_URL: databaseConfig.databaseUrl };
         await add(configuration);
 
         // then
@@ -74,10 +74,10 @@ describe('Integration | enrichment.js', () => {
       it('does create these indexes', async function() {
         // given
         database = await Database.create(databaseConfig);
-        await createAndFillDatabase(database, databaseConfig, { createTablesNotToBeImported : true });
+        await createAndFillDatabase(database, databaseConfig, { createTablesNotToBeImported: true });
 
         // when
-        const configuration = { RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: 'true', DATABASE_URL : databaseConfig.databaseUrl };
+        const configuration = { RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: 'true', DATABASE_URL: databaseConfig.databaseUrl };
         await add(configuration);
 
         // then

@@ -31,5 +31,5 @@ async function add(configuration) {
 }
 
 module.exports = {
-  add
+  add,
 };

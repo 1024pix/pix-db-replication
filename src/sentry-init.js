@@ -17,7 +17,7 @@ const initSentry = function(configuration) {
     maxBreadcrumbs: _getNumber(configuration.SENTRY_MAX_BREADCRUMBS, 100),
     debug: isFeatureEnabled(configuration.SENTRY_DEBUG),
     maxValueLength: configuration.SENTRY_MAX_VALUE_LENGTH || 1000,
-  });  
+  });
 };
 
 module.exports = initSentry;
