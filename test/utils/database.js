@@ -25,7 +25,7 @@ module.exports = class Database {
   async runSql(...sqlCommands) {
     const { stdout } = await execa('psql', [
       this._databaseUrl, '--tuples-only', '--no-align',
-      ...sqlCommands.map((sqlCommand) => `--command=${sqlCommand}`)
+      ...sqlCommands.map((sqlCommand) => `--command=${sqlCommand}`),
     ]);
     return stdout;
   }
@@ -33,7 +33,7 @@ module.exports = class Database {
   async runSqlAsSuperUser(...sqlCommands) {
     const { stdout } = await execa('psql', [
       this._superUserDatabaseUrl, '--tuples-only', '--no-align',
-      ...sqlCommands.map((sqlCommand) => `--command=${sqlCommand}`)
+      ...sqlCommands.map((sqlCommand) => `--command=${sqlCommand}`),
     ]);
     return stdout;
   }

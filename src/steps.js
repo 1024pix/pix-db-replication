@@ -49,8 +49,8 @@ function dropCurrentObjects(configuration) {
 async function dropCurrentObjectsButKesAndAnswers(configuration) {
   const dropTableQuery = await execStdOut('psql', [ configuration.DATABASE_URL, '--tuples-only', '--command', 'select string_agg(\'drop table "\' || tablename || \'" CASCADE\', \'; \') from pg_tables where schemaname = \'public\' and tablename not in (\'knowledge-elements\',\'knowledge-element-snapshots\', \'answers\');' ]);
   const dropFunction = await execStdOut('psql', [ configuration.DATABASE_URL, '--tuples-only', '--command', 'select string_agg(\'drop function "\' || proname || \'"\', \'; \') FROM pg_proc pp INNER JOIN pg_roles pr ON pp.proowner = pr.oid WHERE pr.rolname = current_user ' ]);
-  await exec('psql', [ configuration.DATABASE_URL, '--set', 'ON_ERROR_STOP=on', '--echo-all' , '--command', dropTableQuery ]);
-  return exec('psql', [ configuration.DATABASE_URL, '--set', 'ON_ERROR_STOP=on', '--echo-all' , '--command', dropFunction ]);
+  await exec('psql', [ configuration.DATABASE_URL, '--set', 'ON_ERROR_STOP=on', '--echo-all', '--command', dropTableQuery ]);
+  return exec('psql', [ configuration.DATABASE_URL, '--set', 'ON_ERROR_STOP=on', '--echo-all', '--command', dropFunction ]);
 }
 
 async function writeListFileForReplication({ backupFile, configuration }) {
@@ -73,7 +73,7 @@ async function restoreBackup({ backupFile, databaseUrl, configuration }) {
       '--no-owner',
       '--use-list', RESTORE_LIST_FILENAME,
       `--dbname=${databaseUrl}`,
-      backupFile
+      backupFile,
     ]);
 
   } finally {
@@ -190,5 +190,5 @@ module.exports = {
   fullReplicationAndEnrichment,
   importAirtableData,
   pgclientSetup,
-  restoreBackup
+  restoreBackup,
 };

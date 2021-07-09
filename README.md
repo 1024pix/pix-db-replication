@@ -170,6 +170,21 @@ Exécuter
 node ./src/run-replicate-incrementally.js 
 ```
 
+#### Exécution partielle
+Dans certains cas, le besoin est de relancer uniquement les opérations de fin de réplication
+
+##### Import AirTable
+``` bash
+node -e "steps=require('./src/steps'); steps.importAirtableData(require ('./src/extract-configuration-from-environment')())"
+```
+
+##### Enrichissement
+Création index, vues..
+``` bash
+node -e "steps=require('./src/steps'); steps.addEnrichment(require ('./src/extract-configuration-from-environment')())"
+```
+
+
 #### Ordonnanceur
 
 Il est possible de faire tourner l'ordonnanceur en local.

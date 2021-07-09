@@ -1,4 +1,5 @@
 const { expect } = require('chai');
+const { after, before, describe, it } = require('mocha');
 const { createAndFillDatabase } = require('../integration/test-helper');
 const Database = require('../utils/database');
 const pgUrlParser = require('pg-connection-string').parse;
@@ -29,7 +30,7 @@ describe('Acceptance | steps | fullReplicationAndEnrichment', () => {
     RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: 'true',
     PG_RESTORE_JOBS: 1,
     AIRTABLE_API_KEY: 'keyblo10ZCvCqBAJg',
-    AIRTABLE_BASE: 'app3fvsqhtHJntXaC'
+    AIRTABLE_BASE: 'app3fvsqhtHJntXaC',
   };
 
   before(async function() {
@@ -104,6 +105,12 @@ describe('Acceptance | steps | fullReplicationAndEnrichment', () => {
       expect(result).to.be.above(0);
     });
 
+    it('should import attachments ', async () => {
+      // then
+      const result = await getCountFromTable({ targetDatabase, tableName: 'attachments' });
+      expect(result).to.be.above(0);
+    });
+
     it('should import competences ', async () => {
       // then
       const result = await getCountFromTable({ targetDatabase, tableName: 'competences' });
@@ -135,7 +142,7 @@ describe('Acceptance | steps | fullReplicationAndEnrichment', () => {
     });
   });
 
-  describe ('should enrich imported data', () => {
+  describe('should enrich imported data', () => {
 
     it('should create indexes', async function() {
       // then

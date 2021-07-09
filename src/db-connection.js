@@ -2,7 +2,7 @@ const { Client } = require('pg');
 
 async function runDBOperation(callback, configuration) {
   const client = new Client({
-    connectionString: configuration.DATABASE_URL
+    connectionString: configuration.DATABASE_URL,
   });
   try {
     await client.connect();
@@ -13,5 +13,5 @@ async function runDBOperation(callback, configuration) {
 }
 
 module.exports = {
-  runDBOperation
+  runDBOperation,
 };

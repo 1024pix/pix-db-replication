@@ -59,7 +59,7 @@ describe('Integration | replicate-incrementally.js', () => {
         const knowledgeElementsCountBefore = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM "knowledge-elements"'));
         expect(knowledgeElementsCountBefore).not.to.equal(0);
 
-        const configuration = { SOURCE_DATABASE_URL : SOURCE_DATABASE_URL, TARGET_DATABASE_URL : TARGET_DATABASE_URL, PG_RESTORE_JOBS: 4 };
+        const configuration = { SOURCE_DATABASE_URL: SOURCE_DATABASE_URL, TARGET_DATABASE_URL: TARGET_DATABASE_URL, PG_RESTORE_JOBS: 4 };
 
         // when
         await run(configuration);
@@ -77,16 +77,16 @@ describe('Integration | replicate-incrementally.js', () => {
       [
         {
           name: 'answers',
-          errorMessage: 'Answers table must not be empty on target database'
+          errorMessage: 'Answers table must not be empty on target database',
         },
         {
           name: '"knowledge-elements"',
-          errorMessage: 'Knowledge-elements table must not be empty on target database'
+          errorMessage: 'Knowledge-elements table must not be empty on target database',
         },
         {
           name: '"knowledge-element-snapshots"',
-          errorMessage: 'Knowledge-element-snapshots table must not be empty on target database'
-        }
+          errorMessage: 'Knowledge-element-snapshots table must not be empty on target database',
+        },
       ].forEach((table) => {
         it(`should throw if table ${table.name} is empty`, async function() {
 
@@ -98,7 +98,7 @@ describe('Integration | replicate-incrementally.js', () => {
           targetDatabase = await Database.create(targetDatabaseConfig);
 
           // TODO: do not use production code to setup environment
-          const firstDayConfiguration = { RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS : 'true', RESTORE_FK_CONSTRAINTS : 'false', RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY : undefined, PG_RESTORE_JOBS: 4 };
+          const firstDayConfiguration = { RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: 'true', RESTORE_FK_CONSTRAINTS: 'false', RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY: undefined, PG_RESTORE_JOBS: 4 };
           await steps.restoreBackup({ backupFile, databaseUrl: targetDatabaseConfig.databaseUrl, configuration: firstDayConfiguration });
 
           // Day 2
@@ -111,9 +111,9 @@ describe('Integration | replicate-incrementally.js', () => {
           await createAndFillDatabase(targetDatabase, targetDatabaseConfig, { createTablesNotToBeImported: true });
           await targetDatabase.runSql(`DELETE FROM ${table.name}`);
 
-          const configuration = { SOURCE_DATABASE_URL : SOURCE_DATABASE_URL,
-            TARGET_DATABASE_URL :TARGET_DATABASE_URL,
-            RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY : 'true',
+          const configuration = { SOURCE_DATABASE_URL: SOURCE_DATABASE_URL,
+            TARGET_DATABASE_URL: TARGET_DATABASE_URL,
+            RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY: 'true',
             PG_RESTORE_JOBS: 4 };
 
           // when
@@ -135,7 +135,7 @@ describe('Integration | replicate-incrementally.js', () => {
         targetDatabase = await Database.create(targetDatabaseConfig);
 
         // TODO: do not use production code to setup environment
-        const firstDayConfiguration = { RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS : 'true', RESTORE_FK_CONSTRAINTS : 'false', RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY : undefined, PG_RESTORE_JOBS: 4 };
+        const firstDayConfiguration = { RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: 'true', RESTORE_FK_CONSTRAINTS: 'false', RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY: undefined, PG_RESTORE_JOBS: 4 };
         await steps.restoreBackup({ backupFile, databaseUrl: targetDatabaseConfig.databaseUrl, configuration: firstDayConfiguration });
 
         const answersCountBefore = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM answers'));
@@ -160,7 +160,7 @@ describe('Integration | replicate-incrementally.js', () => {
         await sourceDatabase.runSql('INSERT INTO "knowledge-element-snapshots"  (id, "userId", "snappedAt", "snapshot") VALUES (3, 2, CURRENT_TIMESTAMP, \'{"id": "3"}\'::jsonb)');
 
         // given
-        const configuration = { SOURCE_DATABASE_URL : SOURCE_DATABASE_URL, TARGET_DATABASE_URL :TARGET_DATABASE_URL, RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY : 'true', PG_RESTORE_JOBS: 4 };
+        const configuration = { SOURCE_DATABASE_URL: SOURCE_DATABASE_URL, TARGET_DATABASE_URL: TARGET_DATABASE_URL, RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY: 'true', PG_RESTORE_JOBS: 4 };
 
         // when
         await run(configuration);

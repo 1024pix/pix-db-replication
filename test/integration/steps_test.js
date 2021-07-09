@@ -168,7 +168,7 @@ describe('Integration | steps.js', () => {
             // given
             database = await Database.create(databaseConfig);
             const backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, { createTablesNotToBeImported: true });
-            const configuration = { RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: undefined, RESTORE_FK_CONSTRAINTS: 'false', PG_RESTORE_JOBS: 4  };
+            const configuration = { RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: undefined, RESTORE_FK_CONSTRAINTS: 'false', PG_RESTORE_JOBS: 4 };
 
             // when
             await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl, configuration });
@@ -198,7 +198,7 @@ describe('Integration | steps.js', () => {
             // given
             database = await Database.create(databaseConfig);
             const backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, { createTablesNotToBeImported: true });
-            const configuration = { RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: 'true', RESTORE_FK_CONSTRAINTS: 'false',  PG_RESTORE_JOBS: 4   };
+            const configuration = { RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: 'true', RESTORE_FK_CONSTRAINTS: 'false', PG_RESTORE_JOBS: 4 };
 
             // when
             await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl, configuration });
@@ -229,7 +229,7 @@ describe('Integration | steps.js', () => {
             // given
             database = await Database.create(databaseConfig);
             const backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, { createForeignKeys: true });
-            const configuration = {  RESTORE_FK_CONSTRAINTS: 'true',  PG_RESTORE_JOBS: 4 };
+            const configuration = { RESTORE_FK_CONSTRAINTS: 'true', PG_RESTORE_JOBS: 4 };
 
             // when
             await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl, configuration });
@@ -266,7 +266,7 @@ describe('Integration | steps.js', () => {
           it('should restore referencing table with data', async function() {
 
             // given
-            const configuration = { RESTORE_FK_CONSTRAINTS: 'false', PG_RESTORE_JOBS: 4  };
+            const configuration = { RESTORE_FK_CONSTRAINTS: 'false', PG_RESTORE_JOBS: 4 };
             database = await Database.create(databaseConfig);
             const backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, { createForeignKeys: true });
 
@@ -281,7 +281,7 @@ describe('Integration | steps.js', () => {
           it('should restore referenced table with data', async function() {
 
             // given
-            const configuration = { RESTORE_FK_CONSTRAINTS: 'false', PG_RESTORE_JOBS: 4  };
+            const configuration = { RESTORE_FK_CONSTRAINTS: 'false', PG_RESTORE_JOBS: 4 };
             database = await Database.create(databaseConfig);
             const backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, { createForeignKeys: true });
 
@@ -354,7 +354,7 @@ describe('Integration | steps.js', () => {
         // given
 
         // Day 1
-        const firstDayConfiguration = { RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS : 'true', PG_RESTORE_JOBS: 4 };
+        const firstDayConfiguration = { RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: 'true', PG_RESTORE_JOBS: 4 };
         await createBackUpFromSourceAndRestoreToTarget(sourceDatabase, sourceDatabaseConfig, targetDatabaseConfig.databaseUrl, firstDayConfiguration);
 
         const answersCountBefore = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM answers'));
@@ -373,7 +373,7 @@ describe('Integration | steps.js', () => {
         const secondDayBackupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true });
 
         // when
-        const secondDayConfiguration = { RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY : 'true', DATABASE_URL : targetDatabase._databaseUrl, PG_RESTORE_JOBS: 4   };
+        const secondDayConfiguration = { RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY: 'true', DATABASE_URL: targetDatabase._databaseUrl, PG_RESTORE_JOBS: 4 };
         await steps.dropObjectAndRestoreBackup(secondDayBackupFile, secondDayConfiguration);
 
         // then
@@ -394,17 +394,17 @@ describe('Integration | steps.js', () => {
 
         // Source: create backup
         const sourceDatabase = await Database.create(sourceDatabaseConfig);
-        const firstDaySourceBackupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true, createForeignKeys: true, dropDatabase : false });
+        const firstDaySourceBackupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true, createForeignKeys: true, dropDatabase: false });
 
         // Target : restore backup
         const targetDatabase = await Database.create(targetDatabaseConfig);
 
         const firstDayTargetConfiguration = {
           PG_RESTORE_JOBS: 4,
-          DATABASE_URL : targetDatabase._databaseUrl,
+          DATABASE_URL: targetDatabase._databaseUrl,
           RESTORE_FK_CONSTRAINTS: 'true',
           RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: 'true',
-          RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY: 'false'
+          RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY: 'false',
         };
 
         await steps.dropObjectAndRestoreBackup(firstDaySourceBackupFile, firstDayTargetConfiguration);
@@ -422,10 +422,10 @@ describe('Integration | steps.js', () => {
         // Target : restore backup
         const secondDayTargetConfiguration = {
           PG_RESTORE_JOBS: 4,
-          DATABASE_URL : targetDatabase._databaseUrl,
+          DATABASE_URL: targetDatabase._databaseUrl,
           RESTORE_FK_CONSTRAINTS: 'false',
           RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: 'false',
-          RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY: 'true'
+          RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY: 'true',
         };
 
         // when
@@ -445,14 +445,14 @@ describe('Integration | steps.js', () => {
       // given
 
       // Day 1
-      const firstDayTargetConfiguration = { RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS : 'true', PG_RESTORE_JOBS: 4 };
+      const firstDayTargetConfiguration = { RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS: 'true', PG_RESTORE_JOBS: 4 };
       await createBackUpFromSourceAndRestoreToTarget(sourceDatabase, sourceDatabaseConfig, targetDatabaseConfig.databaseUrl, firstDayTargetConfiguration);
       await sourceDatabase.dropDatabase();
 
       // Day 2
       sourceDatabase = await Database.create(sourceDatabaseConfig);
       const secondDayBackupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true, createFunction: true });
-      const secondDayTargetConfiguration = { RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY : 'true', DATABASE_URL : targetDatabase._databaseUrl, PG_RESTORE_JOBS: 4 };
+      const secondDayTargetConfiguration = { RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY: 'true', DATABASE_URL: targetDatabase._databaseUrl, PG_RESTORE_JOBS: 4 };
 
       const dropObjectAndRestoreBackupWithArguments = function() {
         steps.dropObjectAndRestoreBackup(secondDayBackupFile, secondDayTargetConfiguration);
@@ -493,11 +493,11 @@ describe('Integration | steps.js', () => {
 
         // when
         const configuration = {
-          AIRTABLE_API_KEY : 'keyblo10ZCvCqBAJg',
-          AIRTABLE_BASE : 'app3fvsqhtHJntXaC',
+          AIRTABLE_API_KEY: 'keyblo10ZCvCqBAJg',
+          AIRTABLE_BASE: 'app3fvsqhtHJntXaC',
           DATABASE_URL: targetDatabaseConfig.databaseUrl,
-          MAX_RETRY_COUNT : 10 ,
-          RETRIES_TIMEOUT_MINUTES : 180
+          MAX_RETRY_COUNT: 10,
+          RETRIES_TIMEOUT_MINUTES: 180,
         };
 
         await steps.importAirtableData(configuration);
@@ -512,11 +512,11 @@ describe('Integration | steps.js', () => {
 
         // given
         const configuration = {
-          DATABASE_URL : targetDatabaseConfig.databaseUrl,
-          AIRTABLE_API_KEY : 'INVALID',
-          AIRTABLE_BASE : 'INVALID',
-          MAX_RETRY_COUNT : 1000,
-          RETRIES_TIMEOUT_MINUTES : 1
+          DATABASE_URL: targetDatabaseConfig.databaseUrl,
+          AIRTABLE_API_KEY: 'INVALID',
+          AIRTABLE_BASE: 'INVALID',
+          MAX_RETRY_COUNT: 1000,
+          RETRIES_TIMEOUT_MINUTES: 1,
         };
 
         // when
