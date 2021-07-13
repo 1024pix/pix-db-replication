@@ -1,6 +1,7 @@
 require('dotenv').config();
 const Sentry = require('@sentry/node');
 const Queue = require('bull');
+const toPairs = require('lodash/toPairs');
 const initSentry = require('./sentry-init');
 const steps = require('./steps');
 const logger = require('./logger');
@@ -28,7 +29,7 @@ async function main() {
   });
 
   incrementalReplicationQueue.process(async function() {
-    if (configuration.RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY === 'true') {
+    if (hasIncremental(configuration)) {
       await replicateIncrementally.run(configuration);
     }
     airtableReplicationQueue.add({}, jobOptions);
@@ -104,9 +105,20 @@ function _addQueueEventsListeners(queue) {
     });
 }
 
+function hasIncremental(configuration) {
+  const incrementalTables = _getIncrementalTables(configuration);
+  return incrementalTables.length > 0;
+}
+
+function _getIncrementalTables(configuration) {
+  const tablePairs = toPairs(configuration.BACKUP_MODE);
+  return tablePairs
+    .filter(([_, mode]) => mode === 'incremental')
+    .map(([tableName, _]) => tableName);
+}
+
 async function _flushSentryAndExit() {
   const TIMEOUT = 2000;
   await Sentry.close(TIMEOUT);
   process.exit(1);
 }
-
