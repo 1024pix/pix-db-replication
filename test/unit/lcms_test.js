@@ -1,0 +1,51 @@
+const { expect, axios, sinon, catchErr } = require('../test-helper');
+
+const lcms = require('../../src/lcms');
+
+describe('Unit | lcms.js', () => {
+  describe('#getLatest', () => {
+    let learningContentGetUrl, configuration, headers;
+
+    beforeEach(() => {
+      const lcmsApiUrl = 'https://lcms-test.pix.fr/api';
+      const lcmsApiKey = 'abcd';
+      learningContentGetUrl = lcmsApiUrl + '/databases/airtable';
+      headers = { 'Authorization': `Bearer ${lcmsApiKey}` };
+      configuration = {
+        LCMS_API_URL: lcmsApiUrl,
+        LCMS_API_KEY: lcmsApiKey,
+      };
+    });
+
+    it('should call LCMS API to get learning content latest release', async () => {
+      // given
+      const axiosResponse = {
+        data: {},
+        status: 'someStatus',
+      };
+      sinon.stub(axios, 'get').withArgs(learningContentGetUrl, { headers }).resolves(axiosResponse);
+
+      // when
+      const response = await lcms.getLearningContent(configuration);
+
+      // then
+      expect(response).to.equal(axiosResponse.data);
+    });
+
+    it('should return empty object from the http call when failed', async () => {
+      const axiosError = {
+        response: {
+          data: Symbol('data'),
+          status: 'someStatus',
+        },
+      };
+      sinon.stub(axios, 'get').withArgs(learningContentGetUrl, { headers }).rejects(axiosError);
+
+      // when
+      const error = await catchErr(lcms.getLearningContent)(configuration);
+
+      // then
+      expect(error).not.to.be.null;
+    });
+  });
+});

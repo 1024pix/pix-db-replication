@@ -33,6 +33,7 @@
   "dependencies": {
     "@sentry/node": "^6.1.0",
     "airtable": "^0.10.1",
+    "axios": "^0.21.1",
     "bull": "^3.20.0",
     "bunyan": "^1.8.14",
     "check-engine": "^1.10.0",
