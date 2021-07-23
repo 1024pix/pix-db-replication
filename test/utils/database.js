@@ -69,4 +69,13 @@ module.exports = class Database {
     return path;
   }
 
+  async hasTable(tableName) {
+    const tableExists = await this.runSql('SELECT EXISTS (' +
+      '   SELECT FROM pg_tables' +
+      `   WHERE tablename = '${tableName}'` +
+      '   );');
+
+    return tableExists === 't';
+  }
+
 };

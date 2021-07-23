@@ -1,4 +1,5 @@
 const { Client } = require('pg');
+const format = require('pg-format');
 
 async function runDBOperation(callback, configuration) {
   const client = new Client({
@@ -12,6 +13,14 @@ async function runDBOperation(callback, configuration) {
   }
 }
 
+async function dropTable(tableName, configuration) {
+  return runDBOperation(async (client) => {
+    const dropQuery = `DROP TABLE IF EXISTS ${format.ident(tableName)} CASCADE`;
+    await client.query(dropQuery);
+  }, configuration);
+}
+
 module.exports = {
+  dropTable,
   runDBOperation,
 };

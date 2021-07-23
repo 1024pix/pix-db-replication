@@ -1,10 +1,11 @@
 const { expect, sinon } = require('../test-helper');
 const lcms = require('../../src/lcms');
+const dbConnection = require('../../src/db-connection');
 const learningContent = require('../../src/learning-content');
 
 describe('Unit | learning-content.js', () => {
   describe('#fetchAndSaveData', () => {
-    it('should fetch learning-content from LCMS', async() => {
+    beforeEach(async() => {
       const databaseConfig = {};
       const content = {
         areas: [{ id: 'recArea1', competenceIds: ['recCompetence'] }],
@@ -15,11 +16,26 @@ describe('Unit | learning-content.js', () => {
           origin: 'Pix',
         }],
       };
+      sinon.stub(dbConnection, 'dropTable').resolves();
       sinon.stub(lcms, 'getLearningContent').resolves(content);
 
       await learningContent.fetchAndSaveData(databaseConfig);
+    });
 
+    it('should fetch learning-content from LCMS', async() => {
       expect(lcms.getLearningContent).to.have.been.called;
+    });
+
+    it('should drop existing learning-content tables', async() => {
+      expect(dbConnection.dropTable.callCount).to.equal(8);
+      expect(dbConnection.dropTable).to.have.been.calledWith('areas');
+      expect(dbConnection.dropTable).to.have.been.calledWith('attachments');
+      expect(dbConnection.dropTable).to.have.been.calledWith('competences');
+      expect(dbConnection.dropTable).to.have.been.calledWith('tubes');
+      expect(dbConnection.dropTable).to.have.been.calledWith('skills');
+      expect(dbConnection.dropTable).to.have.been.calledWith('challenges');
+      expect(dbConnection.dropTable).to.have.been.calledWith('courses');
+      expect(dbConnection.dropTable).to.have.been.calledWith('tutorials');
     });
   });
 });
