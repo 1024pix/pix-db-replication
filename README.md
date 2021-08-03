@@ -74,7 +74,7 @@ node -e "steps=require('./src/steps'); steps.importAirtableData(require ('./src/
 ##### Enrichissement
 Création index, vues..
 ``` bash
-node -e "steps=require('./src/steps'); steps.addEnrichment(require ('./src/extract-configuration-from-environment')())"
+node -e "steps=require('./src/steps'); steps.addEnrichment(require ('./src/config/extract-configuration-from-environment')())"
 ```
 
 ## Développement et exécution en local
@@ -173,7 +173,7 @@ Dans certains cas, le besoin est de relancer uniquement les opérations de fin d
 
 ##### Import AirTable
 ``` bash
-node -e "steps=require('./src/steps'); steps.importAirtableData(require ('./src/extract-configuration-from-environment')())"
+node -e "steps=require('./src/steps'); steps.importAirtableData(require ('./src/config/extract-configuration-from-environment')())"
 ```
 
 ##### Enrichissement
@@ -206,6 +206,14 @@ keys bull:*
 ```
 
 Connectez-vous au CLI Bull pour suivre l'avancement.
+
+Pour se connecter via Scalingo, utiliser le connect avec les 4 options ci-dessous.
+connect [options] <queue>
+    -h, --host <host>      Redis host for connection
+    -p, --port <port>      Redis port for connection
+    -d, --db <db>          Redis db for connection
+    --password <password>  Redis password for connection
+Puis saisir le nom de la queue.
 
 Pour la réplication par dump
 ```shell
