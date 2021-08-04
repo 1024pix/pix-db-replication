@@ -1,7 +1,6 @@
 require('dotenv').config();
 const Sentry = require('@sentry/node');
 const Queue = require('bull');
-const toPairs = require('lodash/toPairs');
 const initSentry = require('./sentry-init');
 const steps = require('./steps');
 const logger = require('./logger');
@@ -106,15 +105,8 @@ function _addQueueEventsListeners(queue) {
 }
 
 function hasIncremental(configuration) {
-  const incrementalTables = _getIncrementalTables(configuration);
+  const incrementalTables = steps.getIncrementalTables(configuration);
   return incrementalTables.length > 0;
-}
-
-function _getIncrementalTables(configuration) {
-  const tablePairs = toPairs(configuration.BACKUP_MODE);
-  return tablePairs
-    .filter(([_, mode]) => mode === 'incremental')
-    .map(([tableName, _]) => tableName);
 }
 
 async function _flushSentryAndExit() {

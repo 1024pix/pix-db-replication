@@ -1,7 +1,7 @@
 'use strict';
 
 const execa = require('execa');
-const toPairs = require('lodash/toPairs');
+const { getIncrementalTables } = require('./steps');
 
 const logger = require('./logger');
 
@@ -15,7 +15,7 @@ function escapeSQLIdentifier(identifier) {
 }
 
 async function run(configuration) {
-  const incrementalTables = _getIncrementalTables(configuration);
+  const incrementalTables = getIncrementalTables(configuration);
   if (incrementalTables.length === 0) {
     logger.info('Exit because BACKUP_MODE is not incremental');
     return;
@@ -80,13 +80,6 @@ async function run(configuration) {
   }
 
   logger.info('Incremental replication done');
-}
-
-function _getIncrementalTables(configuration) {
-  const tablePairs = toPairs(configuration.BACKUP_MODE);
-  return tablePairs
-    .filter(([_, mode]) => mode === 'incremental')
-    .map(([tableName, _]) => tableName);
 }
 
 module.exports = {
