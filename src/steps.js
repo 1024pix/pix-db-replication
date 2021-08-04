@@ -7,6 +7,7 @@ const fs = require('fs');
 const airtableData = require('./airtable-data');
 const enrichment = require('./enrichment');
 const logger = require('./logger');
+const toPairs = require('lodash/toPairs');
 
 const RESTORE_LIST_FILENAME = 'restore.list';
 
@@ -41,16 +42,21 @@ async function pgclientSetup(configuration) {
   }
 }
 
-function dropCurrentObjects(configuration) {
+async function dropCurrentObjects(configuration) {
   // TODO: pass DATABASE_URL by argument
-  return exec('psql', [ configuration.DATABASE_URL, ' --echo-all', '--set', 'ON_ERROR_STOP=on', '--command', 'DROP OWNED BY CURRENT_USER CASCADE' ]);
+  const incrementalTables = getIncrementalTables(configuration);
+  if (incrementalTables.length > 0) {
+    return dropCurrentObjectsExceptTables(configuration.DATABASE_URL, incrementalTables);
+  }
+  else return exec('psql', [ configuration.DATABASE_URL, ' --echo-all', '--set', 'ON_ERROR_STOP=on', '--command', 'DROP OWNED BY CURRENT_USER CASCADE' ]);
 }
 
-async function dropCurrentObjectsButKesAndAnswers(configuration) {
-  const dropTableQuery = await execStdOut('psql', [ configuration.DATABASE_URL, '--tuples-only', '--command', 'select string_agg(\'drop table "\' || tablename || \'" CASCADE\', \'; \') from pg_tables where schemaname = \'public\' and tablename not in (\'knowledge-elements\',\'knowledge-element-snapshots\', \'answers\');' ]);
-  const dropFunction = await execStdOut('psql', [ configuration.DATABASE_URL, '--tuples-only', '--command', 'select string_agg(\'drop function "\' || proname || \'"\', \'; \') FROM pg_proc pp INNER JOIN pg_roles pr ON pp.proowner = pr.oid WHERE pr.rolname = current_user ' ]);
-  await exec('psql', [ configuration.DATABASE_URL, '--set', 'ON_ERROR_STOP=on', '--echo-all', '--command', dropTableQuery ]);
-  return exec('psql', [ configuration.DATABASE_URL, '--set', 'ON_ERROR_STOP=on', '--echo-all', '--command', dropFunction ]);
+async function dropCurrentObjectsExceptTables(databaseUrl, tableNames) {
+  const tableNamesForQuery = tableNames.map((tableName) => `'${tableName}'`).join(',');
+  const dropTableQuery = await execStdOut('psql', [ databaseUrl, '--tuples-only', '--command', `select string_agg('drop table "' || tablename || '" CASCADE', '; ') from pg_tables where schemaname = 'public' and tablename not in (${tableNamesForQuery});` ]);
+  const dropFunction = await execStdOut('psql', [ databaseUrl, '--tuples-only', '--command', 'select string_agg(\'drop function "\' || proname || \'"\', \'; \') FROM pg_proc pp INNER JOIN pg_roles pr ON pp.proowner = pr.oid WHERE pr.rolname = current_user ' ]);
+  await exec('psql', [ databaseUrl, '--set', 'ON_ERROR_STOP=on', '--echo-all', '--command', dropTableQuery ]);
+  return exec('psql', [ databaseUrl, '--set', 'ON_ERROR_STOP=on', '--echo-all', '--command', dropFunction ]);
 }
 
 async function writeListFileForReplication({ backupFile, configuration }) {
@@ -87,13 +93,12 @@ async function createBackup(configuration) {
   logger.info('Start create Backup');
   const backupFilename = './dump.pgsql';
 
-  const excludeOptions = configuration.RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS === 'true'
-    ? []
-    : [
-      '--exclude-table', 'knowledge-elements',
-      '--exclude-table', 'knowledge-element-snapshots',
-      '--exclude-table', 'answers',
-    ];
+  let excludeOptions = [];
+  const incrementalTables = getIncrementalTables(configuration);
+  if (incrementalTables.length > 0) {
+    excludeOptions = incrementalTables.reduce((excludeTablesOptions, tableName) => [...excludeTablesOptions, '--exclude-table', tableName], []);
+  }
+
   const verboseOptions = process.env.NODE_ENV === 'test' ? [] : ['--verbose'];
 
   await exec('pg_dump', [
@@ -117,11 +122,7 @@ async function createBackup(configuration) {
 
 async function dropObjectAndRestoreBackup(backupFile, configuration) {
   logger.info('Start drop Objects AndRestoreBackup');
-  if (configuration.RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY && configuration.RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY === 'true') {
-    await dropCurrentObjectsButKesAndAnswers(configuration);
-  } else {
-    await dropCurrentObjects(configuration);
-  }
+  await dropCurrentObjects(configuration);
   logger.info('End drop Objects AndRestoreBackup');
 
   logger.info('Start restore Backup');
@@ -164,22 +165,31 @@ async function fullReplicationAndEnrichment(configuration) {
 }
 
 function _filterObjectLines(objectLines, configuration) {
+  const patternsToFilter = [' COMMENT '];
+
   const restoreFkConstraints = configuration.RESTORE_FK_CONSTRAINTS === 'true';
-  const restoreAnswersAndKesAndKeSnapshots = configuration.RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS === 'true';
-  let filteredObjectLines = objectLines
-    .filter((line) => !/ COMMENT /.test(line));
+
   if (!restoreFkConstraints) {
-    filteredObjectLines = filteredObjectLines.filter((line) => !/FK CONSTRAINT/.test(line));
-  }
-  if (!restoreAnswersAndKesAndKeSnapshots) {
-    filteredObjectLines = filteredObjectLines
-      .filter((line) => !/answers/.test(line))
-      .filter((line) => !/knowledge-elements/.test(line))
-      .filter((line) => !/knowledge-element-snapshots/.test(line))
-      .filter((line) => !/knowledge_elements/.test(line));
+    patternsToFilter.push('FK CONSTRAINT');
   }
 
-  return filteredObjectLines;
+  const incrementalTables = getIncrementalTables(configuration);
+  if (incrementalTables.length > 0) {
+    const prepareTableNameForRegex = (tableName) => tableName.split(/[-_]/).join('[-_]');
+    const tableNamesForRegex = incrementalTables.map(prepareTableNameForRegex);
+    patternsToFilter.push(...tableNamesForRegex);
+  }
+
+  const regexp = patternsToFilter.join('|');
+
+  return objectLines.filter((line) => !new RegExp(regexp).test(line));
+}
+
+function getIncrementalTables(configuration) {
+  const tablePairs = toPairs(configuration.BACKUP_MODE);
+  return tablePairs
+    .filter(([_, mode]) => mode === 'incremental')
+    .map(([tableName, _]) => tableName);
 }
 
 module.exports = {
@@ -188,6 +198,7 @@ module.exports = {
   createBackup,
   dropObjectAndRestoreBackup,
   fullReplicationAndEnrichment,
+  getIncrementalTables,
   importAirtableData,
   pgclientSetup,
   restoreBackup,

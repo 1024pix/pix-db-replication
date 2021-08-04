@@ -28,7 +28,7 @@ async function main() {
   });
 
   incrementalReplicationQueue.process(async function() {
-    if (configuration.RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY === 'true') {
+    if (hasIncremental(configuration)) {
       await replicateIncrementally.run(configuration);
     }
     airtableReplicationQueue.add({}, jobOptions);
@@ -104,9 +104,13 @@ function _addQueueEventsListeners(queue) {
     });
 }
 
+function hasIncremental(configuration) {
+  const incrementalTables = steps.getIncrementalTables(configuration);
+  return incrementalTables.length > 0;
+}
+
 async function _flushSentryAndExit() {
   const TIMEOUT = 2000;
   await Sentry.close(TIMEOUT);
   process.exit(1);
 }
-

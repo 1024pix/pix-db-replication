@@ -33,19 +33,19 @@ Des variables d'environnement sont mises en place afin de garder un seul reposit
 Alimenter les variables d'environnement documentées dans le fichier [sample.env](sample.env)
 
 Pour satisfaire les contraintes de déploiement Scalingo, le [Procfile](Procfile) déclare un conteneur de type `web` qui démarre un serveur Web "vide".
- 
-Une fois l'application créée et déployée une première fois, il faut : 
-- mettre à 0 le nombre de conteneurs de type `web` 
+
+Une fois l'application créée et déployée une première fois, il faut :
+- mettre à 0 le nombre de conteneurs de type `web`
 - mettre à 1 le nombre de conteneurs de type `background`.
 
 ### Exécution hors tâche planifiée
-Un traitement peut être lancé immédiatement (hors tâche planifiée) en exécutant un script dédié un conteneur one-off 
+Un traitement peut être lancé immédiatement (hors tâche planifiée) en exécutant un script dédié dans un conteneur one-off
 
 #### Sur la BDD destinée aux internes
 
 Deux traitements (dump et incrémentale) sont exécutés chaque nuit
 * si l'un d'eux échoue, le relancer
-* si les deux échouent, les relancer parallèle 
+* si les deux échouent, les relancer parallèlement 
 
 Lancer la réplication par dump
 ``` bash
@@ -74,13 +74,13 @@ node -e "steps=require('./src/steps'); steps.importAirtableData(require ('./src/
 ##### Enrichissement
 Création index, vues..
 ``` bash
-node -e "steps=require('./src/steps'); steps.addEnrichment(require ('./src/extract-configuration-from-environment')())"
+node -e "steps=require('./src/steps'); steps.addEnrichment(require ('./src/config/extract-configuration-from-environment')())"
 ```
 
 ## Développement et exécution en local
 
 ### Installation
-Installez le dépôt 
+Installez le dépôt
 ``` bash
 git clone git@github.com:1024pix/pix-db-replication.git && cd pix-db-replication
 nvm use
@@ -117,10 +117,9 @@ Créer un fichier `.env` à partir du fichier [sample.env](sample.env)
 Modifier le .env
 ``` bash
 DATABASE_URL=postgresql://target_user@localhost/target_database
-RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS=true
+BACKUP_MODE= {}
 RESTORE_FK_CONSTRAINTS=true
-RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY=false
-``` 
+```
 
 Lancer la réplication
 ``` bash
@@ -131,7 +130,7 @@ Au bout de 5 minutes, vous devez obtenir le message
 ``` bash
 "msg":"enrichment.add - Ended","time":"2021-01-08T08:26:13.000Z","v":0}
 "msg":"Import and enrichment done","time":"2021-01-08T08:26:13.000Z","v":0}
-``` 
+```
 
 Pensez à recréer le backup sur le filesystem local, supprimé par la restauration
 ``` bash
@@ -159,15 +158,14 @@ Modifier le .env
 ``` bash
 SOURCE_DATABASE_URL=postgresql://source_user@localhost/source_database
 TARGET_DATABASE_URL=postgresql://target_user@localhost/target_database
-RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS=true
+BACKUP_MODE='{"knowledge-elements":"incremental", "knowledge-element-snapshots":"incremental","answers":"incremental"}'
 RESTORE_FK_CONSTRAINTS=false
-RESTORE_ANSWERS_AND_KES_AND_KE_SNAPSHOTS_INCREMENTALLY=true
-``` 
+```
 
 ##### Exécuter
 Exécuter
 ``` bash
-node ./src/run-replicate-incrementally.js 
+node ./src/run-replicate-incrementally.js
 ```
 
 #### Exécution partielle
@@ -175,7 +173,7 @@ Dans certains cas, le besoin est de relancer uniquement les opérations de fin d
 
 ##### Import AirTable
 ``` bash
-node -e "steps=require('./src/steps'); steps.importAirtableData(require ('./src/extract-configuration-from-environment')())"
+node -e "steps=require('./src/steps'); steps.importAirtableData(require ('./src/config/extract-configuration-from-environment')())"
 ```
 
 ##### Enrichissement
@@ -209,6 +207,14 @@ keys bull:*
 
 Connectez-vous au CLI Bull pour suivre l'avancement.
 
+Pour se connecter via Scalingo, utiliser le connect avec les 4 options ci-dessous.
+connect [options] <queue>
+    -h, --host <host>      Redis host for connection
+    -p, --port <port>      Redis port for connection
+    -d, --db <db>          Redis db for connection
+    --password <password>  Redis password for connection
+Puis saisir le nom de la queue.
+
 Pour la réplication par dump
 ```shell
 bull-repl
@@ -230,9 +236,9 @@ connect "Airtable replication queue"
 stats
 ```
 
-Vous obtenez, par exemple 
+Vous obtenez, par exemple
 - en cours d'exécution d'un traitement
-- après 14 exécution avec succès 
+- après 14 exécutions avec succès
 
 ```shell
 ┌───────────┬────────┐
@@ -251,12 +257,12 @@ Vous obtenez, par exemple
 ## Tests
 Une partie du code n'est pas testable de manière automatisée.
 Elle consiste en la récupération du backup.
-Il est donc important d'effectuer un test manuel en RA avant de merger une PR, même si la CI passe. 
- 
-### Manuels 
+Il est donc important d'effectuer un test manuel en RA avant de merger une PR, même si la CI passe.
+
+### Manuels
 
 #### Local
-Récupérer les données Airtable : 
+Récupérer les données Airtable :
 ``` bash
 node -e "steps=require('./src/steps'); steps.importAirtableData();"
 ```
@@ -296,16 +302,16 @@ SELECT id, email FROM "users" LIMIT 5;
 #### Local
 
 ##### Intégration
-Déroulement : 
+Déroulement :
 - une BDD est créée en local sur l'URL `$TEST_POSTGRES_URL` (par défaut : `postgres://postgres@localhost`), instance `pix_replication_test`
 - la table `test_table` est créée et chargée avec 100 000 enregistrements (1 colonne, PK)
-- un export est effectué par `pg_dump --c` dans un dossier temporaire 
+- un export est effectué par `pg_dump --c` dans un dossier temporaire
 - la restauration à tester est appelée depuis `steps.js/restoreBackup`
-- les assertions SQL sont effectuées par un `runSql`, un wrapper autour de `psql` 
+- les assertions SQL sont effectuées par un `runSql`, un wrapper autour de `psql`
 
 _Note :_ le dump Scalingo est créé avec des options `pg_dump` [différentes](https://doc.scalingo.com/databases/postgresql/dump-restore)
 
-- Se connecter à la BDD de test : 
+- Se connecter à la BDD de test :
 ``` bash
 psql postgres://postgres@localhost/pix_replication_test
 ```
@@ -314,26 +320,26 @@ psql postgres://postgres@localhost/pix_replication_test
 La CI exécute l'intégralité des tests (unitaire et intégration).
 
 ## Parser les logs
-L'analyse de ce qui prend du temps est complexe sur les logs brutes s'il y a : 
+L'analyse de ce qui prend du temps est complexe sur les logs brutes s'il y a :
 - plusieurs jobs de restauration (variable d'environnement`PG_RESTORE_JOBS`)
 - beaucoup de tables.
 
-Pour faciliter l'analyse, utilisez le script d'analyse de log. 
+Pour faciliter l'analyse, utilisez le script d'analyse de log.
 
 Étapes :
-* récupérer les logs 
+* récupérer les logs
 ``` bash
 scalingo --region osc-secnum-fr1 --app <NOM_APPLICATION> logs --lines 100000 > logs.txt
 ```
 
 * déterminer la date d'exécution au format `YYYY-MM-DDDD`, par exemple : `2020-10-13`
 
-* exécuter 
+* exécuter
 ``` bash
 node utils/parse-replication-logs.js ./logs.txt <DATE_EXECUTION>
 ```
 
-Exemples de résultat sur `pix-datawarehouse-production` le 22/10/2020 
+Exemples de résultat sur `pix-datawarehouse-production` le 22/10/2020
 ```  bash
 node utils/parse-replication-logs.js ./logs.txt 2020-10-22
 ```
@@ -365,7 +371,7 @@ TABLE DATA total duration : 4h 8min 7s
 	TABLE DATA answers : 0h 46min 55s
 ```
 
-S'il y a eu : 
+S'il y a eu :
 - plusieurs exécutions le même jour
 - une exécution incomplète (pas de message `Start restore` ou `Restore done`)
 
