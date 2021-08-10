@@ -105,7 +105,7 @@ function _addQueueEventsListeners(queue) {
 }
 
 function hasIncremental(configuration) {
-  const incrementalTables = steps.getIncrementalTables(configuration);
+  const incrementalTables = steps.getTablesWithReplicationModes(configuration, [steps.REPLICATION_MODE.INCREMENTAL]);
   return incrementalTables.length > 0;
 }
 

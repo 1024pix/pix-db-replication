@@ -11,6 +11,11 @@ const toPairs = require('lodash/toPairs');
 
 const RESTORE_LIST_FILENAME = 'restore.list';
 
+const REPLICATION_MODE = {
+  INCREMENTAL: 'incremental',
+  TO_EXCLUDE: 'none',
+};
+
 function execShell(cmdline) {
   return execa(cmdline, { stdio: 'inherit', shell: true });
 }
@@ -44,9 +49,9 @@ async function pgclientSetup(configuration) {
 
 async function dropCurrentObjects(configuration) {
   // TODO: pass DATABASE_URL by argument
-  const incrementalTables = getIncrementalTables(configuration);
-  if (incrementalTables.length > 0) {
-    return dropCurrentObjectsExceptTables(configuration.DATABASE_URL, incrementalTables);
+  const tablesToDrop = getTablesWithReplicationModes(configuration, [REPLICATION_MODE.INCREMENTAL, REPLICATION_MODE.TO_EXCLUDE]);
+  if (tablesToDrop.length > 0) {
+    return dropCurrentObjectsExceptTables(configuration.DATABASE_URL, tablesToDrop);
   }
   else return exec('psql', [ configuration.DATABASE_URL, ' --echo-all', '--set', 'ON_ERROR_STOP=on', '--command', 'DROP OWNED BY CURRENT_USER CASCADE' ]);
 }
@@ -94,9 +99,9 @@ async function createBackup(configuration) {
   const backupFilename = './dump.pgsql';
 
   let excludeOptions = [];
-  const incrementalTables = getIncrementalTables(configuration);
-  if (incrementalTables.length > 0) {
-    excludeOptions = incrementalTables.reduce((excludeTablesOptions, tableName) => [...excludeTablesOptions, '--exclude-table', tableName], []);
+  const tablesToExcludeFromBackup = getTablesWithReplicationModes(configuration, [REPLICATION_MODE.INCREMENTAL, REPLICATION_MODE.TO_EXCLUDE]);
+  if (tablesToExcludeFromBackup.length > 0) {
+    excludeOptions = tablesToExcludeFromBackup.reduce((excludeTablesOptions, tableName) => [...excludeTablesOptions, '--exclude-table', tableName], []);
   }
 
   const verboseOptions = process.env.NODE_ENV === 'test' ? [] : ['--verbose'];
@@ -173,10 +178,10 @@ function _filterObjectLines(objectLines, configuration) {
     patternsToFilter.push('FK CONSTRAINT');
   }
 
-  const incrementalTables = getIncrementalTables(configuration);
-  if (incrementalTables.length > 0) {
+  const tablesToFilterFromBackupRestore = getTablesWithReplicationModes(configuration, [REPLICATION_MODE.INCREMENTAL, REPLICATION_MODE.TO_EXCLUDE]);
+  if (tablesToFilterFromBackupRestore.length > 0) {
     const prepareTableNameForRegex = (tableName) => tableName.split(/[-_]/).join('[-_]');
-    const tableNamesForRegex = incrementalTables.map(prepareTableNameForRegex);
+    const tableNamesForRegex = tablesToFilterFromBackupRestore.map(prepareTableNameForRegex);
     patternsToFilter.push(...tableNamesForRegex);
   }
 
@@ -185,10 +190,10 @@ function _filterObjectLines(objectLines, configuration) {
   return objectLines.filter((line) => !new RegExp(regexp).test(line));
 }
 
-function getIncrementalTables(configuration) {
+function getTablesWithReplicationModes(configuration, modes = []) {
   const tablePairs = toPairs(configuration.BACKUP_MODE);
   return tablePairs
-    .filter(([_, mode]) => mode === 'incremental')
+    .filter(([_, mode]) => modes.includes(mode))
     .map(([tableName, _]) => tableName);
 }
 
@@ -198,8 +203,9 @@ module.exports = {
   createBackup,
   dropObjectAndRestoreBackup,
   fullReplicationAndEnrichment,
-  getIncrementalTables,
+  getTablesWithReplicationModes,
   importAirtableData,
   pgclientSetup,
   restoreBackup,
+  REPLICATION_MODE,
 };
