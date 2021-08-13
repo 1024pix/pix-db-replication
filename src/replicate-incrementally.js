@@ -1,7 +1,7 @@
 'use strict';
 
 const execa = require('execa');
-const { getIncrementalTables } = require('./steps');
+const { getTablesWithReplicationModes, REPLICATION_MODE } = require('./steps');
 
 const logger = require('./logger');
 
@@ -15,7 +15,7 @@ function escapeSQLIdentifier(identifier) {
 }
 
 async function run(configuration) {
-  const incrementalTables = getIncrementalTables(configuration);
+  const incrementalTables = getTablesWithReplicationModes(configuration, [REPLICATION_MODE.INCREMENTAL]);
   if (incrementalTables.length === 0) {
     logger.info('Exit because BACKUP_MODE is not incremental');
     return;

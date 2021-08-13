@@ -86,6 +86,42 @@ describe('Unit | steps.js', () => {
       });
     });
 
+    context('when anwers, knowledge elements and knowledge element snapshots are not restored', () => {
+      it('should not backup answers, knowledge-elements and knowledge-element-snapshots tables', async () => {
+        // given
+        const configuration = {
+          SOURCE_DATABASE_URL: 'postgresql://source.url',
+          BACKUP_MODE: { 'knowledge-elements': 'none', 'knowledge-element-snapshots': 'none', 'answers': 'none' },
+        };
+
+        // when
+        await createBackup(configuration);
+
+        // then
+        expect(execStub).to.have.been.calledWith(
+          'pg_dump',
+          [
+            '--clean',
+            '--if-exists',
+            '--format', 'c',
+            '--dbname', 'postgresql://source.url',
+            '--no-owner',
+            '--no-privileges',
+            '--no-comments',
+            '--exclude-schema',
+            'information_schema',
+            '--exclude-schema', '\'^pg_*\'',
+            '--file', './dump.pgsql',
+            '--exclude-table', 'knowledge-elements',
+            '--exclude-table', 'knowledge-element-snapshots',
+            '--exclude-table', 'answers',
+          ],
+          { stdio: 'inherit' },
+        );
+
+      });
+    });
+
   });
 
 });

@@ -68,7 +68,7 @@ Dans certains cas, le besoin est de relancer uniquement les opérations de fin d
 
 ##### Import AirTable
 ``` bash
-node -e "steps=require('./src/steps'); steps.importAirtableData(require ('./src/extract-configuration-from-environment')())"
+node -e "steps=require('./src/steps'); steps.importAirtableData(require ('./src/config/extract-configuration-from-environment')())"
 ```
 
 ##### Enrichissement
@@ -123,7 +123,7 @@ RESTORE_FK_CONSTRAINTS=true
 
 Lancer la réplication
 ``` bash
-node -e "steps=require('./src/steps'); steps.fullReplicationAndEnrichment(require ('./src/extract-configuration-from-environment')())"
+node -e "steps=require('./src/steps'); steps.fullReplicationAndEnrichment(require ('./src/config/sextract-configuration-from-environment')())"
 ```
 
 Au bout de 5 minutes, vous devez obtenir le message
@@ -179,7 +179,7 @@ node -e "steps=require('./src/steps'); steps.importAirtableData(require ('./src/
 ##### Enrichissement
 Création index, vues..
 ``` bash
-node -e "steps=require('./src/steps'); steps.addEnrichment(require ('./src/extract-configuration-from-environment')())"
+node -e "steps=require('./src/steps'); steps.addEnrichment(require ('./src/config/extract-configuration-from-environment')())"
 ```
 
 

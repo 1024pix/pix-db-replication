@@ -49,65 +49,122 @@ describe('Integration | steps.js', () => {
       await targetDatabase.dropDatabase();
     });
 
-    it('backup and restore the database without answers, knowledge-elements & knowledge-element-snapshots', async () => {
-      // given
-      const configuration = {
-        SOURCE_DATABASE_URL,
-        TARGET_DATABASE_URL,
-        DATABASE_URL: TARGET_DATABASE_URL,
-        BACKUP_MODE: {
-          'knowledge-elements': 'incremental',
-          'knowledge-element-snapshots': 'incremental',
-          'answers': 'incremental',
-        },
-        PG_RESTORE_JOBS: 1,
-      };
-      sourceDatabase = await Database.create(sourceDatabaseConfig);
-      await createAndFillDatabase(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true });
-      targetDatabase = await Database.create(targetDatabaseConfig);
+    context('when configuration mention tables in incremental backup mode', () => {
 
-      // when
-      await steps.backupAndRestore(configuration);
+      it('should backup and restore the database without answers, knowledge-elements & knowledge-element-snapshots', async () => {
+        // given
+        const configuration = {
+          SOURCE_DATABASE_URL,
+          TARGET_DATABASE_URL,
+          DATABASE_URL: TARGET_DATABASE_URL,
+          BACKUP_MODE: {
+            'knowledge-elements': 'incremental',
+            'knowledge-element-snapshots': 'incremental',
+            'answers': 'incremental',
+          },
+          PG_RESTORE_JOBS: 1,
+        };
+        sourceDatabase = await Database.create(sourceDatabaseConfig);
+        await createAndFillDatabase(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true });
+        targetDatabase = await Database.create(targetDatabaseConfig);
 
-      // then
-      const restoredRowCount = parseInt(await targetDatabase.runSql(`SELECT COUNT(*) FROM ${targetDatabaseConfig.tableName}`));
-      expect(restoredRowCount).to.equal(targetDatabaseConfig.tableRowCount);
+        // when
+        await steps.backupAndRestore(configuration);
 
-      const isAnswersRestored = parseInt(await targetDatabase.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'answers\''));
-      expect(isAnswersRestored).to.equal(0);
+        // then
+        const restoredRowCount = parseInt(await targetDatabase.runSql(`SELECT COUNT(*) FROM ${targetDatabaseConfig.tableName}`));
+        expect(restoredRowCount).to.equal(targetDatabaseConfig.tableRowCount);
 
-      // then
-      const isKnowledgeElementsRestored = parseInt(await targetDatabase.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-elements\''));
-      expect(isKnowledgeElementsRestored).to.equal(0);
+        const isAnswersRestored = parseInt(await targetDatabase.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'answers\''));
+        expect(isAnswersRestored).to.equal(0);
+
+        // then
+        const isKnowledgeElementsRestored = parseInt(await targetDatabase.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-elements\''));
+        expect(isKnowledgeElementsRestored).to.equal(0);
+
+        // then
+        const isKnowledgeElementSnapshotsRestored = parseInt(await targetDatabase.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-element-snapshots\''));
+        expect(isKnowledgeElementSnapshotsRestored).to.equal(0);
+      });
+
     });
 
-    it('backup and restore the database with answers and knowledge-elements ', async () => {
-      // given
-      const configuration = {
-        SOURCE_DATABASE_URL,
-        TARGET_DATABASE_URL,
-        DATABASE_URL: TARGET_DATABASE_URL,
-        BACKUP_MODE: {},
-        PG_RESTORE_JOBS: 1,
-      };
-      sourceDatabase = await Database.create(sourceDatabaseConfig);
-      await createAndFillDatabase(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true });
-      targetDatabase = await Database.create(targetDatabaseConfig);
+    context('when configuration exclude tables', () => {
 
-      // when
-      await steps.backupAndRestore(configuration);
+      it('should backup and restore the database without answers, knowledge-elements & knowledge-element-snapshots', async () => {
+        // given
+        const configuration = {
+          SOURCE_DATABASE_URL,
+          TARGET_DATABASE_URL,
+          DATABASE_URL: TARGET_DATABASE_URL,
+          BACKUP_MODE: {
+            'knowledge-elements': 'none',
+            'knowledge-element-snapshots': 'none',
+            'answers': 'none',
+          },
+          PG_RESTORE_JOBS: 1,
+        };
+        sourceDatabase = await Database.create(sourceDatabaseConfig);
+        await createAndFillDatabase(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true });
+        targetDatabase = await Database.create(targetDatabaseConfig);
 
-      // then
-      const restoredRowCount = parseInt(await targetDatabase.runSql(`SELECT COUNT(*) FROM ${targetDatabaseConfig.tableName}`));
-      expect(restoredRowCount).to.equal(targetDatabaseConfig.tableRowCount);
+        // when
+        await steps.backupAndRestore(configuration);
 
-      const isAnswersRestored = parseInt(await targetDatabase.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'answers\''));
-      expect(isAnswersRestored).to.equal(1);
+        // then
+        const restoredRowCount = parseInt(await targetDatabase.runSql(`SELECT COUNT(*) FROM ${targetDatabaseConfig.tableName}`));
+        expect(restoredRowCount).to.equal(targetDatabaseConfig.tableRowCount);
 
-      // then
-      const isKnowledgeElementsRestored = parseInt(await targetDatabase.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-elements\''));
-      expect(isKnowledgeElementsRestored).to.equal(1);
+        const isAnswersRestored = parseInt(await targetDatabase.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'answers\''));
+        expect(isAnswersRestored).to.equal(0);
+
+        // then
+        const isKnowledgeElementsRestored = parseInt(await targetDatabase.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-elements\''));
+        expect(isKnowledgeElementsRestored).to.equal(0);
+
+        // then
+        const isKnowledgeElementSnapshotsRestored = parseInt(await targetDatabase.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-element-snapshots\''));
+        expect(isKnowledgeElementSnapshotsRestored).to.equal(0);
+      });
+
     });
+
+    context('When backup config table is not present', () => {
+
+      it('should backup and restore the database with answers, knowledge-elements & knowledge-element-snapshots', async () => {
+        // given
+        const configuration = {
+          SOURCE_DATABASE_URL,
+          TARGET_DATABASE_URL,
+          DATABASE_URL: TARGET_DATABASE_URL,
+          BACKUP_MODE: {},
+          PG_RESTORE_JOBS: 1,
+        };
+        sourceDatabase = await Database.create(sourceDatabaseConfig);
+        await createAndFillDatabase(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true });
+        targetDatabase = await Database.create(targetDatabaseConfig);
+
+        // when
+        await steps.backupAndRestore(configuration);
+
+        // then
+        const restoredRowCount = parseInt(await targetDatabase.runSql(`SELECT COUNT(*) FROM ${targetDatabaseConfig.tableName}`));
+        expect(restoredRowCount).to.equal(targetDatabaseConfig.tableRowCount);
+
+        const isAnswersRestored = parseInt(await targetDatabase.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'answers\''));
+        expect(isAnswersRestored).to.equal(1);
+
+        // then
+        const isKnowledgeElementsRestored = parseInt(await targetDatabase.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-elements\''));
+        expect(isKnowledgeElementsRestored).to.equal(1);
+
+        // then
+        const isKnowledgeElementSnapshotsRestored = parseInt(await targetDatabase.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-element-snapshots\''));
+        expect(isKnowledgeElementSnapshotsRestored).to.equal(1);
+      });
+
+    });
+
   });
 
   describe('#restoreBackup', () => {
@@ -159,7 +216,7 @@ describe('Integration | steps.js', () => {
 
       context('table restoration', () => {
 
-        context('if disabled', () => {
+        context('with incremental mode', () => {
 
           let database;
 
@@ -193,11 +250,57 @@ describe('Integration | steps.js', () => {
             const isKnowledgeElementsRestored = parseInt(await database.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-elements\''));
             expect(isKnowledgeElementsRestored).to.equal(0);
 
+            // then
+            const isKnowledgeElementSnapshotsRestored = parseInt(await database.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-element-snapshots\''));
+            expect(isKnowledgeElementSnapshotsRestored).to.equal(0);
+
           });
 
         });
 
-        context('if enabled', () => {
+        context('with none mode', () => {
+
+          let database;
+
+          afterEach(() => {
+            database.dropDatabase();
+          });
+
+          it('should not restore these tables', async function() {
+
+            // given
+            database = await Database.create(databaseConfig);
+            const backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, { createTablesNotToBeImported: true });
+            const configuration = {
+              BACKUP_MODE: {
+                'knowledge-elements': 'incremental',
+                'knowledge-element-snapshots': 'incremental',
+                'answers': 'incremental',
+              },
+              RESTORE_FK_CONSTRAINTS: 'false',
+              PG_RESTORE_JOBS: 4,
+            };
+
+            // when
+            await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl, configuration });
+
+            // then
+            const isAnswersRestored = parseInt(await database.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'answers\''));
+            expect(isAnswersRestored).to.equal(0);
+
+            // then
+            const isKnowledgeElementsRestored = parseInt(await database.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-elements\''));
+            expect(isKnowledgeElementsRestored).to.equal(0);
+
+            // then
+            const isKnowledgeElementSnapshotsRestored = parseInt(await database.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-element-snapshots\''));
+            expect(isKnowledgeElementSnapshotsRestored).to.equal(0);
+
+          });
+
+        });
+
+        context('with default mode', () => {
 
           let database;
 
@@ -226,6 +329,10 @@ describe('Integration | steps.js', () => {
             // then
             const isKnowledgeElementsRestored = parseInt(await database.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-elements\''));
             expect(isKnowledgeElementsRestored).to.equal(1);
+
+            // then
+            const isKnowledgeElementSnapshotsRestored = parseInt(await database.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-element-snapshots\''));
+            expect(isKnowledgeElementSnapshotsRestored).to.equal(1);
           });
 
         });
