@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v1.18.0 (13/08/2021)
+
+- [#96](https://github.com/1024pix/pix-db-replication/pull/96) [FEATURE] Importer des attributs du référentiel (acquis, épreuves, tutoriel) (PIX-2567).
+- [#98](https://github.com/1024pix/pix-db-replication/pull/98) [BUGFIX] Exclure des tables lors de la réplication complète.
+- [#97](https://github.com/1024pix/pix-db-replication/pull/97) [TECH] Gérer le choix des tables de réplication via une configuration externalisée.
+
 ## v1.17.0 (23/06/2021)
 
 - [#95](https://github.com/1024pix/pix-db-replication/pull/95) [TECH] Prévenir la mention de comptes dans les logs.
