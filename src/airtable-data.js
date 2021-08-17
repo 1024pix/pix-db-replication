@@ -84,6 +84,8 @@ const tables = [{
     { name: 'alternativeInstruction', type: 'text', airtableName: 'Consigne alternative' },
     { name: 'hasAlternativeInstruction', type: 'boolean', extractor: (record) => !!record.get('Consigne alternative') },
     { name: 'area', type: 'text', airtableName: 'Géographie' },
+    { name: 'focus', type: 'boolean', airtableName: 'Focalisée' },
+    { name: 'explicativeResponse', type: 'text', airtableName: 'Bonnes réponses à afficher' },
   ],
   airtableId: 'id persistant',
   indices: ['firstSkillId'],
