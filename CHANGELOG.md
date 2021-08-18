@@ -1,5 +1,9 @@
 # pix-db-replication Changelog
 
+## v1.19.0 (18/08/2021)
+
+- [#99](https://github.com/1024pix/pix-db-replication/pull/99) [FEATURE] Ajouts de colonnes sur Challenges.
+
 ## v1.18.0 (13/08/2021)
 
 - [#96](https://github.com/1024pix/pix-db-replication/pull/96) [FEATURE] Importer des attributs du référentiel (acquis, épreuves, tutoriel) (PIX-2567).
