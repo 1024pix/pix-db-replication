@@ -48,4 +48,27 @@ describe('Integration | db-connection.js', () => {
     });
   });
 
+  describe('#createTable', function() {
+    it('should create a table', async function() {
+      const tableStructure = {
+        name: 'competences',
+        fields: [
+          { name: 'name', type: 'text', airtableName: 'Référence' },
+          { name: 'areaId', type: 'text', airtableName: 'Domaine (id persistant)', isArray: false },
+        ],
+        indices: ['areaId'],
+      };
+      const tableName = tableStructure.name;
+
+      await dbConnection.createTable(tableStructure, databaseConfig);
+
+      const tableExists = await database.hasTable(tableName);
+      expect(tableExists).to.equal(true);
+      const columnNamesAsString = await database.runSql(`SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '${tableName}';`);
+      expect(columnNamesAsString.split('\n').length).to.equal(3);
+      const indexesAsString = await database.runSql(`SELECT * FROM pg_indexes WHERE tablename = '${tableName}';`);
+      expect(indexesAsString.split('\n').length).to.equal(2);
+    });
+  });
+
 });

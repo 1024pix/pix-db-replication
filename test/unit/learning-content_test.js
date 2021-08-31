@@ -17,6 +17,7 @@ describe('Unit | learning-content.js', () => {
         }],
       };
       sinon.stub(dbConnection, 'dropTable').resolves();
+      sinon.stub(dbConnection, 'createTable').resolves();
       sinon.stub(lcms, 'getLearningContent').resolves(content);
 
       await learningContent.fetchAndSaveData(databaseConfig);
@@ -36,6 +37,10 @@ describe('Unit | learning-content.js', () => {
       expect(dbConnection.dropTable).to.have.been.calledWith('challenges');
       expect(dbConnection.dropTable).to.have.been.calledWith('courses');
       expect(dbConnection.dropTable).to.have.been.calledWith('tutorials');
+    });
+
+    it('should create learning-content tables', async() => {
+      expect(dbConnection.createTable.callCount).to.equal(8);
     });
   });
 });

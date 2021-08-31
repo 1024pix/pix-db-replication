@@ -98,6 +98,7 @@ const tables = [{
 async function fetchAndSaveData(configuration) {
   await Promise.all(tables.map(async (table) => {
     await dbConnection.dropTable(table.name, configuration);
+    await dbConnection.createTable(table, configuration);
   }));
   return lcms.getLearningContent(configuration);
 }
