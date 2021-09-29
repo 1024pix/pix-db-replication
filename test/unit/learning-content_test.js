@@ -18,6 +18,7 @@ describe('Unit | learning-content.js', () => {
       };
       sinon.stub(dbConnection, 'dropTable').resolves();
       sinon.stub(dbConnection, 'createTable').resolves();
+      sinon.stub(dbConnection, 'saveLearningContent').resolves();
       sinon.stub(lcms, 'getLearningContent').resolves(content);
 
       await learningContent.fetchAndSaveData(databaseConfig);
@@ -41,6 +42,10 @@ describe('Unit | learning-content.js', () => {
 
     it('should create learning-content tables', async() => {
       expect(dbConnection.createTable.callCount).to.equal(8);
+    });
+
+    it('should insert learning-content data', async() => {
+      expect(dbConnection.saveLearningContent.callCount).to.equal(8);
     });
   });
 });

@@ -1,7 +1,8 @@
 const pgUrlParser = require('pg-connection-string').parse;
 const { expect } = require('chai');
+const _ = require('lodash');
 const Database = require('../utils/database');
-
+const mockLcmsGetAirtable = require('../utils/mock-lcms-get-airtable');
 const dbConnection = require('../../src/db-connection');
 
 describe('Integration | db-connection.js', () => {
@@ -53,8 +54,8 @@ describe('Integration | db-connection.js', () => {
       const tableStructure = {
         name: 'competences',
         fields: [
-          { name: 'name', type: 'text', airtableName: 'Référence' },
-          { name: 'areaId', type: 'text', airtableName: 'Domaine (id persistant)', isArray: false },
+          { name: 'name', type: 'text' },
+          { name: 'areaId', type: 'text', isArray: false },
         ],
         indices: ['areaId'],
       };
@@ -69,6 +70,49 @@ describe('Integration | db-connection.js', () => {
       const indexesAsString = await database.runSql(`SELECT * FROM pg_indexes WHERE tablename = '${tableName}';`);
       expect(indexesAsString.split('\n').length).to.equal(2);
     });
+  });
+
+  describe('#saveTableData', function() {
+
+    beforeEach(async function() {
+      await database.runSql(`
+        CREATE TABLE "challenges"(
+          "id" text PRIMARY KEY,
+          "instructions" text,
+          "timer" smallint,
+          "autoReply" boolean,
+          "skillIds" text [],
+          "skillCount" smallint,
+          "firstSkillId" text
+        )
+      `);
+    });
+
+    it('should insert data into table', async function() {
+      const table = {
+        name: 'challenges',
+        fields: [
+          { name: 'instructions', type: 'text' },
+          { name: 'timer', type: 'smallint' },
+          { name: 'autoReply', type: 'boolean' },
+          { name: 'skillIds', type: 'text []', isArray: true },
+          { name: 'skillCount', type: 'smallint', extractor: (record) => _.size(record['skillIds']) },
+          { name: 'firstSkillId', type: 'text', extractor: (record) => _.get(record['skillIds'], 0) },
+        ],
+        indices: ['firstSkillId'],
+      };
+      const fullLearningContent = mockLcmsGetAirtable();
+      const learningContent = fullLearningContent[table.name];
+
+      await dbConnection.saveLearningContent(table, learningContent, databaseConfig);
+
+      const challengesCount = await database.runSql('select count(*) from "challenges"');
+      expect(challengesCount).to.equal('7');
+      const skillIdsCount = await database.runSql('select array_length("skillIds", 1) from "challenges"');
+      const skillCount = await database.runSql('select "skillCount" from "challenges"');
+      expect(skillIdsCount).to.deep.equal(skillCount);
+    });
+
   });
 
 });

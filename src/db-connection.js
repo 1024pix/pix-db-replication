@@ -34,8 +34,32 @@ async function createTable(tableStructure, configuration) {
   }, configuration);
 }
 
+async function saveLearningContent(table, learningContent, configuration) {
+  if (learningContent.length) {
+    await runDBOperation(async (client) => {
+      const fieldNames = ['id'].concat(table.fields.map((field) => field.name));
+      const fieldsStructure = [{ name: 'id' }].concat(table.fields);
+      const values = learningContent.map((learningContentItem) => fieldsStructure.map((fieldStructure) => {
+        return _prepareLearningContentValueBeforeInsertion(learningContentItem, fieldStructure);
+      }));
+      const saveQuery = format('INSERT INTO %I (%I) VALUES %L', table.name, fieldNames, values);
+      await client.query(saveQuery);
+    }, configuration);
+  }
+}
+
+function _prepareLearningContentValueBeforeInsertion(learningContentItem, fieldStructure) {
+  const learningContentValue = learningContentItem[fieldStructure.name];
+  const value = fieldStructure.extractor ? fieldStructure.extractor(learningContentItem) : learningContentValue;
+  if (!Array.isArray(value)) {
+    return value;
+  }
+  return fieldStructure.isArray ? `{${value.join(',')}}` : value[0];
+}
+
 module.exports = {
   createTable,
   dropTable,
   runDBOperation,
+  saveLearningContent,
 };
