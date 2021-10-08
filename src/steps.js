@@ -4,7 +4,7 @@
 const execa = require('execa');
 const fs = require('fs');
 
-const airtableData = require('./airtable-data');
+const learningContent = require('./learning-content');
 const enrichment = require('./enrichment');
 const logger = require('./logger');
 const toPairs = require('lodash/toPairs');
@@ -135,10 +135,10 @@ async function dropObjectAndRestoreBackup(backupFile, configuration) {
   logger.info('End restore Backup');
 }
 
-async function importAirtableData(configuration) {
-  logger.info('airtableData.fetchAndSaveData - Started');
-  await airtableData.fetchAndSaveData(configuration);
-  logger.info('airtableData.fetchAndSaveData - Ended');
+async function importLearningContent(configuration) {
+  logger.info('learningContent.fetchAndSaveData - Started');
+  await learningContent.fetchAndSaveData(configuration);
+  logger.info('learningContent.fetchAndSaveData - Ended');
 }
 
 async function addEnrichment(configuration) {
@@ -204,7 +204,7 @@ module.exports = {
   dropObjectAndRestoreBackup,
   fullReplicationAndEnrichment,
   getTablesWithReplicationModes,
-  importAirtableData,
+  importLearningContent,
   pgclientSetup,
   restoreBackup,
   REPLICATION_MODE,

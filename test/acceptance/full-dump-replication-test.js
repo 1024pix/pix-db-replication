@@ -1,10 +1,12 @@
-const { expect } = require('chai');
 const { after, before, describe, it } = require('mocha');
 const { createAndFillDatabase } = require('../integration/test-helper');
-const Database = require('../utils/database');
 const pgUrlParser = require('pg-connection-string').parse;
 
+const Database = require('../utils/database');
+const { expect, sinon } = require('../test-helper');
+const mockLcmsGetAirtable = require('../utils/mock-lcms-get-airtable');
 const steps = require('../../src/steps');
+const lcms = require('../../src/lcms');
 
 async function getCountFromTable({ targetDatabase, tableName }) {
   return parseInt(await targetDatabase.runSql(`SELECT COUNT(*) FROM ${tableName}`));
@@ -29,8 +31,6 @@ describe('Acceptance | steps | fullReplicationAndEnrichment', () => {
     DATABASE_URL: TARGET_DATABASE_URL,
     BACKUP_MODE: {},
     PG_RESTORE_JOBS: 1,
-    AIRTABLE_API_KEY: 'keyblo10ZCvCqBAJg',
-    AIRTABLE_BASE: 'app3fvsqhtHJntXaC',
   };
 
   before(async function() {
@@ -96,49 +96,55 @@ describe('Acceptance | steps | fullReplicationAndEnrichment', () => {
     });
   });
 
-  describe('should import Airtable data', () => {
-    before(() => steps.importAirtableData(configuration));
+  describe('should import learning content', () => {
+    let fullLearningContent;
+    before(async function() {
+      fullLearningContent = mockLcmsGetAirtable();
+      sinon.stub(lcms, 'getLearningContent').resolves(fullLearningContent);
+
+      await steps.importLearningContent(configuration);
+    });
 
     it('should import areas ', async () => {
       // then
       const result = await getCountFromTable({ targetDatabase, tableName: 'areas' });
-      expect(result).to.be.above(0);
+      expect(result).to.equal(fullLearningContent.areas.length);
     });
 
     it('should import attachments ', async () => {
       // then
       const result = await getCountFromTable({ targetDatabase, tableName: 'attachments' });
-      expect(result).to.be.above(0);
+      expect(result).to.equal(fullLearningContent.attachments.length);
     });
 
     it('should import competences ', async () => {
       // then
       const result = await getCountFromTable({ targetDatabase, tableName: 'competences' });
-      expect(result).to.be.above(0);
+      expect(result).to.equal(fullLearningContent.competences.length);
     });
 
     it('should import tubes ', async () => {
       // then
       const result = await getCountFromTable({ targetDatabase, tableName: 'tubes' });
-      expect(result).to.be.above(0);
+      expect(result).to.equal(fullLearningContent.tubes.length);
     });
 
     it('should import skills ', async () => {
       // then
       const result = await getCountFromTable({ targetDatabase, tableName: 'skills' });
-      expect(result).to.be.above(0);
+      expect(result).to.equal(fullLearningContent.skills.length);
     });
 
     it('should import challenges ', async () => {
       // then
       const result = await getCountFromTable({ targetDatabase, tableName: 'challenges' });
-      expect(result).to.be.above(0);
+      expect(result).to.equal(fullLearningContent.challenges.length);
     });
 
     it('should import tutorials ', async () => {
       // then
       const result = await getCountFromTable({ targetDatabase, tableName: 'tutorials' });
-      expect(result).to.be.above(0);
+      expect(result).to.equal(fullLearningContent.tutorials.length);
     });
   });
 

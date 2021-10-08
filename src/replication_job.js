@@ -35,7 +35,7 @@ async function main() {
   });
 
   airtableReplicationQueue.process(async function() {
-    await steps.importAirtableData(configuration);
+    await steps.importLearningContent(configuration);
     logger.info('Import and enrichment done');
   });
 
