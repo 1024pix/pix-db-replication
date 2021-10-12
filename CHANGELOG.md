@@ -1,5 +1,10 @@
 # pix-db-replication Changelog
 
+## v1.20.0 (12/10/2021)
+
+- [#100](https://github.com/1024pix/pix-db-replication/pull/100) [TECH] Scripts pour démarrer la réplication
+- [#101](https://github.com/1024pix/pix-db-replication/pull/101) [TECH] Utiliser la bonne colonne airtable pour le nom des compétences.
+
 ## v1.19.0 (18/08/2021)
 
 - [#99](https://github.com/1024pix/pix-db-replication/pull/99) [FEATURE] Ajouts de colonnes sur Challenges.
