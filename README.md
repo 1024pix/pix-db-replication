@@ -49,18 +49,18 @@ Deux traitements (dump et incrémentale) sont exécutés chaque nuit
 
 Lancer la réplication par dump
 ``` bash
-scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-production --size M --detached node ./src/run.js
+scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-production --size M --detached npm run restart:full-replication
 ```
 
 Lancer la réplication incrémentale
 ``` bash
-scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-production --size M --detached node ./src/run-replicate-incrementally.js
+scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-production --size M --detached npm run restart:incremental-airtable-replication
 ```
 
 #### Sur la BDD destinée aux externes
 Lancer la réplication par dump
 ``` bash
-scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-ex-production --size M --detached node ./src/run.js
+scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-ex-production --size M --detached npm run restart:full-replication
 ```
 
 #### Exécution partielle
@@ -68,7 +68,7 @@ Dans certains cas, le besoin est de relancer uniquement les opérations de fin d
 
 ##### Import AirTable
 ``` bash
-node -e "steps=require('./src/steps'); steps.importAirtableData(require ('./src/config/extract-configuration-from-environment')())"
+scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-production --size M --detached npm run restart:airtable-replication
 ```
 
 ##### Enrichissement
