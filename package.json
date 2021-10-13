@@ -14,8 +14,8 @@
     "local:create-databases": "./local-setup/script/create-databases.sh",
     "local:load-databases": "./local-setup/script/load-databases.sh",
     "restart:full-replication": "node scripts/restart-replication-job.js 'Replication queue'",
-    "restart:incremental-airtable-replication": "node scripts/restart-replication-job.js 'Incremental replication queue'",
-    "restart:airtable-replication": "node scripts/restart-replication-job.js 'Airtable replication queue'",
+    "restart:incremental-learning-content-replication": "node scripts/restart-replication-job.js 'Incremental replication queue'",
+    "restart:learning-content-replication": "node scripts/restart-replication-job.js 'Learning Content replication queue'",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "preinstall": "npx check-engine",
@@ -32,7 +32,6 @@
   "main": "replication_job.js",
   "dependencies": {
     "@sentry/node": "^6.1.0",
-    "airtable": "^0.10.1",
     "axios": "^0.21.1",
     "bull": "^3.20.0",
     "bunyan": "^1.8.14",
