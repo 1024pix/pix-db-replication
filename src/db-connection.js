@@ -1,6 +1,8 @@
 const { Client } = require('pg');
 const format = require('pg-format');
 
+const { PrimaryKeyNotNullConstraintError } = require('./errors');
+
 async function runDBOperation(callback, configuration) {
   const client = new Client({
     connectionString: configuration.DATABASE_URL,
@@ -38,14 +40,22 @@ async function saveLearningContent(table, learningContent, configuration) {
   if (learningContent.length) {
     await runDBOperation(async (client) => {
       const fieldNames = ['id'].concat(table.fields.map((field) => field.name));
-      const fieldsStructure = [{ name: 'id' }].concat(table.fields);
-      const values = learningContent.map((learningContentItem) => fieldsStructure.map((fieldStructure) => {
-        return _prepareLearningContentValueBeforeInsertion(learningContentItem, fieldStructure);
-      }));
-      const saveQuery = format('INSERT INTO %I (%I) VALUES %L', table.name, fieldNames, values);
-      await client.query(saveQuery);
+      const values = _computeValuesToInsert(table, learningContent);
+      if (_allValuesHavePrimaryKey(values)) {
+        await _insertValues(table.name, fieldNames, values, client);
+      }
+      else {
+        throw new PrimaryKeyNotNullConstraintError(table.name);
+      }
     }, configuration);
   }
+}
+
+function _computeValuesToInsert(table, learningContent) {
+  const fieldsStructure = [{ name: 'id' }].concat(table.fields);
+  return learningContent.map((learningContentItem) => fieldsStructure.map((fieldStructure) => {
+    return _prepareLearningContentValueBeforeInsertion(learningContentItem, fieldStructure);
+  }));
 }
 
 function _prepareLearningContentValueBeforeInsertion(learningContentItem, fieldStructure) {
@@ -55,6 +65,18 @@ function _prepareLearningContentValueBeforeInsertion(learningContentItem, fieldS
     return value;
   }
   return fieldStructure.isArray ? `{${value.join(',')}}` : value[0];
+}
+
+function _allValuesHavePrimaryKey(values) {
+  return !values.some(function(value) {
+    const primaryKey = value[0];
+    return primaryKey == null;
+  });
+}
+
+async function _insertValues(tableName, fieldNames, values, client) {
+  const saveQuery = format('INSERT INTO %I (%I) VALUES %L', tableName, fieldNames, values);
+  await client.query(saveQuery);
 }
 
 module.exports = {

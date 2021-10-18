@@ -1,9 +1,10 @@
 const pgUrlParser = require('pg-connection-string').parse;
-const { expect } = require('chai');
 const _ = require('lodash');
+const { expect, catchErr } = require('../test-helper');
 const Database = require('../utils/database');
 const mockLcmsGetAirtable = require('../utils/mock-lcms-get-airtable');
 const dbConnection = require('../../src/db-connection');
+const { PrimaryKeyNotNullConstraintError } = require('../../src/errors');
 
 describe('Integration | db-connection.js', () => {
 
@@ -111,6 +112,29 @@ describe('Integration | db-connection.js', () => {
       const skillIdsCount = await database.runSql('select array_length("skillIds", 1) from "challenges"');
       const skillCount = await database.runSql('select "skillCount" from "challenges"');
       expect(skillIdsCount).to.deep.equal(skillCount);
+    });
+
+    it('should throw an error if the data to be inserted has no primary key', async function() {
+      const table = {
+        name: 'challenges',
+        fields: [
+          { name: 'instructions', type: 'text' },
+          { name: 'timer', type: 'smallint' },
+          { name: 'autoReply', type: 'boolean' },
+          { name: 'skillIds', type: 'text []', isArray: true },
+          { name: 'skillCount', type: 'smallint', extractor: (record) => _.size(record['skillIds']) },
+          { name: 'firstSkillId', type: 'text', extractor: (record) => _.get(record['skillIds'], 0) },
+        ],
+        indices: ['firstSkillId'],
+      };
+      const fullLearningContent = {
+        challenges: [{}],
+      };
+      const learningContent = fullLearningContent[table.name];
+
+      const error = await catchErr(dbConnection.saveLearningContent)(table, learningContent, databaseConfig);
+
+      expect(error).to.be.instanceof(PrimaryKeyNotNullConstraintError);
     });
 
   });
