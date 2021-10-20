@@ -1,4 +1,6 @@
-extends: 'eslint:recommended'
+extends:
+  - 'eslint:recommended'
+  - 'plugin:prettier/recommended'
 
 overrides:
   - files:
