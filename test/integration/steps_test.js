@@ -7,7 +7,6 @@ const fs = require('fs');
 const steps = require('../../src/steps');
 
 describe('Integration | steps.js', () => {
-
   describe('#backupAndRestore', () => {
     // CircleCI set up environment variables to access DB, so we need to read them here
     // eslint-disable-next-line no-process-env
@@ -19,7 +18,7 @@ describe('Integration | steps.js', () => {
     let sourceDatabaseConfig;
     let targetDatabaseConfig;
 
-    before(async() => {
+    before(async () => {
       const rawSourceDataBaseConfig = pgUrlParser(SOURCE_DATABASE_URL);
 
       sourceDatabaseConfig = {
@@ -41,7 +40,6 @@ describe('Integration | steps.js', () => {
       };
 
       targetDatabaseConfig.databaseUrl = `${targetDatabaseConfig.serverUrl}/${targetDatabaseConfig.databaseName}`;
-
     });
 
     afterEach(async function() {
@@ -50,7 +48,6 @@ describe('Integration | steps.js', () => {
     });
 
     context('when configuration mention tables in incremental backup mode', () => {
-
       it('should backup and restore the database without answers, knowledge-elements & knowledge-element-snapshots', async () => {
         // given
         const configuration = {
@@ -60,7 +57,7 @@ describe('Integration | steps.js', () => {
           BACKUP_MODE: {
             'knowledge-elements': 'incremental',
             'knowledge-element-snapshots': 'incremental',
-            'answers': 'incremental',
+            answers: 'incremental',
           },
           PG_RESTORE_JOBS: 1,
         };
@@ -72,25 +69,37 @@ describe('Integration | steps.js', () => {
         await steps.backupAndRestore(configuration);
 
         // then
-        const restoredRowCount = parseInt(await targetDatabase.runSql(`SELECT COUNT(*) FROM ${targetDatabaseConfig.tableName}`));
+        const restoredRowCount = parseInt(
+          await targetDatabase.runSql(`SELECT COUNT(*) FROM ${targetDatabaseConfig.tableName}`),
+        );
         expect(restoredRowCount).to.equal(targetDatabaseConfig.tableRowCount);
 
-        const isAnswersRestored = parseInt(await targetDatabase.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'answers\''));
+        const isAnswersRestored = parseInt(
+          await targetDatabase.runSql(
+            'SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'answers\''
+          ),
+        );
         expect(isAnswersRestored).to.equal(0);
 
         // then
-        const isKnowledgeElementsRestored = parseInt(await targetDatabase.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-elements\''));
+        const isKnowledgeElementsRestored = parseInt(
+          await targetDatabase.runSql(
+            'SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-elements\''
+          ),
+        );
         expect(isKnowledgeElementsRestored).to.equal(0);
 
         // then
-        const isKnowledgeElementSnapshotsRestored = parseInt(await targetDatabase.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-element-snapshots\''));
+        const isKnowledgeElementSnapshotsRestored = parseInt(
+          await targetDatabase.runSql(
+            'SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-element-snapshots\''
+          ),
+        );
         expect(isKnowledgeElementSnapshotsRestored).to.equal(0);
       });
-
     });
 
     context('when configuration exclude tables', () => {
-
       it('should backup and restore the database without answers, knowledge-elements & knowledge-element-snapshots', async () => {
         // given
         const configuration = {
@@ -100,7 +109,7 @@ describe('Integration | steps.js', () => {
           BACKUP_MODE: {
             'knowledge-elements': 'none',
             'knowledge-element-snapshots': 'none',
-            'answers': 'none',
+            answers: 'none',
           },
           PG_RESTORE_JOBS: 1,
         };
@@ -112,25 +121,37 @@ describe('Integration | steps.js', () => {
         await steps.backupAndRestore(configuration);
 
         // then
-        const restoredRowCount = parseInt(await targetDatabase.runSql(`SELECT COUNT(*) FROM ${targetDatabaseConfig.tableName}`));
+        const restoredRowCount = parseInt(
+          await targetDatabase.runSql(`SELECT COUNT(*) FROM ${targetDatabaseConfig.tableName}`),
+        );
         expect(restoredRowCount).to.equal(targetDatabaseConfig.tableRowCount);
 
-        const isAnswersRestored = parseInt(await targetDatabase.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'answers\''));
+        const isAnswersRestored = parseInt(
+          await targetDatabase.runSql(
+            'SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'answers\''
+          ),
+        );
         expect(isAnswersRestored).to.equal(0);
 
         // then
-        const isKnowledgeElementsRestored = parseInt(await targetDatabase.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-elements\''));
+        const isKnowledgeElementsRestored = parseInt(
+          await targetDatabase.runSql(
+            'SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-elements\''
+          ),
+        );
         expect(isKnowledgeElementsRestored).to.equal(0);
 
         // then
-        const isKnowledgeElementSnapshotsRestored = parseInt(await targetDatabase.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-element-snapshots\''));
+        const isKnowledgeElementSnapshotsRestored = parseInt(
+          await targetDatabase.runSql(
+            'SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-element-snapshots\''
+          ),
+        );
         expect(isKnowledgeElementSnapshotsRestored).to.equal(0);
       });
-
     });
 
     context('When backup config table is not present', () => {
-
       it('should backup and restore the database with answers, knowledge-elements & knowledge-element-snapshots', async () => {
         // given
         const configuration = {
@@ -148,27 +169,38 @@ describe('Integration | steps.js', () => {
         await steps.backupAndRestore(configuration);
 
         // then
-        const restoredRowCount = parseInt(await targetDatabase.runSql(`SELECT COUNT(*) FROM ${targetDatabaseConfig.tableName}`));
+        const restoredRowCount = parseInt(
+          await targetDatabase.runSql(`SELECT COUNT(*) FROM ${targetDatabaseConfig.tableName}`),
+        );
         expect(restoredRowCount).to.equal(targetDatabaseConfig.tableRowCount);
 
-        const isAnswersRestored = parseInt(await targetDatabase.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'answers\''));
+        const isAnswersRestored = parseInt(
+          await targetDatabase.runSql(
+            'SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'answers\''
+          ),
+        );
         expect(isAnswersRestored).to.equal(1);
 
         // then
-        const isKnowledgeElementsRestored = parseInt(await targetDatabase.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-elements\''));
+        const isKnowledgeElementsRestored = parseInt(
+          await targetDatabase.runSql(
+            'SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-elements\''
+          ),
+        );
         expect(isKnowledgeElementsRestored).to.equal(1);
 
         // then
-        const isKnowledgeElementSnapshotsRestored = parseInt(await targetDatabase.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-element-snapshots\''));
+        const isKnowledgeElementSnapshotsRestored = parseInt(
+          await targetDatabase.runSql(
+            'SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-element-snapshots\''
+          ),
+        );
         expect(isKnowledgeElementSnapshotsRestored).to.equal(1);
       });
-
     });
-
   });
 
   describe('#restoreBackup', () => {
-
     // CircleCI set up environment variables to access DB, so we need to read them here
     // eslint-disable-next-line no-process-env
     const DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://postgres@localhost:5432/replication_target';
@@ -184,7 +216,6 @@ describe('Integration | steps.js', () => {
     databaseConfig.databaseUrl = `${databaseConfig.serverUrl}/${databaseConfig.databaseName}`;
 
     context('whatever options are provided', () => {
-
       let database;
 
       afterEach(() => {
@@ -206,18 +237,16 @@ describe('Integration | steps.js', () => {
         expect(restoredRowCount).to.equal(databaseConfig.tableRowCount);
 
         // then
-        const restoredComment = await database.runSql(`SELECT obj_description('${databaseConfig.tableName}'::regclass, 'pg_class')`);
+        const restoredComment = await database.runSql(
+          `SELECT obj_description('${databaseConfig.tableName}'::regclass, 'pg_class')`,
+        );
         expect(restoredComment).to.be.empty;
       });
-
     });
 
     context('according to environment variables', () => {
-
       context('table restoration', () => {
-
         context('with incremental mode', () => {
-
           let database;
 
           afterEach(() => {
@@ -225,15 +254,16 @@ describe('Integration | steps.js', () => {
           });
 
           it('should not restore these tables', async function() {
-
             // given
             database = await Database.create(databaseConfig);
-            const backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, { createTablesNotToBeImported: true });
+            const backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, {
+              createTablesNotToBeImported: true,
+            });
             const configuration = {
               BACKUP_MODE: {
                 'knowledge-elements': 'incremental',
                 'knowledge-element-snapshots': 'incremental',
-                'answers': 'incremental',
+                answers: 'incremental',
               },
               RESTORE_FK_CONSTRAINTS: 'false',
               PG_RESTORE_JOBS: 4,
@@ -243,23 +273,30 @@ describe('Integration | steps.js', () => {
             await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl, configuration });
 
             // then
-            const isAnswersRestored = parseInt(await database.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'answers\''));
+            const isAnswersRestored = parseInt(
+              await database.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'answers\''),
+            );
             expect(isAnswersRestored).to.equal(0);
 
             // then
-            const isKnowledgeElementsRestored = parseInt(await database.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-elements\''));
+            const isKnowledgeElementsRestored = parseInt(
+              await database.runSql(
+                'SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-elements\''
+              ),
+            );
             expect(isKnowledgeElementsRestored).to.equal(0);
 
             // then
-            const isKnowledgeElementSnapshotsRestored = parseInt(await database.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-element-snapshots\''));
+            const isKnowledgeElementSnapshotsRestored = parseInt(
+              await database.runSql(
+                'SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-element-snapshots\''
+              ),
+            );
             expect(isKnowledgeElementSnapshotsRestored).to.equal(0);
-
           });
-
         });
 
         context('with none mode', () => {
-
           let database;
 
           afterEach(() => {
@@ -267,15 +304,16 @@ describe('Integration | steps.js', () => {
           });
 
           it('should not restore these tables', async function() {
-
             // given
             database = await Database.create(databaseConfig);
-            const backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, { createTablesNotToBeImported: true });
+            const backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, {
+              createTablesNotToBeImported: true,
+            });
             const configuration = {
               BACKUP_MODE: {
                 'knowledge-elements': 'incremental',
                 'knowledge-element-snapshots': 'incremental',
-                'answers': 'incremental',
+                answers: 'incremental',
               },
               RESTORE_FK_CONSTRAINTS: 'false',
               PG_RESTORE_JOBS: 4,
@@ -285,23 +323,30 @@ describe('Integration | steps.js', () => {
             await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl, configuration });
 
             // then
-            const isAnswersRestored = parseInt(await database.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'answers\''));
+            const isAnswersRestored = parseInt(
+              await database.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'answers\''),
+            );
             expect(isAnswersRestored).to.equal(0);
 
             // then
-            const isKnowledgeElementsRestored = parseInt(await database.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-elements\''));
+            const isKnowledgeElementsRestored = parseInt(
+              await database.runSql(
+                'SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-elements\''
+              ),
+            );
             expect(isKnowledgeElementsRestored).to.equal(0);
 
             // then
-            const isKnowledgeElementSnapshotsRestored = parseInt(await database.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-element-snapshots\''));
+            const isKnowledgeElementSnapshotsRestored = parseInt(
+              await database.runSql(
+                'SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-element-snapshots\''
+              ),
+            );
             expect(isKnowledgeElementSnapshotsRestored).to.equal(0);
-
           });
-
         });
 
         context('with default mode', () => {
-
           let database;
 
           afterEach(async function() {
@@ -309,10 +354,11 @@ describe('Integration | steps.js', () => {
           });
 
           it('does restore these tables', async function() {
-
             // given
             database = await Database.create(databaseConfig);
-            const backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, { createTablesNotToBeImported: true });
+            const backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, {
+              createTablesNotToBeImported: true,
+            });
             const configuration = {
               BACKUP_MODE: {},
               RESTORE_FK_CONSTRAINTS: 'false',
@@ -323,23 +369,31 @@ describe('Integration | steps.js', () => {
             await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl, configuration });
 
             // then
-            const isAnswersRestored = parseInt(await database.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'answers\''));
+            const isAnswersRestored = parseInt(
+              await database.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'answers\''),
+            );
             expect(isAnswersRestored).to.equal(1);
 
             // then
-            const isKnowledgeElementsRestored = parseInt(await database.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-elements\''));
+            const isKnowledgeElementsRestored = parseInt(
+              await database.runSql(
+                'SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-elements\''
+              ),
+            );
             expect(isKnowledgeElementsRestored).to.equal(1);
 
             // then
-            const isKnowledgeElementSnapshotsRestored = parseInt(await database.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-element-snapshots\''));
+            const isKnowledgeElementSnapshotsRestored = parseInt(
+              await database.runSql(
+                'SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-element-snapshots\''
+              ),
+            );
             expect(isKnowledgeElementSnapshotsRestored).to.equal(1);
           });
-
         });
       });
 
       context('foreign key constraints', () => {
-
         context('if enabled', () => {
           let database;
 
@@ -348,20 +402,22 @@ describe('Integration | steps.js', () => {
           });
 
           it('should restore these constraints', async function() {
-
             // given
             database = await Database.create(databaseConfig);
-            const backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, { createForeignKeys: true });
+            const backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, {
+              createForeignKeys: true,
+            });
             const configuration = { RESTORE_FK_CONSTRAINTS: 'true', PG_RESTORE_JOBS: 4 };
 
             // when
             await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl, configuration });
 
             // then
-            const areForeignKeysRestored = parseInt(await database.runSql('SELECT COUNT(1) FROM pg_constraint pgc  WHERE pgc.contype = \'f\''));
+            const areForeignKeysRestored = parseInt(
+              await database.runSql('SELECT COUNT(1) FROM pg_constraint pgc  WHERE pgc.contype = \'f\''),
+            );
             expect(areForeignKeysRestored).to.equal(1);
           });
-
         });
 
         context('if disabled', () => {
@@ -372,26 +428,30 @@ describe('Integration | steps.js', () => {
           });
 
           it('should not restore keys constraints', async function() {
-
             // given
             database = await Database.create(databaseConfig);
-            const backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, { createForeignKeys: true });
+            const backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, {
+              createForeignKeys: true,
+            });
             const configuration = { RESTORE_FK_CONSTRAINTS: 'false', PG_RESTORE_JOBS: 4 };
 
             // when
             await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl, configuration });
 
             // then
-            const areForeignKeysRestored = parseInt(await database.runSql('SELECT COUNT(1) FROM pg_constraint pgc  WHERE pgc.contype = \'f\''));
+            const areForeignKeysRestored = parseInt(
+              await database.runSql('SELECT COUNT(1) FROM pg_constraint pgc  WHERE pgc.contype = \'f\''),
+            );
             expect(areForeignKeysRestored).to.equal(0);
           });
 
           it('should restore referencing table with data', async function() {
-
             // given
             const configuration = { RESTORE_FK_CONSTRAINTS: 'false', PG_RESTORE_JOBS: 4 };
             database = await Database.create(databaseConfig);
-            const backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, { createForeignKeys: true });
+            const backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, {
+              createForeignKeys: true,
+            });
 
             // when
             await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl, configuration });
@@ -402,24 +462,24 @@ describe('Integration | steps.js', () => {
           });
 
           it('should restore referenced table with data', async function() {
-
             // given
             const configuration = { RESTORE_FK_CONSTRAINTS: 'false', PG_RESTORE_JOBS: 4 };
             database = await Database.create(databaseConfig);
-            const backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, { createForeignKeys: true });
+            const backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, {
+              createForeignKeys: true,
+            });
 
             // when
             await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl, configuration });
 
             // then
-            const isAnswersRestored = parseInt(await database.runSql(`SELECT COUNT(1) FROM ${databaseConfig.tableName} `));
+            const isAnswersRestored = parseInt(
+              await database.runSql(`SELECT COUNT(1) FROM ${databaseConfig.tableName} `),
+            );
             expect(isAnswersRestored).to.equal(databaseConfig.tableRowCount);
           });
-
         });
-
       });
-
     });
   });
 
@@ -429,8 +489,7 @@ describe('Integration | steps.js', () => {
     let sourceDatabaseConfig;
     let targetDatabaseConfig;
 
-    before(async() => {
-
+    before(async () => {
       // CircleCI set up environment variables to access DB, so we need to read them here
       // eslint-disable-next-line no-process-env
       const SOURCE_DATABASE_URL = process.env.SOURCE_DATABASE_URL || 'postgres://pix@localhost:5432/replication_source';
@@ -458,7 +517,6 @@ describe('Integration | steps.js', () => {
       };
 
       targetDatabaseConfig.databaseUrl = `${targetDatabaseConfig.serverUrl}/${targetDatabaseConfig.databaseName}`;
-
     });
 
     beforeEach(async () => {
@@ -466,13 +524,19 @@ describe('Integration | steps.js', () => {
       targetDatabase = await Database.create(targetDatabaseConfig);
     });
 
-    async function createBackUpFromSourceAndRestoreToTarget(sourceDatabase, sourceDatabaseConfig, targetDatabaseUrl, configuration) {
-      const backupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true });
+    async function createBackUpFromSourceAndRestoreToTarget(
+      sourceDatabase,
+      sourceDatabaseConfig,
+      targetDatabaseUrl,
+      configuration,
+    ) {
+      const backupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, {
+        createTablesNotToBeImported: true,
+      });
       await steps.restoreBackup({ backupFile, databaseUrl: targetDatabaseUrl, configuration });
     }
 
     context('On specific tables, when restore is done incrementally (and not by backup)', () => {
-
       it('should preserve data', async function() {
         // given
 
@@ -481,29 +545,40 @@ describe('Integration | steps.js', () => {
           BACKUP_MODE: {},
           PG_RESTORE_JOBS: 4,
         };
-        await createBackUpFromSourceAndRestoreToTarget(sourceDatabase, sourceDatabaseConfig, targetDatabaseConfig.databaseUrl, firstDayConfiguration);
+        await createBackUpFromSourceAndRestoreToTarget(
+          sourceDatabase,
+          sourceDatabaseConfig,
+          targetDatabaseConfig.databaseUrl,
+          firstDayConfiguration,
+        );
 
         const answersCountBefore = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM answers'));
         expect(answersCountBefore).not.to.equal(0);
 
-        const knowledgeElementsCountBefore = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM "knowledge-elements"'));
+        const knowledgeElementsCountBefore = parseInt(
+          await targetDatabase.runSql('SELECT COUNT(1) FROM "knowledge-elements"'),
+        );
         expect(knowledgeElementsCountBefore).not.to.equal(0);
 
-        const knowledgeElementSnapshotsCountBefore = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM "knowledge-element-snapshots"'));
+        const knowledgeElementSnapshotsCountBefore = parseInt(
+          await targetDatabase.runSql('SELECT COUNT(1) FROM "knowledge-element-snapshots"'),
+        );
         expect(knowledgeElementSnapshotsCountBefore).not.to.equal(0);
 
         await sourceDatabase.dropDatabase();
 
         // Day 2
         await sourceDatabase.createDatabase();
-        const secondDayBackupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true });
+        const secondDayBackupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, {
+          createTablesNotToBeImported: true,
+        });
 
         // when
         const secondDayConfiguration = {
           BACKUP_MODE: {
             'knowledge-elements': 'incremental',
             'knowledge-element-snapshots': 'incremental',
-            'answers': 'incremental',
+            answers: 'incremental',
           },
           DATABASE_URL: targetDatabase._databaseUrl,
           PG_RESTORE_JOBS: 4,
@@ -515,11 +590,15 @@ describe('Integration | steps.js', () => {
         expect(answersCountBefore).to.equal(answersCountAfter);
 
         // then
-        const knowledgeElementsCountAfter = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM "knowledge-elements"'));
+        const knowledgeElementsCountAfter = parseInt(
+          await targetDatabase.runSql('SELECT COUNT(1) FROM "knowledge-elements"'),
+        );
         expect(knowledgeElementsCountBefore).to.equal(knowledgeElementsCountAfter);
 
         // then
-        const knowledgeElementSnapshotsCountAfter = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM "knowledge-element-snapshots"'));
+        const knowledgeElementSnapshotsCountAfter = parseInt(
+          await targetDatabase.runSql('SELECT COUNT(1) FROM "knowledge-element-snapshots"'),
+        );
         expect(knowledgeElementSnapshotsCountBefore).to.equal(knowledgeElementSnapshotsCountAfter);
       });
 
@@ -528,7 +607,11 @@ describe('Integration | steps.js', () => {
 
         // Source: create backup
         const sourceDatabase = await Database.create(sourceDatabaseConfig);
-        const firstDaySourceBackupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true, createForeignKeys: true, dropDatabase: false });
+        const firstDaySourceBackupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, {
+          createTablesNotToBeImported: true,
+          createForeignKeys: true,
+          dropDatabase: false,
+        });
 
         // Target : restore backup
         const targetDatabase = await Database.create(targetDatabaseConfig);
@@ -548,7 +631,9 @@ describe('Integration | steps.js', () => {
         // Day 2
 
         // Source : add data and create backup
-        await sourceDatabase.runSql(`INSERT INTO ${sourceDatabaseConfig.tableName}(id) VALUES(${sourceDatabaseConfig.tableRowCount + 1})`);
+        await sourceDatabase.runSql(
+          `INSERT INTO ${sourceDatabaseConfig.tableName}(id) VALUES(${sourceDatabaseConfig.tableRowCount + 1})`,
+        );
         await sourceDatabase.runSql('INSERT INTO referencing (id) VALUES (3)');
         const secondDaySourceBackupFile = await sourceDatabase.createBackup();
 
@@ -560,14 +645,17 @@ describe('Integration | steps.js', () => {
           BACKUP_MODE: {
             'knowledge-elements': 'incremental',
             'knowledge-element-snapshots': 'incremental',
-            'answers': 'incremental' },
+            answers: 'incremental',
+          },
         };
 
         // when
         await steps.dropObjectAndRestoreBackup(secondDaySourceBackupFile, secondDayTargetConfiguration);
 
         // then
-        const countAfter = parseInt(await targetDatabase.runSql(`SELECT COUNT(1) FROM ${sourceDatabaseConfig.tableName}`));
+        const countAfter = parseInt(
+          await targetDatabase.runSql(`SELECT COUNT(1) FROM ${sourceDatabaseConfig.tableName}`),
+        );
         expect(countAfter).to.equal(sourceDatabaseConfig.tableRowCount + 1);
 
         const referencingCountAfter = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM referencing'));
@@ -580,17 +668,25 @@ describe('Integration | steps.js', () => {
 
       // Day 1
       const firstDayTargetConfiguration = { BACKUP_MODE: {}, PG_RESTORE_JOBS: 4 };
-      await createBackUpFromSourceAndRestoreToTarget(sourceDatabase, sourceDatabaseConfig, targetDatabaseConfig.databaseUrl, firstDayTargetConfiguration);
+      await createBackUpFromSourceAndRestoreToTarget(
+        sourceDatabase,
+        sourceDatabaseConfig,
+        targetDatabaseConfig.databaseUrl,
+        firstDayTargetConfiguration,
+      );
       await sourceDatabase.dropDatabase();
 
       // Day 2
       sourceDatabase = await Database.create(sourceDatabaseConfig);
-      const secondDayBackupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true, createFunction: true });
+      const secondDayBackupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, {
+        createTablesNotToBeImported: true,
+        createFunction: true,
+      });
       const secondDayTargetConfiguration = {
         BACKUP_MODE: {
           'knowledge-elements': 'incremental',
           'knowledge-element-snapshots': 'incremental',
-          'answers': 'incremental',
+          answers: 'incremental',
         },
         DATABASE_URL: targetDatabase._databaseUrl,
         PG_RESTORE_JOBS: 4,
@@ -607,11 +703,9 @@ describe('Integration | steps.js', () => {
   });
 
   describe('#importAirtableData', () => {
-
     let targetDatabaseConfig;
     let targetDatabase;
-    before(async() => {
-
+    before(async () => {
       // CircleCI set up environment variables to access DB, so we need to read them here
       // eslint-disable-next-line no-process-env
       const TARGET_DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://pix@localhost:5432/replication_target';
@@ -630,9 +724,7 @@ describe('Integration | steps.js', () => {
     });
 
     context('according to Airtable API status', () => {
-
       it('if available, should import data', async function() {
-
         // when
         const configuration = {
           AIRTABLE_API_KEY: 'keyblo10ZCvCqBAJg',
@@ -647,11 +739,9 @@ describe('Integration | steps.js', () => {
         // then
         const competenceRowCount = parseInt(await targetDatabase.runSql('SELECT COUNT(*) FROM competences'));
         expect(competenceRowCount).to.be.above(0);
-
       });
 
       it('if available but credentials are invalid, should not retry the expect time, but throw', async function() {
-
         // given
         const configuration = {
           DATABASE_URL: targetDatabaseConfig.databaseUrl,
@@ -675,22 +765,19 @@ describe('Integration | steps.js', () => {
         // then
         expect(errorMessage).to.eq('Could not find what you are looking for');
         expect(elapsedTimeMinutes).to.eq(0);
-
       });
-
     });
-
   });
 
   describe('#createBackup', () => {
-
     // eslint-disable-next-line no-process-env
-    const SOURCE_DATABASE_URL = process.env.SOURCE_DATABASE_URL || 'postgres://postgres@localhost:5432/replication_source';
+    const SOURCE_DATABASE_URL =
+      process.env.SOURCE_DATABASE_URL || 'postgres://postgres@localhost:5432/replication_source';
 
     let sourceDatabase;
     let sourceDatabaseConfig;
 
-    before(async() => {
+    before(async () => {
       const rawSourceDataBaseConfig = pgUrlParser(SOURCE_DATABASE_URL);
 
       sourceDatabaseConfig = {
@@ -716,7 +803,7 @@ describe('Integration | steps.js', () => {
         BACKUP_MODE: {
           'knowledge-elements': 'incremental',
           'knowledge-element-snapshots': 'incremental',
-          'answers': 'incremental',
+          answers: 'incremental',
         },
         SOURCE_DATABASE_URL,
       };
@@ -729,5 +816,4 @@ describe('Integration | steps.js', () => {
       expect(result).to.be.true;
     });
   });
-
 });

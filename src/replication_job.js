@@ -11,12 +11,11 @@ const replicationQueue = _createQueue('Replication queue');
 const airtableReplicationQueue = _createQueue('Airtable replication queue');
 const incrementalReplicationQueue = _createQueue('Incremental replication queue');
 
-main()
-  .catch(async (error) => {
-    Sentry.captureException(error);
-    logger.error(error);
-    await _flushSentryAndExit();
-  });
+main().catch(async (error) => {
+  Sentry.captureException(error);
+  logger.error(error);
+  await _flushSentryAndExit();
+});
 
 async function main() {
   initSentry(configuration);
@@ -55,7 +54,6 @@ async function _setInterruptedJobsAsFailed() {
     if (activeJobs.length === 0) {
       logger.info(`No active jobs to be marked as failed for queue ${queue.name}`);
     }
-
   });
   return Promise.all(promises);
 }
@@ -100,7 +98,9 @@ function _addQueueEventsListeners(queue) {
       logger.info(`Completed job in ${queue.name}: ${job.id}`);
     })
     .on('failed', function(job, err) {
-      logger.error(`Failed job in ${queue.name}: ${job.id} ${err} (Number of attempts: ${job.attemptsMade}/${job.opts.attempts})`);
+      logger.error(
+        `Failed job in ${queue.name}: ${job.id} ${err} (Number of attempts: ${job.attemptsMade}/${job.opts.attempts})`,
+      );
     });
 }
 

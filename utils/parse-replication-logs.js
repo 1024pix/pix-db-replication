@@ -18,9 +18,9 @@ function _printPrettyTimeElapsedBetweenTwoDates(olderDate, date) {
 
 function _printPrettyTimeElapsed(secondsElapsed) {
   const hours = Math.trunc(secondsElapsed / 60 / 60);
-  const secondsMinusHours = secondsElapsed - (hours * 60 * 60);
+  const secondsMinusHours = secondsElapsed - hours * 60 * 60;
   const minutes = Math.trunc(secondsMinusHours / 60);
-  const seconds = Math.round(secondsMinusHours - (minutes * 60));
+  const seconds = Math.round(secondsMinusHours - minutes * 60);
   return `${hours}h ${minutes}min ${seconds}s`;
 }
 
@@ -150,13 +150,7 @@ function _compareOperation(operationA, operationB) {
 }
 
 function _categorizeAndSortByElapsed(foundItems) {
-  const {
-    sequenceItems,
-    tableDataItems,
-    constraintItems,
-    indexItems,
-    fkConstraintItems,
-  } = _categorize(foundItems);
+  const { sequenceItems, tableDataItems, constraintItems, indexItems, fkConstraintItems } = _categorize(foundItems);
 
   return {
     sequenceItems: _sortByElapsed(sequenceItems),
@@ -169,21 +163,22 @@ function _categorizeAndSortByElapsed(foundItems) {
 
 function _do(logLines) {
   const foundItems = _findItemsInLogLines(logLines);
-  const {
-    sequenceItems,
-    tableDataItems,
-    constraintItems,
-    indexItems,
-    fkConstraintItems,
-  } = _categorizeAndSortByElapsed(foundItems);
+  const { sequenceItems, tableDataItems, constraintItems, indexItems, fkConstraintItems } =
+    _categorizeAndSortByElapsed(foundItems);
 
   log(`FK CONSTRAINT total duration : ${_printPrettyTimeElapsed(fkConstraintItems.totalElapsed)}`);
   for (let i = 0; i < 3 && fkConstraintItems.operations.length > 0; ++i) {
-    log(`\t${fkConstraintItems.operations[i].operation} : ${_printPrettyTimeElapsed(fkConstraintItems.operations[i].elapsed)}`);
+    log(
+      `\t${fkConstraintItems.operations[i].operation} : ${_printPrettyTimeElapsed(
+        fkConstraintItems.operations[i].elapsed,
+      )}`,
+    );
   }
   log(`CONSTRAINT total duration : ${_printPrettyTimeElapsed(constraintItems.totalElapsed)}`);
   for (let i = 0; i < 3 && constraintItems.operations.length > 0; ++i) {
-    log(`\t${constraintItems.operations[i].operation} : ${_printPrettyTimeElapsed(constraintItems.operations[i].elapsed)}`);
+    log(
+      `\t${constraintItems.operations[i].operation} : ${_printPrettyTimeElapsed(constraintItems.operations[i].elapsed)}`,
+    );
   }
   log(`INDEX total duration : ${_printPrettyTimeElapsed(indexItems.totalElapsed)}`);
   for (let i = 0; i < 3 && indexItems.operations.length > 0; ++i) {
@@ -195,7 +190,9 @@ function _do(logLines) {
   }
   log(`TABLE DATA total duration : ${_printPrettyTimeElapsed(tableDataItems.totalElapsed)}`);
   for (let i = 0; i < 3 && tableDataItems.operations.length > 0; ++i) {
-    log(`\t${tableDataItems.operations[i].operation} : ${_printPrettyTimeElapsed(tableDataItems.operations[i].elapsed)}`);
+    log(
+      `\t${tableDataItems.operations[i].operation} : ${_printPrettyTimeElapsed(tableDataItems.operations[i].elapsed)}`,
+    );
   }
 }
 
@@ -211,8 +208,18 @@ async function main() {
     const startReplicationTimestamp = _extractTimestampFromContent(logLines, START_REPLICATION);
     const startEnrichmentTimestamp = _extractTimestampFromContent(logLines, START_ENRICHMENT);
     const endTimestamp = _extractTimestampFromLogLine(logLines.slice(-1));
-    log(`Durée de création du backup: ${_printPrettyTimeElapsedBetweenTwoDates(startBackupTimestamp, startReplicationTimestamp)}`);
-    log(`Durée de réplication: ${_printPrettyTimeElapsedBetweenTwoDates(startReplicationTimestamp, startEnrichmentTimestamp)}`);
+    log(
+      `Durée de création du backup: ${_printPrettyTimeElapsedBetweenTwoDates(
+        startBackupTimestamp,
+        startReplicationTimestamp,
+      )}`,
+    );
+    log(
+      `Durée de réplication: ${_printPrettyTimeElapsedBetweenTwoDates(
+        startReplicationTimestamp,
+        startEnrichmentTimestamp,
+      )}`,
+    );
     log(`Durée de l'enrichissement: ${_printPrettyTimeElapsedBetweenTwoDates(startEnrichmentTimestamp, endTimestamp)}`);
     log(`Durée totale: ${_printPrettyTimeElapsedBetweenTwoDates(startBackupTimestamp, endTimestamp)}`);
     _do(logLines);

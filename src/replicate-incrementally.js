@@ -38,7 +38,6 @@ async function run(configuration) {
       name: table,
       lastRecordIndex: lastRecordIndexTargetBeforeReplication,
     });
-
   }
 
   logger.info('Start COPY FROM/TO through STDIN/OUT');
@@ -55,7 +54,9 @@ async function run(configuration) {
       `\\copy ${escapeSQLIdentifier(table.name)} from stdin`,
     ];
     const copyToStdOutProcess = execa('psql', copyToStdOutArgs, {
-      stdin: 'ignore', stdout: 'pipe', stderr: 'inherit',
+      stdin: 'ignore',
+      stdout: 'pipe',
+      stderr: 'inherit',
       buffer: false, // disable execa's buffering otherwise it interferes with the transfer
     });
     const copyFromStdInProcess = execa('psql', copyFromStdInArgs, {
@@ -63,7 +64,7 @@ async function run(configuration) {
       all: true, // join stdout and stderr
     });
 
-    const [ , copyFromStdInResult ] = await Promise.all([ copyToStdOutProcess, copyFromStdInProcess ]);
+    const [, copyFromStdInResult] = await Promise.all([copyToStdOutProcess, copyFromStdInProcess]);
 
     logger.info(`${table.name} table copy returned: ` + copyFromStdInResult.all);
 

@@ -6,7 +6,6 @@ const { expect } = chai;
 const proxyquire = require('proxyquire').noPreserveCache();
 
 describe('Unit | steps.js', () => {
-
   describe('#createBackup', () => {
     let execStub;
     let createBackup;
@@ -35,15 +34,19 @@ describe('Unit | steps.js', () => {
         [
           '--clean',
           '--if-exists',
-          '--format', 'c',
-          '--dbname', 'postgresql://source.url',
+          '--format',
+          'c',
+          '--dbname',
+          'postgresql://source.url',
           '--no-owner',
           '--no-privileges',
           '--no-comments',
           '--exclude-schema',
           'information_schema',
-          '--exclude-schema', '\'^pg_*\'',
-          '--file', './dump.pgsql',
+          '--exclude-schema',
+          '\'^pg_*\'',
+          '--file',
+          './dump.pgsql',
         ],
         { stdio: 'inherit' },
       );
@@ -55,7 +58,11 @@ describe('Unit | steps.js', () => {
         // given
         const configuration = {
           SOURCE_DATABASE_URL: 'postgresql://source.url',
-          BACKUP_MODE: { 'knowledge-elements': 'incremental', 'knowledge-element-snapshots': 'incremental', 'answers': 'incremental' },
+          BACKUP_MODE: {
+            'knowledge-elements': 'incremental',
+            'knowledge-element-snapshots': 'incremental',
+            answers: 'incremental',
+          },
         };
 
         // when
@@ -67,22 +74,28 @@ describe('Unit | steps.js', () => {
           [
             '--clean',
             '--if-exists',
-            '--format', 'c',
-            '--dbname', 'postgresql://source.url',
+            '--format',
+            'c',
+            '--dbname',
+            'postgresql://source.url',
             '--no-owner',
             '--no-privileges',
             '--no-comments',
             '--exclude-schema',
             'information_schema',
-            '--exclude-schema', '\'^pg_*\'',
-            '--file', './dump.pgsql',
-            '--exclude-table', 'knowledge-elements',
-            '--exclude-table', 'knowledge-element-snapshots',
-            '--exclude-table', 'answers',
+            '--exclude-schema',
+            '\'^pg_*\'',
+            '--file',
+            './dump.pgsql',
+            '--exclude-table',
+            'knowledge-elements',
+            '--exclude-table',
+            'knowledge-element-snapshots',
+            '--exclude-table',
+            'answers',
           ],
           { stdio: 'inherit' },
         );
-
       });
     });
 
@@ -91,7 +104,7 @@ describe('Unit | steps.js', () => {
         // given
         const configuration = {
           SOURCE_DATABASE_URL: 'postgresql://source.url',
-          BACKUP_MODE: { 'knowledge-elements': 'none', 'knowledge-element-snapshots': 'none', 'answers': 'none' },
+          BACKUP_MODE: { 'knowledge-elements': 'none', 'knowledge-element-snapshots': 'none', answers: 'none' },
         };
 
         // when
@@ -103,25 +116,29 @@ describe('Unit | steps.js', () => {
           [
             '--clean',
             '--if-exists',
-            '--format', 'c',
-            '--dbname', 'postgresql://source.url',
+            '--format',
+            'c',
+            '--dbname',
+            'postgresql://source.url',
             '--no-owner',
             '--no-privileges',
             '--no-comments',
             '--exclude-schema',
             'information_schema',
-            '--exclude-schema', '\'^pg_*\'',
-            '--file', './dump.pgsql',
-            '--exclude-table', 'knowledge-elements',
-            '--exclude-table', 'knowledge-element-snapshots',
-            '--exclude-table', 'answers',
+            '--exclude-schema',
+            '\'^pg_*\'',
+            '--file',
+            './dump.pgsql',
+            '--exclude-table',
+            'knowledge-elements',
+            '--exclude-table',
+            'knowledge-element-snapshots',
+            '--exclude-table',
+            'answers',
           ],
           { stdio: 'inherit' },
         );
-
       });
     });
-
   });
-
 });

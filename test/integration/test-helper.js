@@ -1,4 +1,8 @@
-async function createBackupAndCreateEmptyDatabase(database, databaseConfig, { createTablesNotToBeImported = false, createForeignKeys = false }) {
+async function createBackupAndCreateEmptyDatabase(
+  database,
+  databaseConfig,
+  { createTablesNotToBeImported = false, createForeignKeys = false },
+) {
   await createAndFillDatabase(database, databaseConfig, { createTablesNotToBeImported, createForeignKeys });
   const backupFile = await database.createBackup();
   await database.dropDatabase();
@@ -6,13 +10,16 @@ async function createBackupAndCreateEmptyDatabase(database, databaseConfig, { cr
   return backupFile;
 }
 
-async function createBackup(database, databaseConfig, {
-  createTablesNotToBeImported = false,
-  createForeignKeys = false,
-  createFunction = false,
-  dropDatabase = true,
-}) {
-  await createAndFillDatabase(database, databaseConfig, { createTablesNotToBeImported, createForeignKeys, createFunction });
+async function createBackup(
+  database,
+  databaseConfig,
+  { createTablesNotToBeImported = false, createForeignKeys = false, createFunction = false, dropDatabase = true },
+) {
+  await createAndFillDatabase(database, databaseConfig, {
+    createTablesNotToBeImported,
+    createForeignKeys,
+    createFunction,
+  });
   const backupFile = await database.createBackup();
   if (dropDatabase) {
     await database.dropDatabase();
@@ -20,11 +27,11 @@ async function createBackup(database, databaseConfig, {
   return backupFile;
 }
 
-async function createAndFillDatabase(database, databaseConfig, {
-  createTablesNotToBeImported = false,
-  createForeignKeys = false,
-  createFunction = false,
-}) {
+async function createAndFillDatabase(
+  database,
+  databaseConfig,
+  { createTablesNotToBeImported = false, createForeignKeys = false, createFunction = false },
+) {
   await createTables(database, databaseConfig);
   await fillTables(database, databaseConfig);
   await createTableToBeIndexed(database);
@@ -48,8 +55,12 @@ async function createTableToBeBaseForView(database) {
 async function createTablesThatMayNotBeRestored(database) {
   await database.runSql('CREATE TABLE answers (id int NOT NULL PRIMARY KEY, "challengeId" CHARACTER VARYING(255) )');
   await database.runSql('INSERT INTO answers (id, "challengeId") VALUES (1,2)');
-  await database.runSql('CREATE TABLE "knowledge-elements" (id int NOT NULL PRIMARY KEY, "userId" INTEGER, "createdAt" TIMESTAMP WITH TIME ZONE)');
-  await database.runSql('INSERT INTO "knowledge-elements"  (id, "userId", "createdAt") VALUES (1, 2, CURRENT_TIMESTAMP)');
+  await database.runSql(
+    'CREATE TABLE "knowledge-elements" (id int NOT NULL PRIMARY KEY, "userId" INTEGER, "createdAt" TIMESTAMP WITH TIME ZONE)',
+  );
+  await database.runSql(
+    'INSERT INTO "knowledge-elements"  (id, "userId", "createdAt") VALUES (1, 2, CURRENT_TIMESTAMP)',
+  );
   await database.runSql(`create table "knowledge-element-snapshots"
     (
       id serial
@@ -61,7 +72,9 @@ async function createTablesThatMayNotBeRestored(database) {
       constraint knowledge_element_snapshots_userid_snappedat_unique
       unique ("userId", "snappedAt")
     );`);
-  await database.runSql('INSERT INTO "knowledge-element-snapshots"  (id, "userId", "snappedAt", "snapshot") VALUES (1, 2, CURRENT_TIMESTAMP, \'{"id": "3"}\'::jsonb)');
+  await database.runSql(
+    'INSERT INTO "knowledge-element-snapshots"  (id, "userId", "snappedAt", "snapshot") VALUES (1, 2, CURRENT_TIMESTAMP, \'{"id": "3"}\'::jsonb)',
+  );
   await database.runSql('CREATE INDEX "knowledge_elements_userid_index" ON "knowledge-elements" ("userId")');
 }
 

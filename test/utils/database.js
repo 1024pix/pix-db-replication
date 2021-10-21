@@ -3,7 +3,6 @@ const tmp = require('tmp-promise');
 const pgUrlParser = require('pg-connection-string').parse;
 
 module.exports = class Database {
-
   constructor(serverUrl, databaseName) {
     this._serverUrl = serverUrl;
     this._databaseName = databaseName;
@@ -24,7 +23,9 @@ module.exports = class Database {
 
   async runSql(...sqlCommands) {
     const { stdout } = await execa('psql', [
-      this._databaseUrl, '--tuples-only', '--no-align',
+      this._databaseUrl,
+      '--tuples-only',
+      '--no-align',
       ...sqlCommands.map((sqlCommand) => `--command=${sqlCommand}`),
     ]);
     return stdout;
@@ -32,7 +33,9 @@ module.exports = class Database {
 
   async runSqlAsSuperUser(...sqlCommands) {
     const { stdout } = await execa('psql', [
-      this._superUserDatabaseUrl, '--tuples-only', '--no-align',
+      this._superUserDatabaseUrl,
+      '--tuples-only',
+      '--no-align',
       ...sqlCommands.map((sqlCommand) => `--command=${sqlCommand}`),
     ]);
     return stdout;
@@ -48,25 +51,30 @@ module.exports = class Database {
   }
 
   async createDatabase() {
-    await execa('psql', [ this._superUserServerUrl,
-      '--echo-all', '--set', 'ON_ERROR_STOP=on', '--command', `CREATE DATABASE "${this._databaseName}"`,
+    await execa('psql', [
+      this._superUserServerUrl,
+      '--echo-all',
+      '--set',
+      'ON_ERROR_STOP=on',
+      '--command',
+      `CREATE DATABASE "${this._databaseName}"`,
     ]);
   }
 
   async dropDatabase() {
-    await execa('psql', [ this._superUserServerUrl,
-      '--echo-all', '--set', 'ON_ERROR_STOP=on', '--command', `DROP DATABASE IF EXISTS "${this._databaseName}"`,
+    await execa('psql', [
+      this._superUserServerUrl,
+      '--echo-all',
+      '--set',
+      'ON_ERROR_STOP=on',
+      '--command',
+      `DROP DATABASE IF EXISTS "${this._databaseName}"`,
     ]);
   }
 
   async createBackup() {
     const path = await tmp.tmpName();
-    await execa('pg_dump', [
-      '--format=c',
-      `--file=${path}`,
-      this._superUserDatabaseUrl,
-    ], { stdio: 'inherit' });
+    await execa('pg_dump', ['--format=c', `--file=${path}`, this._superUserDatabaseUrl], { stdio: 'inherit' });
     return path;
   }
-
 };

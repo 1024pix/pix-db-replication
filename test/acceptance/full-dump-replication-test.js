@@ -11,7 +11,6 @@ async function getCountFromTable({ targetDatabase, tableName }) {
 }
 
 describe('Acceptance | steps | fullReplicationAndEnrichment', () => {
-
   // CircleCI set up environment variables to access DB, so we need to read them here
   // eslint-disable-next-line no-process-env
   const SOURCE_DATABASE_URL = process.env.SOURCE_DATABASE_URL || 'postgres://pix@localhost:5432/replication_source';
@@ -73,25 +72,36 @@ describe('Acceptance | steps | fullReplicationAndEnrichment', () => {
   });
 
   describe('should import database data', () => {
-
     it('should replicate answers and knowledge-elements and knowledge-element-snapshots', async () => {
       // then
       const restoredRowCount = await getCountFromTable({ targetDatabase, tableName: targetDatabaseConfig.tableName });
 
       expect(restoredRowCount).to.equal(targetDatabaseConfig.tableRowCount);
 
-      const isAnswersRestored = parseInt(await targetDatabase.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'answers\''));
+      const isAnswersRestored = parseInt(
+        await targetDatabase.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'answers\''),
+      );
       expect(isAnswersRestored).to.equal(1);
 
       // then
-      const isKnowledgeElementsRestored = parseInt(await targetDatabase.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-elements\''));
+      const isKnowledgeElementsRestored = parseInt(
+        await targetDatabase.runSql(
+          'SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-elements\''
+        ),
+      );
       expect(isKnowledgeElementsRestored).to.equal(1);
 
       // then
-      const isKnowledgeElementSnapshotsRestored = parseInt(await targetDatabase.runSql('SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-element-snapshots\''));
+      const isKnowledgeElementSnapshotsRestored = parseInt(
+        await targetDatabase.runSql(
+          'SELECT  COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'knowledge-element-snapshots\''
+        ),
+      );
       expect(isKnowledgeElementSnapshotsRestored).to.equal(1);
 
-      const indexCount = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM pg_indexes ndx WHERE ndx.indexname = \'users_createdAt_idx\''));
+      const indexCount = parseInt(
+        await targetDatabase.runSql('SELECT COUNT(1) FROM pg_indexes ndx WHERE ndx.indexname = \'users_createdAt_idx\''),
+      );
       expect(indexCount).to.equal(1);
     });
   });
@@ -143,31 +153,44 @@ describe('Acceptance | steps | fullReplicationAndEnrichment', () => {
   });
 
   describe('should enrich imported data', () => {
-
     it('should create indexes', async function() {
       // then
-      const indexCount = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM pg_indexes ndx WHERE ndx.indexname = \'users_createdAt_idx\''));
+      const indexCount = parseInt(
+        await targetDatabase.runSql('SELECT COUNT(1) FROM pg_indexes ndx WHERE ndx.indexname = \'users_createdAt_idx\''),
+      );
       expect(indexCount).to.equal(1);
 
       // then
-      const KEIndexCount = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM pg_indexes ndx WHERE ndx.indexname = \'knowledge-elements_createdAt_idx\''));
+      const KEIndexCount = parseInt(
+        await targetDatabase.runSql(
+          'SELECT COUNT(1) FROM pg_indexes ndx WHERE ndx.indexname = \'knowledge-elements_createdAt_idx\''
+        ),
+      );
       expect(KEIndexCount).to.equal(1);
 
       // then
-      const KESnapshotsIndexCount = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM pg_indexes ndx WHERE ndx.indexname = \'knowledge-element-snapshots_snappedAt_idx\''));
+      const KESnapshotsIndexCount = parseInt(
+        await targetDatabase.runSql(
+          'SELECT COUNT(1) FROM pg_indexes ndx WHERE ndx.indexname = \'knowledge-element-snapshots_snappedAt_idx\''
+        ),
+      );
       expect(KESnapshotsIndexCount).to.equal(1);
 
       // then
-      const answersIndexCount = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM pg_indexes ndx WHERE ndx.indexname = \'answers_challengeId_idx\''));
+      const answersIndexCount = parseInt(
+        await targetDatabase.runSql(
+          'SELECT COUNT(1) FROM pg_indexes ndx WHERE ndx.indexname = \'answers_challengeId_idx\''
+        ),
+      );
       expect(answersIndexCount).to.equal(1);
-
     });
 
     it('should create view students', async function() {
       // then
-      const viewCount = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM pg_views vws WHERE vws.viewname = \'students\';'));
+      const viewCount = parseInt(
+        await targetDatabase.runSql('SELECT COUNT(1) FROM pg_views vws WHERE vws.viewname = \'students\';'),
+      );
       expect(viewCount).to.equal(1);
     });
   });
-
 });

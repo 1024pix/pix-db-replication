@@ -10,7 +10,6 @@ const { configuration } = require('./config');
 const TIMEOUT = 2000;
 
 async function main() {
-
   try {
     initSentry(configuration);
 
@@ -41,12 +40,18 @@ async function flushSentryAndExit(exitCode) {
   process.exit(exitCode);
 }
 
-process.on('uncaughtException', () => { exitOnSignal('uncaughtException'); });
+process.on('uncaughtException', () => {
+  exitOnSignal('uncaughtException');
+});
 
 process.on('unhandledRejection', (reason, promise) => {
   logger.info('Unhandled Rejection at:', promise, 'reason:', reason);
   exitOnSignal('unhandledRejection');
 });
 
-process.on('SIGTERM', () => { exitOnSignal('SIGTERM'); });
-process.on('SIGINT', () => { exitOnSignal('SIGINT'); });
+process.on('SIGTERM', () => {
+  exitOnSignal('SIGTERM');
+});
+process.on('SIGINT', () => {
+  exitOnSignal('SIGINT');
+});

@@ -37,7 +37,7 @@ async function setupPath() {
 }
 
 function installPostgresClient(configuration) {
-  return exec('dbclient-fetcher', [ 'pgsql', configuration.PG_CLIENT_VERSION ]);
+  return exec('dbclient-fetcher', ['pgsql', configuration.PG_CLIENT_VERSION]);
 }
 
 async function pgclientSetup(configuration) {
@@ -49,23 +49,43 @@ async function pgclientSetup(configuration) {
 
 async function dropCurrentObjects(configuration) {
   // TODO: pass DATABASE_URL by argument
-  const tablesToDrop = getTablesWithReplicationModes(configuration, [REPLICATION_MODE.INCREMENTAL, REPLICATION_MODE.TO_EXCLUDE]);
+  const tablesToDrop = getTablesWithReplicationModes(configuration, [
+    REPLICATION_MODE.INCREMENTAL,
+    REPLICATION_MODE.TO_EXCLUDE,
+  ]);
   if (tablesToDrop.length > 0) {
     return dropCurrentObjectsExceptTables(configuration.DATABASE_URL, tablesToDrop);
-  }
-  else return exec('psql', [ configuration.DATABASE_URL, ' --echo-all', '--set', 'ON_ERROR_STOP=on', '--command', 'DROP OWNED BY CURRENT_USER CASCADE' ]);
+  } else
+    return exec('psql', [
+      configuration.DATABASE_URL,
+      ' --echo-all',
+      '--set',
+      'ON_ERROR_STOP=on',
+      '--command',
+      'DROP OWNED BY CURRENT_USER CASCADE',
+    ]);
 }
 
 async function dropCurrentObjectsExceptTables(databaseUrl, tableNames) {
   const tableNamesForQuery = tableNames.map((tableName) => `'${tableName}'`).join(',');
-  const dropTableQuery = await execStdOut('psql', [ databaseUrl, '--tuples-only', '--command', `select string_agg('drop table "' || tablename || '" CASCADE', '; ') from pg_tables where schemaname = 'public' and tablename not in (${tableNamesForQuery});` ]);
-  const dropFunction = await execStdOut('psql', [ databaseUrl, '--tuples-only', '--command', 'select string_agg(\'drop function "\' || proname || \'"\', \'; \') FROM pg_proc pp INNER JOIN pg_roles pr ON pp.proowner = pr.oid WHERE pr.rolname = current_user ' ]);
-  await exec('psql', [ databaseUrl, '--set', 'ON_ERROR_STOP=on', '--echo-all', '--command', dropTableQuery ]);
-  return exec('psql', [ databaseUrl, '--set', 'ON_ERROR_STOP=on', '--echo-all', '--command', dropFunction ]);
+  const dropTableQuery = await execStdOut('psql', [
+    databaseUrl,
+    '--tuples-only',
+    '--command',
+    `select string_agg('drop table "' || tablename || '" CASCADE', '; ') from pg_tables where schemaname = 'public' and tablename not in (${tableNamesForQuery});`,
+  ]);
+  const dropFunction = await execStdOut('psql', [
+    databaseUrl,
+    '--tuples-only',
+    '--command',
+    'select string_agg(\'drop function "\' || proname || \'"\', \'; \') FROM pg_proc pp INNER JOIN pg_roles pr ON pp.proowner = pr.oid WHERE pr.rolname = current_user ',
+  ]);
+  await exec('psql', [databaseUrl, '--set', 'ON_ERROR_STOP=on', '--echo-all', '--command', dropTableQuery]);
+  return exec('psql', [databaseUrl, '--set', 'ON_ERROR_STOP=on', '--echo-all', '--command', dropFunction]);
 }
 
 async function writeListFileForReplication({ backupFile, configuration }) {
-  const backupObjectList = await execStdOut('pg_restore', [ backupFile, '-l' ]);
+  const backupObjectList = await execStdOut('pg_restore', [backupFile, '-l']);
   const backupObjectLines = backupObjectList.split('\n');
   const filteredObjectLines = _filterObjectLines(backupObjectLines, configuration);
   fs.writeFileSync(RESTORE_LIST_FILENAME, filteredObjectLines.join('\n'));
@@ -80,13 +100,14 @@ async function restoreBackup({ backupFile, databaseUrl, configuration }) {
     // TODO: pass DATABASE_URL by argument
     await exec('pg_restore', [
       ...verboseOptions,
-      '--jobs', configuration.PG_RESTORE_JOBS,
+      '--jobs',
+      configuration.PG_RESTORE_JOBS,
       '--no-owner',
-      '--use-list', RESTORE_LIST_FILENAME,
+      '--use-list',
+      RESTORE_LIST_FILENAME,
       `--dbname=${databaseUrl}`,
       backupFile,
     ]);
-
   } finally {
     fs.unlinkSync(backupFile);
   }
@@ -99,9 +120,15 @@ async function createBackup(configuration) {
   const backupFilename = './dump.pgsql';
 
   let excludeOptions = [];
-  const tablesToExcludeFromBackup = getTablesWithReplicationModes(configuration, [REPLICATION_MODE.INCREMENTAL, REPLICATION_MODE.TO_EXCLUDE]);
+  const tablesToExcludeFromBackup = getTablesWithReplicationModes(configuration, [
+    REPLICATION_MODE.INCREMENTAL,
+    REPLICATION_MODE.TO_EXCLUDE,
+  ]);
   if (tablesToExcludeFromBackup.length > 0) {
-    excludeOptions = tablesToExcludeFromBackup.reduce((excludeTablesOptions, tableName) => [...excludeTablesOptions, '--exclude-table', tableName], []);
+    excludeOptions = tablesToExcludeFromBackup.reduce(
+      (excludeTablesOptions, tableName) => [...excludeTablesOptions, '--exclude-table', tableName],
+      [],
+    );
   }
 
   const verboseOptions = process.env.NODE_ENV === 'test' ? [] : ['--verbose'];
@@ -109,15 +136,19 @@ async function createBackup(configuration) {
   await exec('pg_dump', [
     '--clean',
     '--if-exists',
-    '--format', 'c',
-    '--dbname', configuration.SOURCE_DATABASE_URL,
+    '--format',
+    'c',
+    '--dbname',
+    configuration.SOURCE_DATABASE_URL,
     '--no-owner',
     '--no-privileges',
     '--no-comments',
     '--exclude-schema',
     'information_schema',
-    '--exclude-schema', '\'^pg_*\'',
-    '--file', backupFilename,
+    '--exclude-schema',
+    '\'^pg_*\'',
+    '--file',
+    backupFilename,
     ...verboseOptions,
     ...excludeOptions,
   ]);
@@ -158,7 +189,6 @@ async function backupAndRestore(configuration) {
 }
 
 async function fullReplicationAndEnrichment(configuration) {
-
   logger.info('Start import and enrichment');
 
   logger.info('Import data from API database');
@@ -166,7 +196,6 @@ async function fullReplicationAndEnrichment(configuration) {
 
   logger.info('Enrich imported data');
   await addEnrichment(configuration);
-
 }
 
 function _filterObjectLines(objectLines, configuration) {
@@ -178,7 +207,10 @@ function _filterObjectLines(objectLines, configuration) {
     patternsToFilter.push('FK CONSTRAINT');
   }
 
-  const tablesToFilterFromBackupRestore = getTablesWithReplicationModes(configuration, [REPLICATION_MODE.INCREMENTAL, REPLICATION_MODE.TO_EXCLUDE]);
+  const tablesToFilterFromBackupRestore = getTablesWithReplicationModes(configuration, [
+    REPLICATION_MODE.INCREMENTAL,
+    REPLICATION_MODE.TO_EXCLUDE,
+  ]);
   if (tablesToFilterFromBackupRestore.length > 0) {
     const prepareTableNameForRegex = (tableName) => tableName.split(/[-_]/).join('[-_]');
     const tableNamesForRegex = tablesToFilterFromBackupRestore.map(prepareTableNameForRegex);
@@ -192,9 +224,7 @@ function _filterObjectLines(objectLines, configuration) {
 
 function getTablesWithReplicationModes(configuration, modes = []) {
   const tablePairs = toPairs(configuration.BACKUP_MODE);
-  return tablePairs
-    .filter(([_, mode]) => modes.includes(mode))
-    .map(([tableName, _]) => tableName);
+  return tablePairs.filter(([_, mode]) => modes.includes(mode)).map(([tableName, _]) => tableName);
 }
 
 module.exports = {
