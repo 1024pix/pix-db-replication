@@ -54,7 +54,7 @@ jobs:
   test:
     docker:
       - image: cimg/node:14.15.4
-      - image: postgres:12.4-alpine
+      - image: postgres:13.3-alpine
         environment:
           POSTGRES_USER: postgres
           POSTGRES_HOST_AUTH_METHOD: trust
@@ -72,13 +72,29 @@ jobs:
           paths:
             - ~/.npm
       - run :
+          name : Add PG13 package key
+          command: |
+            wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+      - run :
+          name : Add PG13 package
+          command:
+            echo "deb http://apt.postgresql.org/pub/repos/apt/ `lsb_release -cs`-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+      - run :
           name : Refresh package cache
           command: |
-            sudo apt-get update
+            sudo apt update
       - run :
-          name : Install psql
+          name : Install PG13 client package
           command: |
-            sudo apt-get install postgresql-client-12
+            sudo apt install postgresql-client-13
+      - run :
+          name : Checking pg_dump version
+          command: |
+            pg_dump --version
+      - run :
+          name : Checking pg_restore version
+          command: |
+            pg_restore --version
       - run:
           name: Waiting for PostgreSQL to start
           command: |
