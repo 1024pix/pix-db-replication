@@ -4,7 +4,7 @@
 const execa = require('execa');
 const fs = require('fs');
 
-const learningContent = require('./learning-content');
+const learningContent = require('./replicate-learning-content');
 const enrichment = require('./enrichment');
 const logger = require('./logger');
 const toPairs = require('lodash/toPairs');
