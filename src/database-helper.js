@@ -2,6 +2,7 @@ const { Client } = require('pg');
 const format = require('pg-format');
 
 const { PrimaryKeyNotNullConstraintError } = require('./errors');
+const learningContentHelper = require('./learning-content-helper');
 
 async function runDBOperation(callback, configuration) {
   const client = new Client({
@@ -54,19 +55,9 @@ async function saveLearningContent(table, learningContent, configuration) {
 function _computeValuesToInsert(table, learningContent) {
   const fieldsStructure = [{ name: 'id' }].concat(table.fields);
   return learningContent.map((learningContentItem) => fieldsStructure.map((fieldStructure) => {
-    return _prepareLearningContentValueBeforeInsertion(learningContentItem, fieldStructure);
+    return learningContentHelper.prepareLearningContentValueBeforeInsertion(learningContentItem, fieldStructure);
   }));
 }
-
-function _prepareLearningContentValueBeforeInsertion(learningContentItem, fieldStructure) {
-  const learningContentValue = learningContentItem[fieldStructure.name];
-  const value = fieldStructure.extractor ? fieldStructure.extractor(learningContentItem) : learningContentValue;
-  if (!Array.isArray(value)) {
-    return value;
-  }
-  return fieldStructure.isArray ? `{${value.join(',')}}` : value[0];
-}
-
 function _allValuesHavePrimaryKey(values) {
   return !values.some(function(value) {
     const primaryKey = value[0];
