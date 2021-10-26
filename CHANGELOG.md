@@ -1,5 +1,14 @@
 # pix-db-replication Changelog
 
+## v2.0.0 (26/10/2021)
+
+
+### :rocket: Enhancement
+- [#103](https://github.com/1024pix/pix-db-replication/pull/103) [FEATURE] Récupérer le référentiel d'épreuves depuis LCMS.
+
+### :building_construction: Tech
+- [#102](https://github.com/1024pix/pix-db-replication/pull/102) [TECH] Monter les BDD de développement en version majeure 13.3 depuis la 12.4.
+
 ## v1.20.0 (12/10/2021)
 
 - [#100](https://github.com/1024pix/pix-db-replication/pull/100) [TECH] Scripts pour démarrer la réplication
