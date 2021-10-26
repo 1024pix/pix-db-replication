@@ -28,8 +28,8 @@ const extractConfigurationFromEnvironmentVariable = function() {
   return {
     PG_CLIENT_VERSION: process.env.PG_CLIENT_VERSION || 12,
     RETRIES_TIMEOUT_MINUTES: extractInteger(process.env.RETRIES_TIMEOUT_MINUTES) || 180,
-    AIRTABLE_API_KEY: process.env.AIRTABLE_API_KEY || 'keyblo10ZCvCqBAJg',
-    AIRTABLE_BASE: process.env.AIRTABLE_BASE || 'app3fvsqhtHJntXaC',
+    LCMS_API_KEY: process.env.LCMS_API_KEY || '',
+    LCMS_API_URL: process.env.LCMS_API_URL || '',
     SCHEDULE: process.env.SCHEDULE || '10 5 * * *',
     MAX_RETRY_COUNT: extractInteger(process.env.MAX_RETRY_COUNT) || 10,
     MIN_TIMEOUT: extractInteger(process.env.MIN_TIMEOUT) || 900000, // 15 min

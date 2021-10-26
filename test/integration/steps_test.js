@@ -1,10 +1,12 @@
-const { expect } = require('chai');
 const { createBackupAndCreateEmptyDatabase, createAndFillDatabase, createBackup } = require('./test-helper');
 const Database = require('../utils/database');
 const pgUrlParser = require('pg-connection-string').parse;
 const fs = require('fs');
+const mockLcmsGetAirtable = require('../utils/mock-lcms-get-airtable');
 
+const { expect, sinon } = require('../test-helper');
 const steps = require('../../src/steps');
+const lcmsClient = require('../../src/lcms-client');
 
 describe('Integration | steps.js', () => {
 
@@ -606,7 +608,7 @@ describe('Integration | steps.js', () => {
     });
   });
 
-  describe('#importAirtableData', () => {
+  describe('#importLearningContent', () => {
 
     let targetDatabaseConfig;
     let targetDatabase;
@@ -614,70 +616,33 @@ describe('Integration | steps.js', () => {
 
       // CircleCI set up environment variables to access DB, so we need to read them here
       // eslint-disable-next-line no-process-env
-      const TARGET_DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://pix@localhost:5432/replication_target';
-      const rawTargetDataBaseConfig = pgUrlParser(TARGET_DATABASE_URL);
+      const DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://pix@localhost:5432/replication_target';
+      const config = pgUrlParser(DATABASE_URL);
 
       targetDatabaseConfig = {
-        serverUrl: `postgres://${rawTargetDataBaseConfig.user}@${rawTargetDataBaseConfig.host}:${rawTargetDataBaseConfig.port}`,
-        databaseName: rawTargetDataBaseConfig.database,
+        serverUrl: `postgres://${config.user}@${config.host}:${config.port}`,
+        databaseName: config.database,
         tableName: 'test_table',
         tableRowCount: 100000,
       };
 
-      targetDatabaseConfig.databaseUrl = `${targetDatabaseConfig.serverUrl}/${targetDatabaseConfig.databaseName}`;
-
       targetDatabase = await Database.create(targetDatabaseConfig);
     });
 
-    context('according to Airtable API status', () => {
+    it('should import data', async function() {
+      // given
+      const configuration = {
+        DATABASE_URL: `${targetDatabaseConfig.serverUrl}/${targetDatabaseConfig.databaseName}`,
+      };
+      const fullLearningContent = mockLcmsGetAirtable();
+      sinon.stub(lcmsClient, 'getLearningContent').resolves(fullLearningContent);
 
-      it('if available, should import data', async function() {
+      // when
+      await steps.importLearningContent(configuration);
 
-        // when
-        const configuration = {
-          AIRTABLE_API_KEY: 'keyblo10ZCvCqBAJg',
-          AIRTABLE_BASE: 'app3fvsqhtHJntXaC',
-          DATABASE_URL: targetDatabaseConfig.databaseUrl,
-          MAX_RETRY_COUNT: 10,
-          RETRIES_TIMEOUT_MINUTES: 180,
-        };
-
-        await steps.importAirtableData(configuration);
-
-        // then
-        const competenceRowCount = parseInt(await targetDatabase.runSql('SELECT COUNT(*) FROM competences'));
-        expect(competenceRowCount).to.be.above(0);
-
-      });
-
-      it('if available but credentials are invalid, should not retry the expect time, but throw', async function() {
-
-        // given
-        const configuration = {
-          DATABASE_URL: targetDatabaseConfig.databaseUrl,
-          AIRTABLE_API_KEY: 'INVALID',
-          AIRTABLE_BASE: 'INVALID',
-          MAX_RETRY_COUNT: 1000,
-          RETRIES_TIMEOUT_MINUTES: 1,
-        };
-
-        // when
-        const startedAt = new Date();
-        let errorMessage;
-        try {
-          await steps.importAirtableData(configuration);
-        } catch (error) {
-          errorMessage = error.message;
-        }
-        const endedAt = new Date();
-        const elapsedTimeMinutes = Math.round((endedAt - startedAt) / 1000 / 60);
-
-        // then
-        expect(errorMessage).to.eq('Could not find what you are looking for');
-        expect(elapsedTimeMinutes).to.eq(0);
-
-      });
-
+      // then
+      const competenceRowCount = parseInt(await targetDatabase.runSql('SELECT COUNT(*) FROM competences'));
+      expect(competenceRowCount).to.equal(6);
     });
 
   });

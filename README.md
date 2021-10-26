@@ -54,7 +54,7 @@ scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-production --size M --
 
 Lancer la réplication incrémentale
 ``` bash
-scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-production --size M --detached npm run restart:incremental-airtable-replication
+scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-production --size M --detached npm run restart:incremental-learning-content-replication
 ```
 
 #### Sur la BDD destinée aux externes
@@ -66,9 +66,9 @@ scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-ex-production --size M
 #### Exécution partielle
 Dans certains cas, le besoin est de relancer uniquement les opérations de fin de réplication
 
-##### Import AirTable
+##### Importer le référentiel pédagogique
 ``` bash
-scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-production --size M --detached npm run restart:airtable-replication
+scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-production --size M --detached npm run restart:learning-content-replication
 ```
 
 ##### Enrichissement
@@ -171,9 +171,9 @@ node ./src/run-replicate-incrementally.js
 #### Exécution partielle
 Dans certains cas, le besoin est de relancer uniquement les opérations de fin de réplication
 
-##### Import AirTable
+##### Importer le référentiel pédagogique
 ``` bash
-node -e "steps=require('./src/steps'); steps.importAirtableData(require ('./src/config/extract-configuration-from-environment')())"
+node -e "steps=require('./src/steps'); steps.importLearningContent(require ('./src/config/extract-configuration-from-environment')())"
 ```
 
 ##### Enrichissement
@@ -197,7 +197,7 @@ Démarrez l'ordonnanceur
 
 Vérifiez que le traitement se lance
 ```shell
-[2021-06-11T14:11:01.944Z]  INFO: pix-db-replication/83294 on OCTO-TOPI: Starting job in Airtable replication queue: 10
+[2021-06-11T14:11:01.944Z]  INFO: pix-db-replication/83294 on OCTO-TOPI: Starting job in Learning Content replication queue: 10
 ```
 Vérifiez que bull a pu joindre redis
 ```shell
@@ -229,10 +229,10 @@ connect "Incremental replication queue"
 stats
 ```
 
-Pour l'import Airtable
+Pour l'import LCMS
 ```shell
 bull-repl
-connect "Airtable replication queue"
+connect "Learning Content replication queue"
 stats
 ```
 
@@ -262,9 +262,9 @@ Il est donc important d'effectuer un test manuel en RA avant de merger une PR, m
 ### Manuels
 
 #### Local
-Récupérer les données Airtable :
+Récupérer les données de LCMS :
 ``` bash
-node -e "steps=require('./src/steps'); steps.importAirtableData();"
+node -e "steps=require('./src/steps'); steps.importLearningContent();"
 ```
 
 #### RA Scalingo

@@ -8,7 +8,7 @@ const replicateIncrementally = require('./replicate-incrementally');
 const { configuration, jobOptions, repeatableJobOptions } = require('./config');
 
 const replicationQueue = _createQueue('Replication queue');
-const airtableReplicationQueue = _createQueue('Airtable replication queue');
+const learningContentReplicationQueue = _createQueue('Learning Content replication queue');
 const incrementalReplicationQueue = _createQueue('Incremental replication queue');
 
 main()
@@ -31,11 +31,11 @@ async function main() {
     if (hasIncremental(configuration)) {
       await replicateIncrementally.run(configuration);
     }
-    airtableReplicationQueue.add({}, jobOptions);
+    learningContentReplicationQueue.add({}, jobOptions);
   });
 
-  airtableReplicationQueue.process(async function() {
-    await steps.importAirtableData(configuration);
+  learningContentReplicationQueue.process(async function() {
+    await steps.importLearningContent(configuration);
     logger.info('Import and enrichment done');
   });
 
@@ -45,7 +45,7 @@ async function main() {
 }
 
 async function _setInterruptedJobsAsFailed() {
-  const promises = [replicationQueue, airtableReplicationQueue, incrementalReplicationQueue].map(async (queue) => {
+  const promises = [replicationQueue, learningContentReplicationQueue, incrementalReplicationQueue].map(async (queue) => {
     const activeJobs = await queue.getActive();
 
     for (const job of activeJobs) {
