@@ -3,7 +3,7 @@ const _ = require('lodash');
 const { expect, catchErr } = require('../test-helper');
 const Database = require('../utils/database');
 const mockLcmsGetAirtable = require('../utils/mock-lcms-get-airtable');
-const dbConnection = require('../../src/db-connection');
+const databaseHelper = require('../../src/database-helper');
 const { PrimaryKeyNotNullConstraintError } = require('../../src/errors');
 
 describe('Integration | db-connection.js', () => {
@@ -43,7 +43,7 @@ describe('Integration | db-connection.js', () => {
       tableExists = await database.hasTable(databaseConfig.tableName);
       expect(tableExists).to.equal(true);
 
-      await dbConnection.dropTable(databaseConfig.tableName, databaseConfig);
+      await databaseHelper.dropTable(databaseConfig.tableName, databaseConfig);
 
       tableExists = await database.hasTable(databaseConfig.tableName);
       expect(tableExists).to.equal(false);
@@ -62,7 +62,7 @@ describe('Integration | db-connection.js', () => {
       };
       const tableName = tableStructure.name;
 
-      await dbConnection.createTable(tableStructure, databaseConfig);
+      await databaseHelper.createTable(tableStructure, databaseConfig);
 
       const tableExists = await database.hasTable(tableName);
       expect(tableExists).to.equal(true);
@@ -105,7 +105,7 @@ describe('Integration | db-connection.js', () => {
       const fullLearningContent = mockLcmsGetAirtable();
       const learningContent = fullLearningContent[table.name];
 
-      await dbConnection.saveLearningContent(table, learningContent, databaseConfig);
+      await databaseHelper.saveLearningContent(table, learningContent, databaseConfig);
 
       const challengesCount = await database.runSql('select count(*) from "challenges"');
       expect(challengesCount).to.equal('7');
@@ -132,7 +132,7 @@ describe('Integration | db-connection.js', () => {
       };
       const learningContent = fullLearningContent[table.name];
 
-      const error = await catchErr(dbConnection.saveLearningContent)(table, learningContent, databaseConfig);
+      const error = await catchErr(databaseHelper.saveLearningContent)(table, learningContent, databaseConfig);
 
       expect(error).to.be.instanceof(PrimaryKeyNotNullConstraintError);
     });

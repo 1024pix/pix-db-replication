@@ -1,6 +1,6 @@
 'use strict';
 
-const { runDBOperation } = require('./db-connection');
+const { runDBOperation } = require('./database-helper');
 const logger = require('./logger');
 const toPairs = require('lodash/toPairs');
 
