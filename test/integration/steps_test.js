@@ -6,7 +6,7 @@ const mockLcmsGetAirtable = require('../utils/mock-lcms-get-airtable');
 
 const { expect, sinon } = require('../test-helper');
 const steps = require('../../src/steps');
-const lcms = require('../../src/lcms');
+const lcmsClient = require('../../src/lcms-client');
 
 describe('Integration | steps.js', () => {
 
@@ -635,7 +635,7 @@ describe('Integration | steps.js', () => {
         DATABASE_URL: `${targetDatabaseConfig.serverUrl}/${targetDatabaseConfig.databaseName}`,
       };
       const fullLearningContent = mockLcmsGetAirtable();
-      sinon.stub(lcms, 'getLearningContent').resolves(fullLearningContent);
+      sinon.stub(lcmsClient, 'getLearningContent').resolves(fullLearningContent);
 
       // when
       await steps.importLearningContent(configuration);

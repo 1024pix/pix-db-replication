@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const lcms = require('./lcms');
+const lcmsClient = require('./lcms-client');
 const dbConnection = require('./db-connection');
 
 const tables = [{
@@ -96,7 +96,7 @@ const tables = [{
 }];
 
 async function fetchAndSaveData(configuration) {
-  const learningContent = await lcms.getLearningContent(configuration);
+  const learningContent = await lcmsClient.getLearningContent(configuration);
   if (learningContent) {
     await Promise.all(tables.map(async (table) => {
       await dbConnection.dropTable(table.name, configuration);

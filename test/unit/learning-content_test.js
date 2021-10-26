@@ -1,5 +1,5 @@
 const { expect, sinon } = require('../test-helper');
-const lcms = require('../../src/lcms');
+const learningContentClient = require('../../src/learning-content-client');
 const dbConnection = require('../../src/db-connection');
 const learningContent = require('../../src/learning-content');
 
@@ -19,13 +19,13 @@ describe('Unit | learning-content.js', () => {
       sinon.stub(dbConnection, 'dropTable').resolves();
       sinon.stub(dbConnection, 'createTable').resolves();
       sinon.stub(dbConnection, 'saveLearningContent').resolves();
-      sinon.stub(lcms, 'getLearningContent').resolves(content);
+      sinon.stub(learningContentClient, 'getLearningContent').resolves(content);
 
       await learningContent.fetchAndSaveData(databaseConfig);
     });
 
     it('should fetch learning-content from LCMS', async() => {
-      expect(lcms.getLearningContent).to.have.been.called;
+      expect(learningContentClient.getLearningContent).to.have.been.called;
     });
 
     it('should drop existing learning-content tables', async() => {

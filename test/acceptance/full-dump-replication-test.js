@@ -6,7 +6,7 @@ const Database = require('../utils/database');
 const { expect, sinon } = require('../test-helper');
 const mockLcmsGetAirtable = require('../utils/mock-lcms-get-airtable');
 const steps = require('../../src/steps');
-const lcms = require('../../src/lcms');
+const lcmsClient = require('../../src/lcms-client');
 
 async function getCountFromTable({ targetDatabase, tableName }) {
   return parseInt(await targetDatabase.runSql(`SELECT COUNT(*) FROM ${tableName}`));
@@ -100,7 +100,7 @@ describe('Acceptance | steps | fullReplicationAndEnrichment', () => {
     let fullLearningContent;
     before(async function() {
       fullLearningContent = mockLcmsGetAirtable();
-      sinon.stub(lcms, 'getLearningContent').resolves(fullLearningContent);
+      sinon.stub(lcmsClient, 'getLearningContent').resolves(fullLearningContent);
 
       await steps.importLearningContent(configuration);
     });

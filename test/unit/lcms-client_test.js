@@ -1,8 +1,8 @@
 const { expect, axios, sinon, catchErr } = require('../test-helper');
 
-const lcms = require('../../src/lcms');
+const lcmsClient = require('../../src/lcms-client');
 
-describe('Unit | lcms.js', () => {
+describe('Unit | lcms-client.js', () => {
   describe('#getLatest', () => {
     let learningContentGetUrl, configuration, headers;
 
@@ -26,7 +26,7 @@ describe('Unit | lcms.js', () => {
       sinon.stub(axios, 'get').withArgs(learningContentGetUrl, { headers }).resolves(axiosResponse);
 
       // when
-      const response = await lcms.getLearningContent(configuration);
+      const response = await lcmsClient.getLearningContent(configuration);
 
       // then
       expect(response).to.equal(axiosResponse.data);
@@ -42,7 +42,7 @@ describe('Unit | lcms.js', () => {
       sinon.stub(axios, 'get').withArgs(learningContentGetUrl, { headers }).rejects(axiosError);
 
       // when
-      const error = await catchErr(lcms.getLearningContent)(configuration);
+      const error = await catchErr(lcmsClient.getLearningContent)(configuration);
 
       // then
       expect(error).not.to.be.null;
