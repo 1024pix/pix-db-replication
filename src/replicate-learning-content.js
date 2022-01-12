@@ -72,6 +72,8 @@ const tables = [{
     { name: 'area', type: 'text' },
     { name: 'focus', type: 'boolean', extractor: (record) => !!record['focusable'] },
     { name: 'explicativeResponse', type: 'text', extractor: (record) => record['solutionToDisplay'] },
+    { name: 'delta', type: 'numeric' },
+    { name: 'alpha', type: 'numeric' },
   ],
   indices: ['firstSkillId'],
 }, {
