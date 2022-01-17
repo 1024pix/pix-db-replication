@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.0.1 (17/01/2022)
+
+
+### :rocket: Enhancement
+- [#105](https://github.com/1024pix/pix-db-replication/pull/105) [FEATURE] Récupération des champs difficulté et discriminant de LCMS pour Metabase (PIX-4095).
+
 ## v2.0.0 (26/10/2021)
 
 
