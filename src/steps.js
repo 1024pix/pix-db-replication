@@ -49,9 +49,9 @@ async function pgclientSetup(configuration) {
 
 async function dropCurrentObjects(configuration) {
   // TODO: pass DATABASE_URL by argument
-  const tablesToDrop = getTablesWithReplicationModes(configuration, [REPLICATION_MODE.INCREMENTAL, REPLICATION_MODE.TO_EXCLUDE]);
-  if (tablesToDrop.length > 0) {
-    return dropCurrentObjectsExceptTables(configuration.DATABASE_URL, tablesToDrop);
+  const tablesToKeep = getTablesWithReplicationModes(configuration, [REPLICATION_MODE.INCREMENTAL, REPLICATION_MODE.TO_EXCLUDE]);
+  if (tablesToKeep.length > 0) {
+    return dropCurrentObjectsExceptTables(configuration.DATABASE_URL, tablesToKeep);
   }
   else return exec('psql', [ configuration.DATABASE_URL, ' --echo-all', '--set', 'ON_ERROR_STOP=on', '--command', 'DROP OWNED BY CURRENT_USER CASCADE' ]);
 }
