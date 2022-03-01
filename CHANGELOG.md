@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.0.2 (01/03/2022)
+
+
+### :rocket: Amélioration
+- [#106](https://github.com/1024pix/pix-db-replication/pull/106) [FEATURE] Mise a jour de la réplication de la relation challenge -> skill 
+
 ## v2.0.1 (17/01/2022)
 
 
