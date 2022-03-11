@@ -30,11 +30,6 @@ async function add(configuration) {
       await client.query('CREATE INDEX "users_createdAt_idx" on "users" (cast("createdAt" AT TIME ZONE \'UTC+1\' as date) DESC)');
       logger.info('CREATE INDEX "users_createdAt_idx" - Ended');
     }
-    if (!tablesToNotBeEnriched.includes('schooling-registrations')) {
-      logger.info('CREATE VIEW students - Started');
-      await client.query('CREATE VIEW students AS SELECT * FROM "schooling-registrations"');
-      logger.info('CREATE VIEW students - Ended');
-    }
   }, configuration);
 }
 
