@@ -8,6 +8,7 @@ const learningContent = require('./replicate-learning-content');
 const enrichment = require('./enrichment');
 const logger = require('./logger');
 const toPairs = require('lodash/toPairs');
+const createViewsForMissingTables = require('./create-views-for-missing-tables');
 
 const RESTORE_LIST_FILENAME = 'restore.list';
 
@@ -133,6 +134,11 @@ async function dropObjectAndRestoreBackup(backupFile, configuration) {
   logger.info('Start restore Backup');
   await restoreBackup({ backupFile, databaseUrl: configuration.DATABASE_URL, configuration });
   logger.info('End restore Backup');
+
+  logger.info('Start create view');
+  await createViewsForMissingTables(configuration);
+  logger.info('End create view');
+
 }
 
 async function importLearningContent(configuration) {
