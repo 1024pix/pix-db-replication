@@ -5,7 +5,7 @@ const logger = require('./logger');
 
 async function createViewForMissingTable(configuration) {
   await runDBOperation(async (client) => {
-    const results = await client.query('SELECT FROM "pg_tables" WHERE "tablename" = \'schooling-registrations\'');
+    const results = await client.query('SELECT * FROM "pg_tables" WHERE "tablename" = \'schooling-registrations\'');
 
     if (results.rowCount === 0) {
       logger.info('CREATE VIEW "schooling-registrations" IF TABLE NOT EXISTS - Started');
