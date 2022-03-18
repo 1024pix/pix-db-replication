@@ -1,5 +1,14 @@
 # pix-db-replication Changelog
 
+## v2.1.0 (18/03/2022)
+
+
+### :building_construction: Tech
+- [#108](https://github.com/1024pix/pix-db-replication/pull/108) [TECH] Ajouter une vue pour la table schooling registrations (PIX-4491).
+
+### :coffee: Autre
+- [#107](https://github.com/1024pix/pix-db-replication/pull/107) [CLEANUP] Renommage d'une variable pour plus de clarté
+
 ## v2.0.2 (01/03/2022)
 
 
