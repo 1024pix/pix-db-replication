@@ -168,12 +168,6 @@ describe('Acceptance | steps | fullReplicationAndEnrichment', () => {
       expect(answersIndexCount).to.equal(1);
 
     });
-
-    it('should create view students', async function() {
-      // then
-      const viewCount = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM pg_views vws WHERE vws.viewname = \'students\';'));
-      expect(viewCount).to.equal(1);
-    });
   });
 
 });

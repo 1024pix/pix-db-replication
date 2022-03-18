@@ -77,9 +77,6 @@ describe('Integration | enrichment.js', () => {
 
           const usersIndexCount = parseInt(await database.runSql('SELECT COUNT(1) FROM pg_indexes ndx WHERE ndx.indexname = \'users_createdAt_idx\''));
           expect(usersIndexCount).to.equal(indexCount);
-
-          const viewCount = parseInt(await database.runSql('SELECT COUNT(1) FROM pg_views vws WHERE vws.viewname = \'students\';'));
-          expect(viewCount).to.equal(indexCount);
         }));
     });
   });
