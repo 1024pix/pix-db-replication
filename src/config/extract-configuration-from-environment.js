@@ -21,7 +21,7 @@ const extractConfigurationFromEnvironmentVariable = function() {
   try {
     BACKUP_MODE = process.env.BACKUP_MODE ? JSON.parse(process.env.BACKUP_MODE) : {};
   } catch (e) {
-    logger.error('BACKUP_INCREMENTALLY should be a JSON value');
+    logger.error('BACKUP_MODE should be a JSON value');
     throw e;
   }
   try {
