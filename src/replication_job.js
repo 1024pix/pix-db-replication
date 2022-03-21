@@ -10,6 +10,7 @@ const { configuration, jobOptions, repeatableJobOptions } = require('./config');
 const replicationQueue = _createQueue('Replication queue');
 const learningContentReplicationQueue = _createQueue('Learning Content replication queue');
 const incrementalReplicationQueue = _createQueue('Incremental replication queue');
+const notificationQueue = _createQueue('Notification queue');
 
 main()
   .catch(async (error) => {
@@ -36,6 +37,10 @@ async function main() {
 
   learningContentReplicationQueue.process(async function() {
     await steps.importLearningContent(configuration);
+    notificationQueue.add({}, jobOptions);
+  });
+
+  notificationQueue.process(async function() {
     logger.info('Import and enrichment done');
   });
 
@@ -45,7 +50,7 @@ async function main() {
 }
 
 async function _setInterruptedJobsAsFailed() {
-  const promises = [replicationQueue, learningContentReplicationQueue, incrementalReplicationQueue].map(async (queue) => {
+  const promises = [replicationQueue, learningContentReplicationQueue, incrementalReplicationQueue, notificationQueue].map(async (queue) => {
     const activeJobs = await queue.getActive();
 
     for (const job of activeJobs) {
