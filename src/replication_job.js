@@ -5,6 +5,7 @@ const initSentry = require('./sentry-init');
 const steps = require('./steps');
 const logger = require('./logger');
 const replicateIncrementally = require('./replicate-incrementally');
+const notificationJob = require('./notification-job');
 const { configuration, jobOptions, repeatableJobOptions } = require('./config');
 
 const replicationQueue = _createQueue('Replication queue');
@@ -41,6 +42,7 @@ async function main() {
   });
 
   notificationQueue.process(async function() {
+    await notificationJob.run(configuration);
     logger.info('Import and enrichment done');
   });
 

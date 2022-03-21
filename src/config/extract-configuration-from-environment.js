@@ -24,6 +24,12 @@ const extractConfigurationFromEnvironmentVariable = function() {
     logger.error('BACKUP_INCREMENTALLY should be a JSON value');
     throw e;
   }
+  try {
+    NOTIFICATION_URLS = process.env.NOTIFICATION_URLS ? JSON.parse(process.env.NOTIFICATION_URLS) : [];
+  } catch (e) {
+    logger.error('NOTIFICATION_URLS should be a JSON value');
+    throw e;
+  }
 
   return {
     PG_CLIENT_VERSION: process.env.PG_CLIENT_VERSION || 12,
@@ -47,6 +53,7 @@ const extractConfigurationFromEnvironmentVariable = function() {
     SENTRY_DEBUG: process.env.SENTRY_DEBUG,
     SENTRY_MAX_VALUE_LENGTH: 1000,
     REDIS_URL: process.env.REDIS_URL || 'redis://127.0.0.1:6379',
+    NOTIFICATION_URLS,
   };
 };
 
