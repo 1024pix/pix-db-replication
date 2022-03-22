@@ -14,7 +14,7 @@
     "local:create-databases": "./local-setup/script/create-databases.sh",
     "local:load-databases": "./local-setup/script/load-databases.sh",
     "restart:full-replication": "node scripts/restart-replication-job.js 'Replication queue'",
-    "restart:incremental-learning-content-replication": "node scripts/restart-replication-job.js 'Incremental replication queue'",
+    "restart:incremental-replication": "node scripts/restart-replication-job.js 'Incremental replication queue'",
     "restart:learning-content-replication": "node scripts/restart-replication-job.js 'Learning Content replication queue'",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",

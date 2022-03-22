@@ -54,7 +54,7 @@ scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-production --size M --
 
 Lancer la réplication incrémentale
 ``` bash
-scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-production --size M --detached npm run restart:incremental-learning-content-replication
+scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-production --size M --detached npm run restart:incremental-replication
 ```
 
 #### Sur la BDD destinée aux externes
