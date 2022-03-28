@@ -38,7 +38,7 @@ async function main() {
 
   learningContentReplicationQueue.process(async function() {
     await steps.importLearningContent(configuration);
-    notificationQueue.add({}, jobOptions);
+    notificationQueue.add({}, { ...jobOptions, attempts: 1 });
   });
 
   notificationQueue.process(async function() {
