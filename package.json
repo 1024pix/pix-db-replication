@@ -16,6 +16,7 @@
     "restart:full-replication": "node scripts/restart-replication-job.js 'Replication queue'",
     "restart:incremental-replication": "node scripts/restart-replication-job.js 'Incremental replication queue'",
     "restart:learning-content-replication": "node scripts/restart-replication-job.js 'Learning Content replication queue'",
+    "restart:notification": "node scripts/restart-replication-job.js 'Notification queue'",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "preinstall": "npx check-engine",

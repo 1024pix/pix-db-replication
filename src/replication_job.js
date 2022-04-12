@@ -5,11 +5,13 @@ const initSentry = require('./sentry-init');
 const steps = require('./steps');
 const logger = require('./logger');
 const replicateIncrementally = require('./replicate-incrementally');
+const notificationJob = require('./notification-job');
 const { configuration, jobOptions, repeatableJobOptions } = require('./config');
 
 const replicationQueue = _createQueue('Replication queue');
 const learningContentReplicationQueue = _createQueue('Learning Content replication queue');
 const incrementalReplicationQueue = _createQueue('Incremental replication queue');
+const notificationQueue = _createQueue('Notification queue');
 
 main()
   .catch(async (error) => {
@@ -36,6 +38,11 @@ async function main() {
 
   learningContentReplicationQueue.process(async function() {
     await steps.importLearningContent(configuration);
+    notificationQueue.add({}, { ...jobOptions, attempts: 1 });
+  });
+
+  notificationQueue.process(async function() {
+    await notificationJob.run(configuration);
     logger.info('Import and enrichment done');
   });
 
@@ -45,7 +52,7 @@ async function main() {
 }
 
 async function _setInterruptedJobsAsFailed() {
-  const promises = [replicationQueue, learningContentReplicationQueue, incrementalReplicationQueue].map(async (queue) => {
+  const promises = [replicationQueue, learningContentReplicationQueue, incrementalReplicationQueue, notificationQueue].map(async (queue) => {
     const activeJobs = await queue.getActive();
 
     for (const job of activeJobs) {
