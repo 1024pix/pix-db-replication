@@ -1,5 +1,15 @@
 # pix-db-replication Changelog
 
+## v2.2.0 (20/06/2022)
+
+
+### :rocket: Amélioration
+- [#110](https://github.com/1024pix/pix-db-replication/pull/110) [FEATURE] Ajout d'une notification / webhook en fin de réplication
+
+### :coffee: Autre
+- [#111](https://github.com/1024pix/pix-db-replication/pull/111) [CLEANUP] Supprimer la réplication incrémentale par CronJob obsolète.
+- [#109](https://github.com/1024pix/pix-db-replication/pull/109) [CLEANUP] Renomme un script 
+
 ## v2.1.0 (18/03/2022)
 
 
