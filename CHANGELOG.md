@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.3.0 (04/07/2022)
+
+
+### :building_construction: Tech
+- [#114](https://github.com/1024pix/pix-db-replication/pull/114) [TECH] Exclure le schéma pgboss du dump de la réplication.
+
 ## v2.2.0 (20/06/2022)
 
 
