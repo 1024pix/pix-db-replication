@@ -128,7 +128,7 @@ RESTORE_FK_CONSTRAINTS=true
 
 Lancer la réplication
 ``` bash
-node -e "steps=require('./src/steps'); steps.fullReplicationAndEnrichment(require ('./src/config/sextract-configuration-from-environment')())"
+node -e "steps=require('./src/steps'); steps.fullReplicationAndEnrichment(require ('./src/config/extract-configuration-from-environment')())"
 ```
 
 Au bout de 5 minutes, vous devez obtenir le message
