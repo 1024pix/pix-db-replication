@@ -49,18 +49,18 @@ Deux traitements (dump et incrémentale) sont exécutés chaque nuit
 
 Lancer la réplication par dump
 ``` bash
-scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-production --detached npm run restart:full-replication
+scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-production npm run restart:full-replication
 ```
 
 Lancer la réplication incrémentale
 ``` bash
-scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-production --detached npm run restart:incremental-replication
+scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-production npm run restart:incremental-replication
 ```
 
 #### Sur la BDD destinée aux externes
 Lancer la réplication par dump
 ``` bash
-scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-ex-production --detached npm run restart:full-replication
+scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-ex-production npm run restart:full-replication
 ```
 
 #### Exécution partielle
@@ -68,12 +68,12 @@ Dans certains cas, le besoin est de relancer uniquement les opérations de fin d
 
 ##### Importer le référentiel pédagogique
 ``` bash
-scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-production --detached npm run restart:learning-content-replication
+scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-production npm run restart:learning-content-replication
 ```
 
 ##### Relancer les notifications de fin
 ``` bash
-scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-production --detached npm run restart:notification
+scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-production npm run restart:notification
 ```
 
 ##### Enrichissement
