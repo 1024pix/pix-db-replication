@@ -1,5 +1,22 @@
 # pix-db-replication Changelog
 
+## v2.4.0 (10/10/2022)
+
+
+### :rocket: Amélioration
+- [#116](https://github.com/1024pix/pix-db-replication/pull/116) [FEATURE] Ajout d'une licence
+
+### :building_construction: Tech
+- [#112](https://github.com/1024pix/pix-db-replication/pull/112) [TECH] Améliorer la tracabilité des métriques de la réplication incrémentale pour une meilleure exploitation dans Datadog
+
+### :bug: Correction
+- [#115](https://github.com/1024pix/pix-db-replication/pull/115) [BUGFIX] Ne pas exclure le schema pgboss lors du backup
+
+### :coffee: Autre
+- [#117](https://github.com/1024pix/pix-db-replication/pull/117) [DOC] Supprimer le flag --detached de la relance manuelle
+- [#118](https://github.com/1024pix/pix-db-replication/pull/118) [CLEANUP] Utilise l'action auto merge commune
+- [#113](https://github.com/1024pix/pix-db-replication/pull/113) [Documentation] Fix typo readme
+
 ## v2.3.0 (04/07/2022)
 
 
