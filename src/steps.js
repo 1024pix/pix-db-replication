@@ -118,7 +118,6 @@ async function createBackup(configuration) {
     '--exclude-schema',
     'information_schema',
     '--exclude-schema', '\'^pg_*\'',
-    '--exclude-schema', 'pgboss',
     '--file', backupFilename,
     ...verboseOptions,
     ...excludeOptions,
