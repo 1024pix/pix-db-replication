@@ -29,7 +29,7 @@ Des variables d'environnement sont mises en place afin de garder un seul reposit
 
 ## Utilisation sur Scalingo
 
-### Paramétrage
+### Installation
 Alimenter les variables d'environnement documentées dans le fichier [sample.env](sample.env)
 
 Pour satisfaire les contraintes de déploiement Scalingo, le [Procfile](Procfile) déclare un conteneur de type `web` qui démarre un serveur Web "vide".
@@ -37,11 +37,60 @@ Pour satisfaire les contraintes de déploiement Scalingo, le [Procfile](Procfile
 Une fois l'application créée et déployée une première fois, il faut :
 - mettre à 0 le nombre de conteneurs de type `web`
 - mettre à 1 le nombre de conteneurs de type `background`.
+ 
+### Résolution de problèmes
 
-### Exécution hors tâche planifiée
-Un traitement peut être lancé immédiatement (hors tâche planifiée) en exécutant un script dédié dans un conteneur one-off
+#### Analyse de la cause
 
-#### Sur la BDD destinée aux internes
+Connectez-vous à `bull`
+```shell
+scalingo --region osc-secnum-fr1 --app pix-datawarehouse-production run bull-repl
+connect "Replication queue"
+#connect "Incremental replication queue"
+#connect "Learning Content replication queue"
+failed
+stats
+```
+
+Alternativement, se connecter à `redis`
+```shell
+scalingo --region osc-secnum-fr1 --app pix-datawarehouse-production redis-console
+KEYS *
+GET <KEY>
+```
+
+
+#### Relance
+Une fois que la cause du problème a été corrigée:
+- s'il est important que les données soient disponibles le jour même, il est possible de lancer le traitement manuellement;
+- sinon ne rien faire, le traitement sera exécuté la nuit prochaine.
+
+Cela se fera:
+- hors tâche planifiée;
+- en exécutant un script dédié dans un conteneur one-off détaché;
+
+🧨 Le traitement peut avoir des impacts sur les temps de réponses des applications, car il utilise les ressources BDD.
+Monitorez le % CPU BDD et le temps de réponse des requêtes HTTP pour arrêter le traitement si besoin.
+Pour arrêter un one-off:
+
+Déterminer son nom
+```shell
+scalingo --region osc-secnum-fr1 --app pix-datawarehouse-production ps
++--------------+---------+------------------------------------------------+
+|     NAME     | STATUS  |            COMMAND                             |
++--------------+---------+------------------------------------------------+
+| one-off-1234 | running | node node scripts/restart-replication-job.js   |
++--------------+---------+-------------------------------+------+---------+
+```
+Ici, le nom est `one-off-1234`
+
+L'arrêter
+```shell
+scalingo --region osc-secnum-fr1 --app pix-datawarehouse-production one-off-stop <NOM-ONE-OFF>
+```
+
+
+##### Sur la BDD destinée aux internes
 
 Deux traitements (dump et incrémentale) sont exécutés chaque nuit
 * si l'un d'eux échoue, le relancer
@@ -57,26 +106,26 @@ Lancer la réplication incrémentale
 scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-production npm run restart:incremental-replication
 ```
 
-#### Sur la BDD destinée aux externes
+##### Sur la BDD destinée aux externes
 Lancer la réplication par dump
 ``` bash
 scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-ex-production npm run restart:full-replication
 ```
 
-#### Exécution partielle
+##### Exécution partielle
 Dans certains cas, le besoin est de relancer uniquement les opérations de fin de réplication
 
-##### Importer le référentiel pédagogique
+###### Importer le référentiel pédagogique
 ``` bash
 scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-production npm run restart:learning-content-replication
 ```
 
-##### Relancer les notifications de fin
+###### Relancer les notifications de fin
 ``` bash
 scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-production npm run restart:notification
 ```
 
-##### Enrichissement
+###### Enrichissement
 Création index, vues..
 ``` bash
 node -e "steps=require('./src/steps'); steps.addEnrichment(require ('./src/config/extract-configuration-from-environment')())"
@@ -334,7 +383,7 @@ Pour faciliter l'analyse, utilisez le script d'analyse de log.
 Étapes :
 * récupérer les logs
 ``` bash
-scalingo --region osc-secnum-fr1 --app <NOM_APPLICATION> logs --lines 100000 > logs.txt
+scalingo --region osc-secnum-fr1 --app <NOM_APPLICATION> logs --lines 100000 > /tmp/logs.txt
 ```
 
 * déterminer la date d'exécution au format `YYYY-MM-DDDD`, par exemple : `2020-10-13`
