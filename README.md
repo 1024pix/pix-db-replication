@@ -227,7 +227,7 @@ Dans certains cas, le besoin est de relancer uniquement les opérations de fin d
 
 ##### Importer le référentiel pédagogique
 ``` bash
-node -e "steps=require('./src/steps'); steps.importLearningContent(require ('./src/config/extract-configuration-from-environment')())"
+npm run local:learning-content
 ```
 
 ##### Enrichissement
