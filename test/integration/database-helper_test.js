@@ -6,6 +6,7 @@ const mockLcmsGetAirtable = require('../utils/mock-lcms-get-airtable');
 const databaseHelper = require('../../src/database-helper');
 const { PrimaryKeyNotNullConstraintError } = require('../../src/errors');
 
+
 describe('Integration | db-connection.js', () => {
 
   // eslint-disable-next-line no-process-env
@@ -114,29 +115,32 @@ describe('Integration | db-connection.js', () => {
       expect(skillIdsCount).to.deep.equal(skillCount);
     });
 
-    it('should throw an error if at least one of the collection item has no property', async function() {
-      const table = {
-        name: 'challenges',
-        fields: [
-          { name: 'instructions', type: 'text' },
-          { name: 'timer', type: 'smallint' },
-          { name: 'autoReply', type: 'boolean' },
-          { name: 'skillIds', type: 'text []', isArray: true },
-          { name: 'skillCount', type: 'smallint', extractor: (record) => _.size(record['skillIds']) },
-          { name: 'firstSkillId', type: 'text', extractor: (record) => _.get(record['skillIds'], 0) },
-        ],
-        indices: ['firstSkillId'],
-      };
-      const fullLearningContent = {
-        challenges: [{}],
-      };
-      const learningContent = fullLearningContent[table.name];
+    context('when at least one of the collection item has no property', () => {
+      it('should throw an error', async function() {
+        const table = {
+          name: 'challenges',
+          fields: [
+            { name: 'instructions', type: 'text' },
+            { name: 'timer', type: 'smallint' },
+            { name: 'autoReply', type: 'boolean' },
+            { name: 'skillIds', type: 'text []', isArray: true },
+            { name: 'skillCount', type: 'smallint', extractor: (record) => _.size(record['skillIds']) },
+            { name: 'firstSkillId', type: 'text', extractor: (record) => _.get(record['skillIds'], 0) },
+          ],
+          indices: ['firstSkillId'],
+        };
+        const fullLearningContent = {
+          challenges: [{}],
+        };
+        const learningContent = fullLearningContent[table.name];
 
-      const error = await catchErr(databaseHelper.saveLearningContent)(table, learningContent, databaseConfig);
+        const error = await catchErr(databaseHelper.saveLearningContent)(table, learningContent, databaseConfig);
 
-      expect(error.message).to.equal('No primary key found for table challenges');
+        expect(error).to.be.instanceof(PrimaryKeyNotNullConstraintError);
+
+      });
+
     });
 
   });
-
 });
