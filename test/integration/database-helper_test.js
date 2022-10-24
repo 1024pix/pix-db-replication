@@ -73,7 +73,7 @@ describe('Integration | db-connection.js', () => {
     });
   });
 
-  describe('#saveTableData', function() {
+  describe('#saveLearningContent', function() {
 
     beforeEach(async function() {
       await database.runSql(`
