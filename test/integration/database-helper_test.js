@@ -114,7 +114,7 @@ describe('Integration | db-connection.js', () => {
       expect(skillIdsCount).to.deep.equal(skillCount);
     });
 
-    it('should throw an error if the data to be inserted has no primary key', async function() {
+    it('should throw an error if at least one of the collection item has no property', async function() {
       const table = {
         name: 'challenges',
         fields: [
@@ -134,7 +134,7 @@ describe('Integration | db-connection.js', () => {
 
       const error = await catchErr(databaseHelper.saveLearningContent)(table, learningContent, databaseConfig);
 
-      expect(error).to.be.instanceof(PrimaryKeyNotNullConstraintError);
+      expect(error.message).to.equal('No primary key found for table challenges');
     });
 
   });
