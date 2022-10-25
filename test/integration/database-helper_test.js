@@ -6,7 +6,6 @@ const mockLcmsGetAirtable = require('../utils/mock-lcms-get-airtable');
 const databaseHelper = require('../../src/database-helper');
 const { PrimaryKeyNotNullConstraintError } = require('../../src/errors');
 
-
 describe('Integration | db-connection.js', () => {
 
   // eslint-disable-next-line no-process-env
@@ -116,7 +115,7 @@ describe('Integration | db-connection.js', () => {
     });
 
     context('when at least one of the collection item has no property', () => {
-      it('should throw an error', async function() {
+      it('should throw a PrimaryKeyNotNullConstraintError', async function() {
         const table = {
           name: 'challenges',
           fields: [
