@@ -1,8 +1,4 @@
-const chai = require('chai');
-const sinonChai = require('sinon-chai');
-const sinon = require('sinon');
-chai.use(sinonChai);
-const { expect } = chai;
+const { expect, sinon } = require('../test-helper');
 const proxyquire = require('proxyquire').noPreserveCache();
 
 describe('Unit | steps.js', () => {
@@ -50,7 +46,7 @@ describe('Unit | steps.js', () => {
       expect(backupFilename).to.equal('./dump.pgsql');
     });
 
-    context('when anwers, knowledge elements and knowledge element snapshots are restored incrementally', () => {
+    context('when answers, knowledge elements and knowledge element snapshots are restored incrementally', () => {
       it('should not backup answers, knowledge-elements and knowledge-element-snapshots tables', async () => {
         // given
         const configuration = {
@@ -86,7 +82,7 @@ describe('Unit | steps.js', () => {
       });
     });
 
-    context('when anwers, knowledge elements and knowledge element snapshots are not restored', () => {
+    context('when answers, knowledge elements and knowledge element snapshots are not restored', () => {
       it('should not backup answers, knowledge-elements and knowledge-element-snapshots tables', async () => {
         // given
         const configuration = {
