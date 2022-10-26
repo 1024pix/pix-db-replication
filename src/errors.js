@@ -1,6 +1,6 @@
 class PrimaryKeyNotNullConstraintError extends Error {
   constructor(tableName) {
-    const message = `No primary key found for table ${tableName}`;
+    const message = `At least one item to insert in table ${tableName} has no property at all`;
     super(message);
   }
 }
