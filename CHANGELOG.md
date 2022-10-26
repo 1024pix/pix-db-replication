@@ -1,5 +1,13 @@
 # pix-db-replication Changelog
 
+## v2.5.0 (26/10/2022)
+
+
+### :building_construction: Tech
+- [#121](https://github.com/1024pix/pix-db-replication/pull/121) [TECH] Améliorer la gestion des données du référentiel vides
+- [#120](https://github.com/1024pix/pix-db-replication/pull/120) [TECH] Lancer l'import LCMS en local
+- [#119](https://github.com/1024pix/pix-db-replication/pull/119) [TECH] Faciliter la résolution de problèmes
+
 ## v2.4.0 (10/10/2022)
 
 
