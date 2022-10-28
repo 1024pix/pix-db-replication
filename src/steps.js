@@ -52,17 +52,30 @@ async function dropCurrentObjects(configuration) {
   // TODO: pass DATABASE_URL by argument
   const tablesToKeep = getTablesWithReplicationModes(configuration, [REPLICATION_MODE.INCREMENTAL, REPLICATION_MODE.TO_EXCLUDE]);
   if (tablesToKeep.length > 0) {
-    return dropCurrentObjectsExceptTables(configuration.DATABASE_URL, tablesToKeep);
+    return dropCurrentTablesAndFunctionsExceptTablesToKeep(configuration.DATABASE_URL, tablesToKeep);
   }
   else return exec('psql', [ configuration.DATABASE_URL, ' --echo-all', '--set', 'ON_ERROR_STOP=on', '--command', 'DROP OWNED BY CURRENT_USER CASCADE' ]);
 }
 
-async function dropCurrentObjectsExceptTables(databaseUrl, tableNames) {
+async function dropCurrentTablesAndFunctionsExceptTablesToKeep(databaseUrl, tableNames) {
   const tableNamesForQuery = tableNames.map((tableName) => `'${tableName}'`).join(',');
   const dropTableQuery = await execStdOut('psql', [ databaseUrl, '--tuples-only', '--command', `SELECT string_agg('DROP TABLE IF EXISTS "' || schemaname || '"."' || tablename || '" CASCADE', '; ') FROM pg_tables WHERE schemaname IN ('public','pgboss') AND tablename NOT IN (${tableNamesForQuery});` ]);
   const dropFunction = await execStdOut('psql', [ databaseUrl, '--tuples-only', '--command', 'select string_agg(\'drop function "\' || proname || \'"\', \'; \') FROM pg_proc pp INNER JOIN pg_roles pr ON pp.proowner = pr.oid WHERE pr.rolname = current_user ' ]);
   await exec('psql', [ databaseUrl, '--set', 'ON_ERROR_STOP=on', '--echo-all', '--command', dropTableQuery ]);
-  return exec('psql', [ databaseUrl, '--set', 'ON_ERROR_STOP=on', '--echo-all', '--command', dropFunction ]);
+  await exec('psql', [ databaseUrl, '--set', 'ON_ERROR_STOP=on', '--echo-all', '--command', dropFunction ]);
+  const dropTypes = await execStdOut("psql", [
+    databaseUrl,
+    "--tuples-only",
+    "--command",
+    `SELECT string_agg('DROP TYPE IF EXISTS  "' || nm.nspname || '"."' || tp.typname || '" CASCADE', '; ')
+    FROM pg_type tp
+    INNER JOIN pg_namespace nm ON nm.oid = tp.typnamespace
+    INNER JOIN pg_user us ON us.usesysid = tp.typowner
+    WHERE nm.nspname IN ('public','pgboss')
+    AND tp.typcategory NOT IN ('C','A')
+    AND us.usename = CURRENT_USER`,
+  ]);
+  return exec('psql', [ databaseUrl, '--set', 'ON_ERROR_STOP=on', '--echo-all', '--command', dropTypes ]);
 }
 
 async function writeListFileForReplication({ backupFile, configuration }) {
