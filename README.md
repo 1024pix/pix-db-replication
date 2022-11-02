@@ -59,36 +59,13 @@ KEYS *
 GET <KEY>
 ```
 
-
 #### Relance
 Une fois que la cause du problème a été corrigée:
 - s'il est important que les données soient disponibles le jour même, il est possible de lancer le traitement manuellement;
 - sinon ne rien faire, le traitement sera exécuté la nuit prochaine.
 
-Cela se fera:
-- hors tâche planifiée;
-- en exécutant un script dédié dans un conteneur one-off détaché;
-
 🧨 Le traitement peut avoir des impacts sur les temps de réponses des applications, car il utilise les ressources BDD.
-Monitorez le % CPU BDD et le temps de réponse des requêtes HTTP pour arrêter le traitement si besoin.
-Pour arrêter un one-off:
-
-Déterminer son nom
-```shell
-scalingo --region osc-secnum-fr1 --app pix-datawarehouse-production ps
-+--------------+---------+------------------------------------------------+
-|     NAME     | STATUS  |            COMMAND                             |
-+--------------+---------+------------------------------------------------+
-| one-off-1234 | running | node node scripts/restart-replication-job.js   |
-+--------------+---------+-------------------------------+------+---------+
-```
-Ici, le nom est `one-off-1234`
-
-L'arrêter
-```shell
-scalingo --region osc-secnum-fr1 --app pix-datawarehouse-production one-off-stop <NOM-ONE-OFF>
-```
-
+Monitorez le % CPU BDD et le temps de réponse des requêtes HTTP pour arrêter le traitement si besoin. Pour cela, stopper le conteneur `background`.
 
 ##### Sur la BDD destinée aux internes
 
