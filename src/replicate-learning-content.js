@@ -7,7 +7,7 @@ const tables = [{
   fields: [
     { name: 'name', type: 'text' },
   ],
-  indices: [],
+  indexes: [],
 }, {
   name: 'attachments',
   fields: [
@@ -17,7 +17,7 @@ const tables = [{
     { name: 'url', type: 'text' },
     { name: 'size', type: 'numeric' },
   ],
-  indices: [],
+  indexes: [],
 }, {
   name: 'competences',
   fields: [
@@ -27,7 +27,7 @@ const tables = [{
     { name: 'origin', type: 'text' },
     { name: 'areaId', type: 'text', isArray: false },
   ],
-  indices: ['areaId'],
+  indexes: ['areaId'],
 }, {
   name: 'tubes',
   fields: [
@@ -35,7 +35,7 @@ const tables = [{
     { name: 'title', type: 'text' },
     { name: 'competenceId', type: 'text', isArray: false },
   ],
-  indices: ['competenceId'],
+  indexes: ['competenceId'],
 }, {
   name: 'skills',
   fields: [
@@ -50,7 +50,7 @@ const tables = [{
     { name: 'learningMoreTutorialIds', type: 'text []', isArray: true },
     { name: 'internationalisation', type: 'text' },
   ],
-  indices: ['tubeId'],
+  indexes: ['tubeId'],
 }, {
   name: 'challenges',
   fields: [
@@ -76,7 +76,7 @@ const tables = [{
     { name: 'delta', type: 'numeric' },
     { name: 'alpha', type: 'numeric' },
   ],
-  indices: ['firstSkillId'],
+  indexes: ['firstSkillId'],
 }, {
   name: 'courses',
   fields: [
@@ -85,7 +85,7 @@ const tables = [{
     { name: 'competences', type: 'text[]', isArray: true },
     { name: 'competenceId', type: 'text', extractor: (record) => _.get(record['competences'], 0) },
   ],
-  indices: ['competenceId'],
+  indexes: ['competenceId'],
 }, {
   name: 'tutorials',
   fields: [
@@ -95,7 +95,7 @@ const tables = [{
     { name: 'furtherInformation', type: 'text []', isArray: true },
     { name: 'locale', type: 'text' },
   ],
-  indices: ['title'],
+  indexes: ['title'],
 }];
 
 async function fetchAndSaveData(configuration) {
