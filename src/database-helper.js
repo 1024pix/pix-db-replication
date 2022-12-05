@@ -30,7 +30,7 @@ async function createTable(tableStructure, configuration) {
     })).join(',\n');
     const createQuery = format('CREATE TABLE %I (%s)', tableStructure.name, fieldsText);
     await client.query(createQuery);
-    for (const index of tableStructure.indices) {
+    for (const index of tableStructure.indexes) {
       const indexQuery = format('CREATE INDEX %I on %I (%I)', `${tableStructure.name}_${index}_idx`, tableStructure.name, index);
       await client.query(indexQuery);
     }

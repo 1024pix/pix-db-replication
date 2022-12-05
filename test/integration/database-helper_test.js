@@ -58,7 +58,7 @@ describe('Integration | db-connection.js', () => {
           { name: 'name', type: 'text' },
           { name: 'areaId', type: 'text', isArray: false },
         ],
-        indices: ['areaId'],
+        indexes: ['areaId'],
       };
       const tableName = tableStructure.name;
 
@@ -100,7 +100,7 @@ describe('Integration | db-connection.js', () => {
           { name: 'skillCount', type: 'smallint', extractor: (record) => _.size(record['skillIds']) },
           { name: 'firstSkillId', type: 'text', extractor: (record) => _.get(record['skillIds'], 0) },
         ],
-        indices: ['firstSkillId'],
+        indexes: ['firstSkillId'],
       };
       const fullLearningContent = mockLcmsGetAirtable();
       const learningContent = fullLearningContent[table.name];
@@ -126,7 +126,7 @@ describe('Integration | db-connection.js', () => {
             { name: 'skillCount', type: 'smallint', extractor: (record) => _.size(record['skillIds']) },
             { name: 'firstSkillId', type: 'text', extractor: (record) => _.get(record['skillIds'], 0) },
           ],
-          indices: ['firstSkillId'],
+          indexes: ['firstSkillId'],
         };
         const fullLearningContent = {
           challenges: [{}],
