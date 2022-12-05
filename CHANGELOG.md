@@ -1,5 +1,14 @@
 # pix-db-replication Changelog
 
+## v2.6.0 (05/12/2022)
+
+
+### :building_construction: Tech
+- [#124](https://github.com/1024pix/pix-db-replication/pull/124) [TECH] Renommer indices en indexes
+
+### :coffee: Autre
+- [#123](https://github.com/1024pix/pix-db-replication/pull/123) [CLEANUP] Remove some wording that doesn't apply anymore
+
 ## v2.5.0 (26/10/2022)
 
 
