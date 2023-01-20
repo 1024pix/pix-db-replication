@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.7.0 (20/01/2023)
+
+
+### :building_construction: Tech
+- [#125](https://github.com/1024pix/pix-db-replication/pull/125) [TECH] Met à jour la facon de récupérer le titre fr d'une compétence
+
 ## v2.6.0 (05/12/2022)
 
 
