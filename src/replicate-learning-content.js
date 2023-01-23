@@ -23,7 +23,7 @@ const tables = [{
   fields: [
     { name: 'name', type: 'text' },
     { name: 'code', type: 'text', extractor: (record) => record['index'] },
-    { name: 'title', type: 'text', extractor: (record) => record['nameFrFr'] },
+    { name: 'title', type: 'text', extractor: (record) => record['name_i18n']['fr'] },
     { name: 'origin', type: 'text' },
     { name: 'areaId', type: 'text', isArray: false },
   ],

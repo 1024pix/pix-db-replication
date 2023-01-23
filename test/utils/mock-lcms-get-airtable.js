@@ -265,8 +265,10 @@ function mockLcmsAirtableData() {
         'id': 'recH9MjIzN54zXlwr',
         'index': '1.1',
         'name': 'Mathématiques',
-        'nameEnUs': 'Mathématiques',
-        'nameFrFr': 'Mathématiques',
+        'name_i18n': {
+          'en': 'Mathématiques',
+          'fr': 'Mathématiques',
+        },
         'origin': 'Pix',
         'skillIds': [
           'rec98HYctM7sl9Hyq',
@@ -280,8 +282,10 @@ function mockLcmsAirtableData() {
         'id': 'recKxnZJh5dyRCQQn',
         'index': '1.3',
         'name': 'Histoire',
-        'nameEnUs': 'Histoire',
-        'nameFrFr': 'Histoire',
+        'name_i18n': {
+          'en': 'Histoire',
+          'fr': 'Histoire',
+        },
         'origin': 'Pix',
         'skillIds': [
           'recrtA98cABIlBjCY',
@@ -296,8 +300,10 @@ function mockLcmsAirtableData() {
         'id': 'recoVElv3xmVppK5a',
         'index': '2.2',
         'name': 'Philosophie',
-        'nameEnUs': 'Philosophie',
-        'nameFrFr': 'Philosophie',
+        'name_i18n': {
+          'en': 'Philosophie',
+          'fr': 'Philosophie',
+        },
         'origin': 'Pix',
         'skillIds': [
           'rec3ikwFFMr5RkSdp',
@@ -311,8 +317,10 @@ function mockLcmsAirtableData() {
         'id': 'recxf7xB2qNV8g5ZT',
         'index': '2.1',
         'name': 'Arts',
-        'nameEnUs': 'Arts',
-        'nameFrFr': 'Arts',
+        'name_i18n': {
+          'en': 'Arts',
+          'fr': 'Arts',
+        },
         'origin': 'Pix',
         'skillIds': [
           'recKnuSvxV3WvOzgc',
@@ -325,8 +333,10 @@ function mockLcmsAirtableData() {
         'id': 'recxlJqKdbWHHFZMQ',
         'index': '1.2',
         'name': 'Géographie',
-        'nameEnUs': 'Géographie',
-        'nameFrFr': 'Géographie',
+        'name_i18n': {
+          'en': 'Géographie',
+          'fr': 'Géographie',
+        },
         'origin': 'Pix',
         'skillIds': [
           'recJieHaORILprKhL',
@@ -340,8 +350,10 @@ function mockLcmsAirtableData() {
         'id': 'recZ1Gm4rud4zLhbF',
         'index': '1.4',
         'name': 'Français',
-        'nameEnUs': 'Français',
-        'nameFrFr': 'Français',
+        'name_i18n': {
+          'en': 'Français',
+          'fr': 'Français',
+        },
         'origin': 'Pix',
         'skillIds': [
           'recffgcUr12Ocafm6',
