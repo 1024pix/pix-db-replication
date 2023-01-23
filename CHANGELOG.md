@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.8.0 (23/01/2023)
+
+
+### :coffee: Autre
+- [#127](https://github.com/1024pix/pix-db-replication/pull/127) Revert "[TECH] Met à jour la facon de récupérer le titre fr d'une compétence"
+
 ## v2.7.0 (20/01/2023)
 
 
