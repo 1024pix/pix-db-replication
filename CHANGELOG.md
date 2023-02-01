@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.10.0 (01/02/2023)
+
+
+### :coffee: Autre
+- [#126](https://github.com/1024pix/pix-db-replication/pull/126) Monter la version de PG de 13 à 14
+
 ## v2.9.0 (23/01/2023)
 
 
