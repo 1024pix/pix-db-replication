@@ -54,7 +54,7 @@ jobs:
   test:
     docker:
       - image: cimg/node:14.15.4
-      - image: postgres:13.3-alpine
+      - image: postgres:14.6-alpine
         environment:
           POSTGRES_USER: postgres
           POSTGRES_HOST_AUTH_METHOD: trust
@@ -84,9 +84,9 @@ jobs:
           command: |
             sudo apt update
       - run :
-          name : Install PG13 client package
+          name : Install PostgreSQL client package
           command: |
-            sudo apt install postgresql-client-13
+            sudo apt install postgresql-client-14
       - run :
           name : Checking pg_dump version
           command: |
