@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.11.0 (21/02/2023)
+
+
+### :building_construction: Tech
+- [#129](https://github.com/1024pix/pix-db-replication/pull/129) [TECH] Ajouter des champs aux épreuves récupérés depuis LCMS (PIX-7110).
+
 ## v2.10.1 (21/02/2023)
 
 
