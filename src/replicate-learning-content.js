@@ -21,7 +21,7 @@ const tables = [{
 }, {
   name: 'competences',
   fields: [
-    { name: 'name', type: 'text' },
+    { name: 'name', type: 'text', extractor: (record) => record['name_i18n']['fr'] },
     { name: 'code', type: 'text', extractor: (record) => record['index'] },
     { name: 'title', type: 'text', extractor: (record) => record['name_i18n']['fr'] },
     { name: 'origin', type: 'text' },
