@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.10.1 (21/02/2023)
+
+
+### :bug: Correction
+- [#130](https://github.com/1024pix/pix-db-replication/pull/130) [BUGFIX] Correction de l'extraction de l'attribut name des compétences
+
 ## v2.10.0 (01/02/2023)
 
 
