@@ -84,8 +84,8 @@ const tables = [{
 //    { name: 'spoil', type: 'text' },
 //    { name: 'responsive', type: 'text' },
 //    { name: 'genealogy', type: 'text' },
-//    { name: 'version', type: 'smallint' },
-//    { name: 'alternativeVersion', type: 'smallint' },
+    { name: 'version', type: 'smallint' },
+    { name: 'alternativeVersion', type: 'smallint' },
   ],
   indexes: ['firstSkillId'],
 }, {
