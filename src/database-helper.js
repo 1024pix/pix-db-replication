@@ -1,8 +1,11 @@
 const { Client } = require('pg');
 const format = require('pg-format');
+const _ = require('lodash');
 
 const { PrimaryKeyNotNullConstraintError } = require('./errors');
 const learningContentHelper = require('./learning-content-helper');
+
+const LCMS_CHUNK = 2000;
 
 async function runDBOperation(callback, configuration) {
   const client = new Client({
@@ -41,12 +44,14 @@ async function saveLearningContent(table, learningContent, configuration) {
   if (learningContent.length) {
     await runDBOperation(async (client) => {
       const fieldNames = ['id'].concat(table.fields.map((field) => field.name));
-      const values = _computeValuesToInsert(table, learningContent);
-      if (_allValuesHavePrimaryKey(values)) {
-        await _insertValues(table.name, fieldNames, values, client);
-      }
-      else {
-        throw new PrimaryKeyNotNullConstraintError(table.name);
+      for await (const learningContentChunk of _.chunk(learningContent, LCMS_CHUNK)) {
+        const values = _computeValuesToInsert(table, learningContentChunk);
+        if (_allValuesHavePrimaryKey(values)) {
+          await _insertValues(table.name, fieldNames, values, client);
+        }
+        else {
+          throw new PrimaryKeyNotNullConstraintError(table.name);
+        }
       }
     }, configuration);
   }
@@ -65,9 +70,9 @@ function _allValuesHavePrimaryKey(values) {
   });
 }
 
-async function _insertValues(tableName, fieldNames, values, client) {
+function _insertValues(tableName, fieldNames, values, client) {
   const saveQuery = format('INSERT INTO %I (%I) VALUES %L', tableName, fieldNames, values);
-  await client.query(saveQuery);
+  return client.query(saveQuery);
 }
 
 module.exports = {
