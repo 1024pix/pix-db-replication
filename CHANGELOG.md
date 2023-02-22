@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.12.0 (22/02/2023)
+
+
+### :bug: Correction
+- [#133](https://github.com/1024pix/pix-db-replication/pull/133) [BUGFIX] Revert du rajout des champs dans les épreuves
+
 ## v2.11.0 (21/02/2023)
 
 
