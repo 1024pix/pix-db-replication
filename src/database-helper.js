@@ -5,6 +5,8 @@ const _ = require('lodash');
 const { PrimaryKeyNotNullConstraintError } = require('./errors');
 const learningContentHelper = require('./learning-content-helper');
 
+const LCMS_CHUNK = 2000;
+
 async function runDBOperation(callback, configuration) {
   const client = new Client({
     connectionString: configuration.DATABASE_URL,
@@ -42,7 +44,7 @@ async function saveLearningContent(table, learningContent, configuration) {
   if (learningContent.length) {
     await runDBOperation(async (client) => {
       const fieldNames = ['id'].concat(table.fields.map((field) => field.name));
-      for await (const learningContentChunk of _.chunk(learningContent, 2000)) {
+      for await (const learningContentChunk of _.chunk(learningContent, LCMS_CHUNK)) {
         const values = _computeValuesToInsert(table, learningContentChunk);
         if (_allValuesHavePrimaryKey(values)) {
           await _insertValues(table.name, fieldNames, values, client);
