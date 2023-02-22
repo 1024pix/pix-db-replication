@@ -82,7 +82,7 @@ const tables = [{
     { name: 'accessibility1', type: 'text' },
     { name: 'accessibility2', type: 'text' },
     { name: 'spoil', type: 'text' },
-//    { name: 'responsive', type: 'text' },
+    { name: 'responsive', type: 'text' },
     { name: 'genealogy', type: 'text' },
     { name: 'version', type: 'smallint' },
     { name: 'alternativeVersion', type: 'smallint' },
