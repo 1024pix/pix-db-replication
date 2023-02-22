@@ -23,7 +23,7 @@ describe('Unit | lcms-client.js', () => {
         data: {},
         status: 'someStatus',
       };
-      sinon.stub(axios, 'get').withArgs(learningContentGetUrl, { headers }).resolves(axiosResponse);
+      sinon.stub(axios, 'get').withArgs(learningContentGetUrl, { headers, timeout: 10000 }).resolves(axiosResponse);
 
       // when
       const response = await lcmsClient.getLearningContent(configuration);
@@ -39,7 +39,7 @@ describe('Unit | lcms-client.js', () => {
           status: 'someStatus',
         },
       };
-      sinon.stub(axios, 'get').withArgs(learningContentGetUrl, { headers }).rejects(axiosError);
+      sinon.stub(axios, 'get').withArgs(learningContentGetUrl, { headers, timeout: 10000 }).rejects(axiosError);
 
       // when
       const error = await catchErr(lcmsClient.getLearningContent)(configuration);
