@@ -112,11 +112,11 @@ const tables = [{
 async function fetchAndSaveData(configuration) {
   const learningContent = await lcmsClient.getLearningContent(configuration);
   if (learningContent) {
-    await Promise.all(tables.map(async (table) => {
+    for await (const table of tables) {
       await databaseHelper.dropTable(table.name, configuration);
       await databaseHelper.createTable(table, configuration);
       await databaseHelper.saveLearningContent(table, learningContent[table.name], configuration);
-    }));
+    }
   }
 }
 

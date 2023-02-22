@@ -50,7 +50,7 @@ async function saveLearningContent(table, learningContent, configuration) {
         else {
           throw new PrimaryKeyNotNullConstraintError(table.name);
         }
-      };
+      }
     }, configuration);
   }
 }
