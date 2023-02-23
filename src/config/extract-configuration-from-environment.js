@@ -32,7 +32,7 @@ const extractConfigurationFromEnvironmentVariable = function() {
   }
 
   return {
-    PG_CLIENT_VERSION: process.env.PG_CLIENT_VERSION || 12,
+    PG_CLIENT_VERSION: process.env.PG_CLIENT_VERSION || 14,
     RETRIES_TIMEOUT_MINUTES: extractInteger(process.env.RETRIES_TIMEOUT_MINUTES) || 180,
     LCMS_API_KEY: process.env.LCMS_API_KEY || '',
     LCMS_API_URL: process.env.LCMS_API_URL || '',
