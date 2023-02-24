@@ -5,6 +5,7 @@ async function getLearningContent(configuration) {
   const url = configuration.LCMS_API_URL + '/databases/airtable';
   const requestConfig = {
     headers: { 'Authorization': `Bearer ${configuration.LCMS_API_KEY}` },
+    timeout: 60000,
   };
 
   try {
