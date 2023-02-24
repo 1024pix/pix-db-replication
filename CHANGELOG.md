@@ -1,5 +1,12 @@
 # pix-db-replication Changelog
 
+## v2.13.0 (24/02/2023)
+
+
+### :rocket: Amélioration
+- [#132](https://github.com/1024pix/pix-db-replication/pull/132) [FEATURE] Mise a jour de la version par défaut de pg
+- [#135](https://github.com/1024pix/pix-db-replication/pull/135) [FEATURE] Importer les données de LCMS par groupe de 2000 et table par table
+
 ## v2.12.0 (22/02/2023)
 
 
