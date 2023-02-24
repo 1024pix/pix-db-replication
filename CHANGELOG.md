@@ -1,5 +1,14 @@
 # pix-db-replication Changelog
 
+## v2.14.0 (24/02/2023)
+
+
+### :rocket: Amélioration
+- [#136](https://github.com/1024pix/pix-db-replication/pull/136) [FEATURE] Ajouter des champs aux épreuves récupérés depuis LCMS 
+
+### :bug: Correction
+- [#134](https://github.com/1024pix/pix-db-replication/pull/134) [BUGFIX] Rajout d'un timeout sur la requête LCMS
+
 ## v2.13.0 (24/02/2023)
 
 
