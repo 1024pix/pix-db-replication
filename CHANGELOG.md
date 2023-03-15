@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.15.0 (15/03/2023)
+
+
+### :coffee: Autre
+- [#137](https://github.com/1024pix/pix-db-replication/pull/137) :sparkles: Fetch CPF formations list from open data
+
 ## v2.14.0 (24/02/2023)
 
 
