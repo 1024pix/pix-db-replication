@@ -4,7 +4,7 @@ set -eu
 
 dbclient-fetcher pgsql "$PG_CLIENT_VERSION"
 
-TABLE_NAME='pole_formation_cpf_list'
+TABLE_NAME='external_opendata_caisse_des_depots_cpf_list'
 DATASET_URL='https://opendata.caissedesdepots.fr/api/records/1.0/search/?dataset=moncompteformation_catalogueformation&rows=2000&q=pix&facet=nom_departement&facet=nom_region&facet=rsrncp&facet=libelle_niveau_sortie_formation&facet=libelle_nsf_1&facet=code_certifinfo&facet=siret&facet=code_region&refine.rsrncp=RS'
 OUTPUT_FILE='/tmp/exportcpf.csv'
 
@@ -16,7 +16,7 @@ curl "$DATASET_URL" \
 
 jq -r '.records[]|
     [ 
-        .recordid,
+        ((.fields.numero_formation|ascii_downcase) + .fields.code_region + .fields.code_departement),
         .fields.date_extract, 
         .fields.nom_of, 
         .fields.intitule_formation, 
