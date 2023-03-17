@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.15.1 (17/03/2023)
+
+
+### :building_construction: Tech
+- [#138](https://github.com/1024pix/pix-db-replication/pull/138) [TECH] Générer un recordid unique à partir de plusieurs champs
+
 ## v2.15.0 (15/03/2023)
 
 
