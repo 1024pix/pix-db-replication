@@ -1,11 +1,13 @@
 const axios = require('axios');
 const logger = require('./logger');
 
+const timeout = 60 * 1000 * 3;
+
 async function getLearningContent(configuration) {
   const url = configuration.LCMS_API_URL + '/databases/airtable';
   const requestConfig = {
     headers: { 'Authorization': `Bearer ${configuration.LCMS_API_KEY}` },
-    timeout: 60000,
+    signal: AbortSignal.timeout(configuration.timeout || timeout),
   };
 
   try {
@@ -13,7 +15,7 @@ async function getLearningContent(configuration) {
     return response.data;
   } catch (httpErr) {
     logger.error(`Error on GET request to ${url}`);
-    throw (httpErr);
+    throw httpErr;
   }
 }
 

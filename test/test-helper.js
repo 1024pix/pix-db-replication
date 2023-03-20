@@ -1,6 +1,7 @@
 const axios = require('axios');
 const sinon = require('sinon');
 const chai = require('chai');
+const nock = require('nock');
 const { expect } = chai;
 chai.use(require('sinon-chai'));
 
@@ -20,8 +21,9 @@ function catchErr(promiseFn, ctx) {
 }
 
 module.exports = {
-  expect,
   axios,
-  sinon,
   catchErr,
+  expect,
+  nock,
+  sinon,
 };
