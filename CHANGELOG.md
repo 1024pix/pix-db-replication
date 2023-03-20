@@ -1,5 +1,15 @@
 # pix-db-replication Changelog
 
+## v2.16.0 (20/03/2023)
+
+
+### :building_construction: Tech
+- [#140](https://github.com/1024pix/pix-db-replication/pull/140) [TECH] Mise à jour des dépendances
+- [#139](https://github.com/1024pix/pix-db-replication/pull/139) [TECH] Mise à jour vers node 18
+
+### :bug: Correction
+- [#141](https://github.com/1024pix/pix-db-replication/pull/141) [BUGFIX] Corrige le timeout de axios avec un signal
+
 ## v2.15.1 (17/03/2023)
 
 
