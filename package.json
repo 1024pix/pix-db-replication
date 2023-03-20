@@ -6,8 +6,8 @@
   "license": "AGPL-3.0",
   "author": "GIP Pix",
   "engines": {
-    "node": "16.19.x",
-    "npm": "8.19.x"
+    "node": "18.15.x",
+    "npm": "9.5.x"
   },
   "scripts": {
     "local:setup-databases": "npm run local:create-databases && npm run local:load-databases",
