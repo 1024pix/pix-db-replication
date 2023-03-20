@@ -12,7 +12,6 @@ const { getTablesWithReplicationModes, REPLICATION_MODE } = require('./config');
 const RESTORE_LIST_FILENAME = 'restore.list';
 
 async function dropCurrentObjects(configuration) {
-  // TODO: pass DATABASE_URL by argument
   const tablesToKeep = getTablesWithReplicationModes(configuration, [REPLICATION_MODE.INCREMENTAL, REPLICATION_MODE.TO_EXCLUDE]);
   if (tablesToKeep.length > 0) {
     return dropCurrentObjectsExceptTables(configuration.DATABASE_URL, tablesToKeep);
