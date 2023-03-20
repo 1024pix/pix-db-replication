@@ -25,43 +25,18 @@ workflows:
   version: 2
   test:
     jobs:
-      - checkout:
-          filters:
-            branches:
-              ignore:
-                - master
-
-      - test:
-          requires:
-            - checkout
+      - test
 
 jobs:
-  checkout:
-    docker:
-      - image: cimg/node:14.15.4
-    working_directory: ~/db-replication
-    steps:
-      - checkout
-      - run:
-          command: |
-            npm ci
-            rm -rf .git/
-      - persist_to_workspace:
-          root: ~/db-replication
-          paths:
-            - .
-
   test:
     docker:
-      - image: cimg/node:14.15.4
+      - image: cimg/node:18.15.0
       - image: postgres:14.6-alpine
         environment:
           POSTGRES_USER: postgres
           POSTGRES_HOST_AUTH_METHOD: trust
-    working_directory: ~/db-replication
     steps:
-      - attach_workspace:
-          at: ~/db-replication
+      - checkout
       - run: cat package*.json > cachekey
       - restore_cache:
           keys:
@@ -72,11 +47,11 @@ jobs:
           paths:
             - ~/.npm
       - run :
-          name : Add PG13 package key
+          name : Add PG package key
           command: |
             wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
       - run :
-          name : Add PG13 package
+          name : Add PG package
           command:
             echo "deb http://apt.postgresql.org/pub/repos/apt/ `lsb_release -cs`-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
       - run :
