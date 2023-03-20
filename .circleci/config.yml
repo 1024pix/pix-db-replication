@@ -38,7 +38,7 @@ workflows:
 jobs:
   checkout:
     docker:
-      - image: cimg/node:14.15.4
+      - image: cimg/node:16.19.1
     working_directory: ~/db-replication
     steps:
       - checkout
@@ -53,7 +53,7 @@ jobs:
 
   test:
     docker:
-      - image: cimg/node:14.15.4
+      - image: cimg/node:16.19.1
       - image: postgres:14.6-alpine
         environment:
           POSTGRES_USER: postgres
