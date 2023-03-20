@@ -2,7 +2,7 @@
 
 const execa = require('execa');
 const { execStdOut } = require('./exec');
-const { getTablesWithReplicationModes, REPLICATION_MODE } = require('./steps');
+const { getTablesWithReplicationModes, REPLICATION_MODE } = require('./config');
 
 const logger = require('./logger');
 

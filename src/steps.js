@@ -7,15 +7,10 @@ const { exec, execStdOut } = require('./exec');
 const learningContent = require('./replicate-learning-content');
 const enrichment = require('./enrichment');
 const logger = require('./logger');
-const toPairs = require('lodash/toPairs');
 const createViewsForMissingTables = require('./create-views-for-missing-tables');
+const { getTablesWithReplicationModes, REPLICATION_MODE } = require('./config');
 
 const RESTORE_LIST_FILENAME = 'restore.list';
-
-const REPLICATION_MODE = {
-  INCREMENTAL: 'incremental',
-  TO_EXCLUDE: 'none',
-};
 
 async function dropCurrentObjects(configuration) {
   // TODO: pass DATABASE_URL by argument
@@ -165,13 +160,6 @@ function _filterObjectLines(objectLines, configuration) {
   return objectLines.filter((line) => !new RegExp(regexp).test(line));
 }
 
-function getTablesWithReplicationModes(configuration, modes = []) {
-  const tablePairs = toPairs(configuration.BACKUP_MODE);
-  return tablePairs
-    .filter(([_, mode]) => modes.includes(mode))
-    .map(([tableName, _]) => tableName);
-}
-
 module.exports = {
   addEnrichment,
   backupAndRestore,
@@ -181,5 +169,4 @@ module.exports = {
   getTablesWithReplicationModes,
   importLearningContent,
   restoreBackup,
-  REPLICATION_MODE,
 };

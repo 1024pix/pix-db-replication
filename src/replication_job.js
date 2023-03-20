@@ -7,7 +7,7 @@ const logger = require('./logger');
 const { pgclientSetup } = require('./setup');
 const replicateIncrementally = require('./replicate-incrementally');
 const notificationJob = require('./notification-job');
-const { configuration, jobOptions, repeatableJobOptions } = require('./config');
+const { configuration, jobOptions, repeatableJobOptions, getTablesWithReplicationModes, REPLICATION_MODE } = require('./config');
 
 const replicationQueue = _createQueue('Replication queue');
 const learningContentReplicationQueue = _createQueue('Learning Content replication queue');
@@ -113,7 +113,7 @@ function _addQueueEventsListeners(queue) {
 }
 
 function hasIncremental(configuration) {
-  const incrementalTables = steps.getTablesWithReplicationModes(configuration, [steps.REPLICATION_MODE.INCREMENTAL]);
+  const incrementalTables = getTablesWithReplicationModes(configuration, [REPLICATION_MODE.INCREMENTAL]);
   return incrementalTables.length > 0;
 }
 
