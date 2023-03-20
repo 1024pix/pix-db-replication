@@ -10,7 +10,9 @@ describe('Unit | steps.js', () => {
     beforeEach(() => {
       execStub = sinon.stub();
       const newSteps = proxyquire('../../src/steps', {
-        execa: execStub,
+        './exec': {
+          exec: execStub,
+        },
       });
       createBackup = newSteps.createBackup;
     });
@@ -41,7 +43,6 @@ describe('Unit | steps.js', () => {
           '--exclude-schema', '\'^pg_*\'',
           '--file', './dump.pgsql',
         ],
-        { stdio: 'inherit' },
       );
       expect(backupFilename).to.equal('./dump.pgsql');
     });
@@ -76,7 +77,6 @@ describe('Unit | steps.js', () => {
             '--exclude-table', 'knowledge-element-snapshots',
             '--exclude-table', 'answers',
           ],
-          { stdio: 'inherit' },
         );
 
       });
@@ -112,7 +112,6 @@ describe('Unit | steps.js', () => {
             '--exclude-table', 'knowledge-element-snapshots',
             '--exclude-table', 'answers',
           ],
-          { stdio: 'inherit' },
         );
 
       });

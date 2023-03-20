@@ -1,14 +1,10 @@
 'use strict';
 
 const execa = require('execa');
+const { execStdOut } = require('./exec');
 const { getTablesWithReplicationModes, REPLICATION_MODE } = require('./steps');
 
 const logger = require('./logger');
-
-async function execStdOut(cmd, args) {
-  const { stdout } = await execa(cmd, args, { stderr: 'inherit' });
-  return stdout;
-}
 
 function escapeSQLIdentifier(identifier) {
   return `"${identifier.replace(/"/g, '""')}"`;

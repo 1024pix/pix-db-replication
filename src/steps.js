@@ -1,9 +1,9 @@
 /* eslint-disable no-process-env */
 'use strict';
 
-const execa = require('execa');
 const fs = require('fs');
 
+const { execShell, exec, execStdOut } = require('./exec');
 const learningContent = require('./replicate-learning-content');
 const enrichment = require('./enrichment');
 const logger = require('./logger');
@@ -16,19 +16,6 @@ const REPLICATION_MODE = {
   INCREMENTAL: 'incremental',
   TO_EXCLUDE: 'none',
 };
-
-function execShell(cmdline) {
-  return execa(cmdline, { stdio: 'inherit', shell: true });
-}
-
-function exec(cmd, args) {
-  return execa(cmd, args, { stdio: 'inherit' });
-}
-
-async function execStdOut(cmd, args) {
-  const { stdout } = await execa(cmd, args, { stderr: 'inherit' });
-  return stdout;
-}
 
 // dbclient-fetch assumes $HOME/bin is in the PATH
 async function setupPath() {
