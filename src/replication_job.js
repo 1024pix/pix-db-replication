@@ -4,6 +4,7 @@ const Queue = require('bull');
 const initSentry = require('./sentry-init');
 const steps = require('./steps');
 const logger = require('./logger');
+const { pgclientSetup } = require('./setup');
 const replicateIncrementally = require('./replicate-incrementally');
 const notificationJob = require('./notification-job');
 const { configuration, jobOptions, repeatableJobOptions } = require('./config');
@@ -22,7 +23,7 @@ main()
 
 async function main() {
   initSentry(configuration);
-  await steps.pgclientSetup(configuration);
+  await pgclientSetup(configuration);
 
   replicationQueue.process(async function() {
     await steps.fullReplicationAndEnrichment(configuration);
