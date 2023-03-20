@@ -4,7 +4,6 @@
 const fs = require('fs');
 
 const { exec, execStdOut } = require('./exec');
-const learningContent = require('./replicate-learning-content');
 const enrichment = require('./enrichment');
 const logger = require('./logger');
 const createViewsForMissingTables = require('./create-views-for-missing-tables');
@@ -105,12 +104,6 @@ async function dropObjectAndRestoreBackup(backupFile, configuration) {
 
 }
 
-async function importLearningContent(configuration) {
-  logger.info('learningContent.fetchAndSaveData - Started');
-  await learningContent.fetchAndSaveData(configuration);
-  logger.info('learningContent.fetchAndSaveData - Ended');
-}
-
 async function addEnrichment(configuration) {
   try {
     logger.info('enrichment.add - Started');
@@ -167,6 +160,5 @@ module.exports = {
   dropObjectAndRestoreBackup,
   fullReplicationAndEnrichment,
   getTablesWithReplicationModes,
-  importLearningContent,
   restoreBackup,
 };

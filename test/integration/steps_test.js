@@ -1,12 +1,11 @@
+const fs = require('fs');
+
 const { createBackupAndCreateEmptyDatabase, createAndFillDatabase, createBackup } = require('./test-helper');
 const Database = require('../utils/database');
 const pgUrlParser = require('pg-connection-string').parse;
-const fs = require('fs');
-const mockLcmsGetAirtable = require('../utils/mock-lcms-get-airtable');
 
-const { expect, sinon } = require('../test-helper');
+const { expect } = require('../test-helper');
 const steps = require('../../src/steps');
-const lcmsClient = require('../../src/lcms-client');
 
 describe('Integration | steps.js', () => {
 
@@ -606,45 +605,6 @@ describe('Integration | steps.js', () => {
       // then
       expect(dropObjectAndRestoreBackupWithArguments).not.to.throw;
     });
-  });
-
-  describe('#importLearningContent', () => {
-
-    let targetDatabaseConfig;
-    let targetDatabase;
-    before(async() => {
-
-      // CircleCI set up environment variables to access DB, so we need to read them here
-      // eslint-disable-next-line no-process-env
-      const DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://pix@localhost:5432/replication_target';
-      const config = pgUrlParser(DATABASE_URL);
-
-      targetDatabaseConfig = {
-        serverUrl: `postgres://${config.user}@${config.host}:${config.port}`,
-        databaseName: config.database,
-        tableName: 'test_table',
-        tableRowCount: 100000,
-      };
-
-      targetDatabase = await Database.create(targetDatabaseConfig);
-    });
-
-    it('should import data', async function() {
-      // given
-      const configuration = {
-        DATABASE_URL: `${targetDatabaseConfig.serverUrl}/${targetDatabaseConfig.databaseName}`,
-      };
-      const fullLearningContent = mockLcmsGetAirtable();
-      sinon.stub(lcmsClient, 'getLearningContent').resolves(fullLearningContent);
-
-      // when
-      await steps.importLearningContent(configuration);
-
-      // then
-      const competenceRowCount = parseInt(await targetDatabase.runSql('SELECT COUNT(*) FROM competences'));
-      expect(competenceRowCount).to.equal(6);
-    });
-
   });
 
   describe('#createBackup', () => {

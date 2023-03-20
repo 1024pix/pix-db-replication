@@ -7,6 +7,7 @@ const logger = require('./logger');
 const { pgclientSetup } = require('./setup');
 const replicateIncrementally = require('./replicate-incrementally');
 const notificationJob = require('./notification-job');
+const learningContent = require('./replicate-learning-content');
 const { configuration, jobOptions, repeatableJobOptions, getTablesWithReplicationModes, REPLICATION_MODE } = require('./config');
 
 const replicationQueue = _createQueue('Replication queue');
@@ -38,7 +39,9 @@ async function main() {
   });
 
   learningContentReplicationQueue.process(async function() {
-    await steps.importLearningContent(configuration);
+    logger.info('learningContent.fetchAndSaveData - Started');
+    await learningContent.fetchAndSaveData(configuration);
+    logger.info('learningContent.fetchAndSaveData - Ended');
     notificationQueue.add({}, { ...jobOptions, attempts: 1 });
   });
 
