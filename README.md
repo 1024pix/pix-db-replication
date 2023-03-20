@@ -193,12 +193,6 @@ BACKUP_MODE='{"knowledge-elements":"incremental", "knowledge-element-snapshots":
 RESTORE_FK_CONSTRAINTS=false
 ```
 
-##### Exécuter
-Exécuter
-``` bash
-node ./src/run-replicate-incrementally.js
-```
-
 #### Exécution partielle
 Dans certains cas, le besoin est de relancer uniquement les opérations de fin de réplication
 
