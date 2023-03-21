@@ -192,7 +192,7 @@ Mettez la planification à toutes les minutes dans le fichier `.env`
 
 Démarrez l'ordonnanceur
 
-`node ./src/replication_job.js | ./node_modules/.bin/bunyan`
+`node ./src/main.js | ./node_modules/.bin/bunyan`
 
 Vérifiez que le traitement se lance
 
