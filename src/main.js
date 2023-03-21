@@ -39,9 +39,9 @@ async function main() {
   });
 
   learningContentReplicationQueue.process(async function() {
-    logger.info('learningContent.fetchAndSaveData - Started');
+    logger.info('learningContent.run - Started');
     await learningContent.run(configuration);
-    logger.info('learningContent.fetchAndSaveData - Ended');
+    logger.info('learningContent.run - Ended');
     notificationQueue.add({}, { ...jobOptions, attempts: 1 });
   });
 
