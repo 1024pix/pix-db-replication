@@ -5,15 +5,15 @@ const pgUrlParser = require('pg-connection-string').parse;
 const Database = require('../utils/database');
 const { expect, sinon } = require('../test-helper');
 const mockLcmsGetAirtable = require('../utils/mock-lcms-get-airtable');
-const steps = require('../../src/steps');
-const learningContent = require('../../src/replicate-learning-content');
-const lcmsClient = require('../../src/lcms-client');
+const { run: runBackupRestore } = require('../../src/steps/backup-restore');
+const { run: runLearningContent } = require('../../src/steps/learning-content');
+const lcmsClient = require('../../src/steps/learning-content/lcms-client');
 
 async function getCountFromTable({ targetDatabase, tableName }) {
   return parseInt(await targetDatabase.runSql(`SELECT COUNT(*) FROM ${tableName}`));
 }
 
-describe('Acceptance | steps | fullReplicationAndEnrichment', () => {
+describe('Acceptance | fullReplicationAndEnrichment', () => {
 
   // CircleCI set up environment variables to access DB, so we need to read them here
   // eslint-disable-next-line no-process-env
@@ -65,7 +65,7 @@ describe('Acceptance | steps | fullReplicationAndEnrichment', () => {
     targetDatabase = await Database.create(targetDatabaseConfig);
 
     // when
-    await steps.fullReplicationAndEnrichment(configuration);
+    await runBackupRestore(configuration);
   });
 
   after(async () => {
@@ -103,7 +103,7 @@ describe('Acceptance | steps | fullReplicationAndEnrichment', () => {
       fullLearningContent = mockLcmsGetAirtable();
       sinon.stub(lcmsClient, 'getLearningContent').resolves(fullLearningContent);
 
-      await learningContent.fetchAndSaveData(configuration);
+      await runLearningContent(configuration);
     });
 
     it('should import areas ', async () => {

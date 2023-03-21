@@ -1,13 +1,13 @@
 const fs = require('fs');
-
-const { createBackupAndCreateEmptyDatabase, createAndFillDatabase, createBackup } = require('./test-helper');
-const Database = require('../utils/database');
 const pgUrlParser = require('pg-connection-string').parse;
 
-const { expect } = require('../test-helper');
-const steps = require('../../src/steps');
+const { createBackupAndCreateEmptyDatabase, createAndFillDatabase, createBackup } = require('../../test-helper');
+const Database = require('../../../utils/database');
 
-describe('Integration | steps.js', () => {
+const { expect } = require('../../../test-helper');
+const steps = require('../../../../src/steps/backup-restore');
+
+describe('Integration | Steps | Backup restore | index.js', () => {
 
   describe('#backupAndRestore', () => {
     // CircleCI set up environment variables to access DB, so we need to read them here

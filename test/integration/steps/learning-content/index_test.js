@@ -1,12 +1,12 @@
 const pgUrlParser = require('pg-connection-string').parse;
-const Database = require('../utils/database');
-const lcmsClient = require('../../src/lcms-client');
-const { fetchAndSaveData } = require('../../src/replicate-learning-content');
+const Database = require('../../../utils/database');
+const { expect, sinon } = require('../../../test-helper');
+const mockLcmsGetAirtable = require('../../../utils/mock-lcms-get-airtable');
 
-const { expect, sinon } = require('../test-helper');
-const mockLcmsGetAirtable = require('../utils/mock-lcms-get-airtable');
+const lcmsClient = require('../../../../src/steps/learning-content/lcms-client');
+const { run } = require('../../../../src/steps/learning-content');
 
-describe('Integration | replicate-learning-content.js', () => {
+describe('Integration | Steps | learning-content | index.js', () => {
   let targetDatabaseConfig;
   let targetDatabase;
 
@@ -35,7 +35,7 @@ describe('Integration | replicate-learning-content.js', () => {
     sinon.stub(lcmsClient, 'getLearningContent').resolves(fullLearningContent);
 
     // when
-    await fetchAndSaveData(configuration);
+    await run(configuration);
 
     // then
     const competenceRowCount = parseInt(await targetDatabase.runSql('SELECT COUNT(*) FROM competences'));

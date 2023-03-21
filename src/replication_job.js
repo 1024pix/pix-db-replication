@@ -2,12 +2,12 @@ require('dotenv').config();
 const Sentry = require('@sentry/node');
 const Queue = require('bull');
 const initSentry = require('./sentry-init');
-const steps = require('./steps');
 const logger = require('./logger');
 const { pgclientSetup } = require('./setup');
-const replicateIncrementally = require('./replicate-incrementally');
-const notificationJob = require('./notification-job');
-const learningContent = require('./replicate-learning-content');
+const backupRestore = require('./steps/backup-restore');
+const incremental = require('./steps/incremental');
+const notification = require('./steps/notification');
+const learningContent = require('./steps/learning-content');
 const { configuration, jobOptions, repeatableJobOptions, getTablesWithReplicationModes, REPLICATION_MODE } = require('./config');
 
 const replicationQueue = _createQueue('Replication queue');
@@ -27,26 +27,26 @@ async function main() {
   await pgclientSetup(configuration);
 
   replicationQueue.process(async function() {
-    await steps.fullReplicationAndEnrichment(configuration);
+    await backupRestore.run(configuration);
     incrementalReplicationQueue.add({}, jobOptions);
   });
 
   incrementalReplicationQueue.process(async function() {
     if (hasIncremental(configuration)) {
-      await replicateIncrementally.run(configuration);
+      await incremental.run(configuration);
     }
     learningContentReplicationQueue.add({}, jobOptions);
   });
 
   learningContentReplicationQueue.process(async function() {
     logger.info('learningContent.fetchAndSaveData - Started');
-    await learningContent.fetchAndSaveData(configuration);
+    await learningContent.run(configuration);
     logger.info('learningContent.fetchAndSaveData - Ended');
     notificationQueue.add({}, { ...jobOptions, attempts: 1 });
   });
 
   notificationQueue.process(async function() {
-    await notificationJob.run(configuration);
+    await notification.run(configuration);
     logger.info('Import and enrichment done');
   });
 

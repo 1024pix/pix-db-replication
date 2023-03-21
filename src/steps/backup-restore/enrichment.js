@@ -1,8 +1,9 @@
 'use strict';
 
-const { runDBOperation } = require('./database-helper');
-const logger = require('./logger');
 const toPairs = require('lodash/toPairs');
+
+const { runDBOperation } = require('../../database-helper');
+const logger = require('../../logger');
 
 async function add(configuration) {
   await runDBOperation(async (client) => {

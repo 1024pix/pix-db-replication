@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const lcmsClient = require('./lcms-client');
-const databaseHelper = require('./database-helper');
+const databaseHelper = require('../../database-helper');
 
 const tables = [{
   name: 'areas',
@@ -109,7 +109,7 @@ const tables = [{
   indexes: ['title'],
 }];
 
-async function fetchAndSaveData(configuration) {
+async function run(configuration) {
   const learningContent = await lcmsClient.getLearningContent(configuration);
   if (learningContent) {
     for await (const table of tables) {
@@ -121,5 +121,5 @@ async function fetchAndSaveData(configuration) {
 }
 
 module.exports = {
-  fetchAndSaveData,
+  run,
 };

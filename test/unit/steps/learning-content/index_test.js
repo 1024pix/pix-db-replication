@@ -1,10 +1,10 @@
-const { expect, sinon } = require('../test-helper');
-const lcmsClient = require('../../src/lcms-client');
-const databaseHelper = require('../../src/database-helper');
-const learningContent = require('../../src/replicate-learning-content');
+const { expect, sinon } = require('../../../test-helper');
+const lcmsClient = require('../../../../src/steps/learning-content/lcms-client');
+const databaseHelper = require('../../../../src/database-helper');
+const learningContent = require('../../../../src/steps/learning-content');
 
-describe('Unit | learning-content.js', () => {
-  describe('#fetchAndSaveData', () => {
+describe('Unit | Steps | learning-content | index.js', () => {
+  describe('#run', () => {
     beforeEach(async() => {
       const databaseConfig = {};
       const content = {
@@ -21,7 +21,7 @@ describe('Unit | learning-content.js', () => {
       sinon.stub(databaseHelper, 'saveLearningContent').resolves();
       sinon.stub(lcmsClient, 'getLearningContent').resolves(content);
 
-      await learningContent.fetchAndSaveData(databaseConfig);
+      await learningContent.run(databaseConfig);
     });
 
     it('should fetch learning-content from LCMS', async() => {

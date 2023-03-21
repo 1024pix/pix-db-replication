@@ -1,10 +1,10 @@
 'use strict';
 
 const execa = require('execa');
-const { execStdOut } = require('./exec');
-const { getTablesWithReplicationModes, REPLICATION_MODE } = require('./config');
+const { execStdOut } = require('../exec');
+const { getTablesWithReplicationModes, REPLICATION_MODE } = require('../config');
 
-const logger = require('./logger');
+const logger = require('../logger');
 
 function escapeSQLIdentifier(identifier) {
   return `"${identifier.replace(/"/g, '""')}"`;

@@ -5,11 +5,11 @@ const pgUrlParser = require('pg-connection-string').parse;
 // eslint-disable-next-line no-process-env
 const DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://pix@localhost:5432/replication_target';
 
-const Database = require('../utils/database');
+const Database = require('../../../utils/database');
 
-const createViewsForMissingTables = require('../../src/create-views-for-missing-tables');
+const createViewsForMissingTables = require('../../../../src/steps/backup-restore/create-views-for-missing-tables');
 
-describe('Integration | createViewsForMissingTables', () => {
+describe('Integration | Steps | Backup restore | createViewsForMissingTables', () => {
   let database;
   let configuration;
 

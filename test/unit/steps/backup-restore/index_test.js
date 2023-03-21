@@ -1,7 +1,7 @@
-const { expect, sinon } = require('../test-helper');
+const { expect, sinon } = require('../../../test-helper');
 const proxyquire = require('proxyquire').noPreserveCache();
 
-describe('Unit | steps.js', () => {
+describe('Unit | steps | Backup restore | index.js', () => {
 
   describe('#createBackup', () => {
     let execStub;
@@ -9,12 +9,12 @@ describe('Unit | steps.js', () => {
 
     beforeEach(() => {
       execStub = sinon.stub();
-      const newSteps = proxyquire('../../src/steps', {
-        './exec': {
+      const newIndex = proxyquire('../../../../src/steps/backup-restore', {
+        '../../exec': {
           exec: execStub,
         },
       });
-      createBackup = newSteps.createBackup;
+      createBackup = newIndex.createBackup;
     });
 
     it('should use pg_dump to create a full backup', async () => {

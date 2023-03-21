@@ -2,11 +2,12 @@
 
 const fs = require('fs');
 
-const { exec, execStdOut } = require('./exec');
+const { getTablesWithReplicationModes, REPLICATION_MODE } = require('../../config');
+const { exec, execStdOut } = require('../../exec');
+const logger = require('../../logger');
 const enrichment = require('./enrichment');
-const logger = require('./logger');
+
 const createViewsForMissingTables = require('./create-views-for-missing-tables');
-const { getTablesWithReplicationModes, REPLICATION_MODE } = require('./config');
 
 const RESTORE_LIST_FILENAME = 'restore.list';
 
@@ -158,7 +159,7 @@ module.exports = {
   backupAndRestore,
   createBackup,
   dropObjectAndRestoreBackup,
-  fullReplicationAndEnrichment,
+  run: fullReplicationAndEnrichment,
   getTablesWithReplicationModes,
   restoreBackup,
 };
