@@ -1,55 +1,17 @@
-/* eslint-disable no-process-env */
 'use strict';
 
-const execa = require('execa');
 const fs = require('fs');
 
-const learningContent = require('./replicate-learning-content');
+const { getTablesWithReplicationModes, REPLICATION_MODE } = require('../../config');
+const { exec, execStdOut } = require('../../exec');
+const logger = require('../../logger');
 const enrichment = require('./enrichment');
-const logger = require('./logger');
-const toPairs = require('lodash/toPairs');
+
 const createViewsForMissingTables = require('./create-views-for-missing-tables');
 
 const RESTORE_LIST_FILENAME = 'restore.list';
 
-const REPLICATION_MODE = {
-  INCREMENTAL: 'incremental',
-  TO_EXCLUDE: 'none',
-};
-
-function execShell(cmdline) {
-  return execa(cmdline, { stdio: 'inherit', shell: true });
-}
-
-function exec(cmd, args) {
-  return execa(cmd, args, { stdio: 'inherit' });
-}
-
-async function execStdOut(cmd, args) {
-  const { stdout } = await execa(cmd, args, { stderr: 'inherit' });
-  return stdout;
-}
-
-// dbclient-fetch assumes $HOME/bin is in the PATH
-async function setupPath() {
-  await execShell('mkdir -p "$HOME/bin"');
-  // eslint-disable-next-line no-process-env
-  process.env.PATH = process.env.HOME + '/bin' + ':' + process.env.PATH;
-}
-
-function installPostgresClient(configuration) {
-  return exec('dbclient-fetcher', [ 'pgsql', configuration.PG_CLIENT_VERSION ]);
-}
-
-async function pgclientSetup(configuration) {
-  if (process.env.NODE_ENV === 'production') {
-    await setupPath();
-    await installPostgresClient(configuration);
-  }
-}
-
 async function dropCurrentObjects(configuration) {
-  // TODO: pass DATABASE_URL by argument
   const tablesToKeep = getTablesWithReplicationModes(configuration, [REPLICATION_MODE.INCREMENTAL, REPLICATION_MODE.TO_EXCLUDE]);
   if (tablesToKeep.length > 0) {
     return dropCurrentObjectsExceptTables(configuration.DATABASE_URL, tablesToKeep);
@@ -76,6 +38,7 @@ async function restoreBackup({ backupFile, databaseUrl, configuration }) {
   logger.info('Start restore');
 
   try {
+    // eslint-disable-next-line no-process-env
     const verboseOptions = process.env.NODE_ENV === 'test' ? [] : ['--verbose'];
     await writeListFileForReplication({ backupFile, configuration });
     // TODO: pass DATABASE_URL by argument
@@ -105,6 +68,7 @@ async function createBackup(configuration) {
     excludeOptions = tablesToExcludeFromBackup.reduce((excludeTablesOptions, tableName) => [...excludeTablesOptions, '--exclude-table', tableName], []);
   }
 
+  // eslint-disable-next-line no-process-env
   const verboseOptions = process.env.NODE_ENV === 'test' ? [] : ['--verbose'];
 
   await exec('pg_dump', [
@@ -139,12 +103,6 @@ async function dropObjectAndRestoreBackup(backupFile, configuration) {
   await createViewsForMissingTables(configuration);
   logger.info('End create view');
 
-}
-
-async function importLearningContent(configuration) {
-  logger.info('learningContent.fetchAndSaveData - Started');
-  await learningContent.fetchAndSaveData(configuration);
-  logger.info('learningContent.fetchAndSaveData - Ended');
 }
 
 async function addEnrichment(configuration) {
@@ -196,22 +154,12 @@ function _filterObjectLines(objectLines, configuration) {
   return objectLines.filter((line) => !new RegExp(regexp).test(line));
 }
 
-function getTablesWithReplicationModes(configuration, modes = []) {
-  const tablePairs = toPairs(configuration.BACKUP_MODE);
-  return tablePairs
-    .filter(([_, mode]) => modes.includes(mode))
-    .map(([tableName, _]) => tableName);
-}
-
 module.exports = {
   addEnrichment,
   backupAndRestore,
   createBackup,
   dropObjectAndRestoreBackup,
-  fullReplicationAndEnrichment,
+  run: fullReplicationAndEnrichment,
   getTablesWithReplicationModes,
-  importLearningContent,
-  pgclientSetup,
   restoreBackup,
-  REPLICATION_MODE,
 };

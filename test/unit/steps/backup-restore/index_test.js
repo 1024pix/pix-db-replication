@@ -1,7 +1,7 @@
-const { expect, sinon } = require('../test-helper');
+const { expect, sinon } = require('../../../test-helper');
 const proxyquire = require('proxyquire').noPreserveCache();
 
-describe('Unit | steps.js', () => {
+describe('Unit | steps | Backup restore | index.js', () => {
 
   describe('#createBackup', () => {
     let execStub;
@@ -9,10 +9,12 @@ describe('Unit | steps.js', () => {
 
     beforeEach(() => {
       execStub = sinon.stub();
-      const newSteps = proxyquire('../../src/steps', {
-        execa: execStub,
+      const newIndex = proxyquire('../../../../src/steps/backup-restore', {
+        '../../exec': {
+          exec: execStub,
+        },
       });
-      createBackup = newSteps.createBackup;
+      createBackup = newIndex.createBackup;
     });
 
     it('should use pg_dump to create a full backup', async () => {
@@ -41,7 +43,6 @@ describe('Unit | steps.js', () => {
           '--exclude-schema', '\'^pg_*\'',
           '--file', './dump.pgsql',
         ],
-        { stdio: 'inherit' },
       );
       expect(backupFilename).to.equal('./dump.pgsql');
     });
@@ -76,7 +77,6 @@ describe('Unit | steps.js', () => {
             '--exclude-table', 'knowledge-element-snapshots',
             '--exclude-table', 'answers',
           ],
-          { stdio: 'inherit' },
         );
 
       });
@@ -112,7 +112,6 @@ describe('Unit | steps.js', () => {
             '--exclude-table', 'knowledge-element-snapshots',
             '--exclude-table', 'answers',
           ],
-          { stdio: 'inherit' },
         );
 
       });

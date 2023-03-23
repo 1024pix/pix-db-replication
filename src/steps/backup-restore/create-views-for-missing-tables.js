@@ -1,7 +1,7 @@
 'use strict';
 
-const { runDBOperation } = require('./database-helper');
-const logger = require('./logger');
+const { runDBOperation } = require('../../database-helper');
+const logger = require('../../logger');
 
 async function createViewForMissingTable(configuration) {
   await runDBOperation(async (client) => {

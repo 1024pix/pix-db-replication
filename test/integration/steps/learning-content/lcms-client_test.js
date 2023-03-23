@@ -1,8 +1,8 @@
-const { expect, catchErr, nock } = require('../test-helper');
+const { expect, catchErr, nock } = require('../../../test-helper');
 
-const lcmsClient = require('../../src/lcms-client');
+const lcmsClient = require('../../../../src/steps/learning-content/lcms-client');
 
-describe('Integration | lcms-client.js', () => {
+describe('Integration | Steps | learning-content | lcms-client.js', () => {
   describe('#getLatest', () => {
     let configuration;
 

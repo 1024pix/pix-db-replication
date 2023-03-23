@@ -1,28 +1,20 @@
-# Application de datawarehouse Pix
+# Réplication des données de production de Pix
 
-## Enjeux et contraintes
-Ce projet a pour but de mettre à disposition des ressources facilement exploitables et réglementaires auprès :
-- d'utilisateurs internes (développeurs, PO, support, métiers, ...)
-- d'utilisateurs externes (partenaires, membres d'une organisation dans PixOrga, ...)
+Ce projet a pour but de répliquer tout ou une partie des données d'une base de données postgreSQL:
 
-Les contraintes majeures sont :
-- disposer des données les plus récentes
-- ne pas impacter la performance de la BDD
-- ne donner accès qu'aux utilisateurs autorisés.
+- via une sauvegarde / restauration
+- d'une manière incrémentale
 
-## Approche
-Pour respecter nos enjeux, nous avons dessiné l'approche suivante :
-- importer chaque nuit _l'intégralité_ des données de production dans une BDD dite "interne"
-- importer chaque nuit _une partie_ des données de production dans une BDD dite "externe"
-- dans Metabase, les utilisateurs externes sont réglementairement restraints à l'utilisation de la BDD "externe"
-- suite à l'import, créer des objets supplémentaires pour assurer un temps d'exécution des rapports acceptables (index, vues matérialisées,...)
+> Des enrichissements peuvent être fait à la fin de l'import.
 
-## Produit
-Les possibilités suivantes sont disponibles :
-- exécuter des rapports dans Metabase
-- exécuter des requêtes SQL
+Les données de pix-editor/lcms sont également répliquées.
+
+A la fin du processus, nous notifions par webhooks des systèmes externes.
+
+Ces étapes se font dans l'ordre et sont executées sequentiellement dans des jobs [bull](https://github.com/OptimalBits/bull).
 
 ## Pré-requis
+
 Ce projet est prévu pour être déployé sur une application Scalingo associée à une base de donnée PostgreSQL.
 
 Des variables d'environnement sont mises en place afin de garder un seul repository partagé par les applications.
@@ -30,20 +22,22 @@ Des variables d'environnement sont mises en place afin de garder un seul reposit
 ## Utilisation sur Scalingo
 
 ### Installation
+
 Alimenter les variables d'environnement documentées dans le fichier [sample.env](sample.env)
 
 Pour satisfaire les contraintes de déploiement Scalingo, le [Procfile](Procfile) déclare un conteneur de type `web` qui démarre un serveur Web "vide".
 
 Une fois l'application créée et déployée une première fois, il faut :
 - mettre à 0 le nombre de conteneurs de type `web`
-- mettre à 1 le nombre de conteneurs de type `background`.
+- mettre à 1 le nombre de conteneurs de type `background`
  
 ### Résolution de problèmes
 
 #### Analyse de la cause
 
 Connectez-vous à `bull`
-```shell
+
+```bash
 scalingo --region osc-secnum-fr1 --app pix-datawarehouse-production run bull-repl
 connect "Replication queue"
 #connect "Incremental replication queue"
@@ -53,65 +47,53 @@ stats
 ```
 
 Alternativement, se connecter à `redis`
-```shell
+
+```bash
 scalingo --region osc-secnum-fr1 --app pix-datawarehouse-production redis-console
 KEYS *
 GET <KEY>
 ```
 
 #### Relance
+
 Une fois que la cause du problème a été corrigée:
-- s'il est important que les données soient disponibles le jour même, il est possible de lancer le traitement manuellement;
-- sinon ne rien faire, le traitement sera exécuté la nuit prochaine.
 
-🧨 Le traitement peut avoir des impacts sur les temps de réponses des applications, car il utilise les ressources BDD.
-Monitorez le % CPU BDD et le temps de réponse des requêtes HTTP pour arrêter le traitement si besoin. Pour cela, stopper le conteneur `background`.
+- s'il est important que les données soient disponibles le jour même, il est possible de lancer le traitement manuellement
+- sinon ne rien faire, le traitement sera exécuté la nuit prochaine
 
-##### Sur la BDD destinée aux internes
+> 🧨 Le traitement peut avoir des impacts sur les temps de réponses des applications, car il utilise les ressources BDD.
+> Monitorez le % CPU BDD et le temps de réponse des requêtes HTTP pour arrêter le traitement si besoin. Pour cela, stopper le conteneur `background`.
 
-Deux traitements (dump et incrémentale) sont exécutés chaque nuit
-* si l'un d'eux échoue, le relancer
-* si les deux échouent, les relancer parallèlement 
+Si la sauvegarde/restauration/enrichissement a échoué :
 
-Lancer la réplication par dump
 ``` bash
-scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-production npm run restart:full-replication
+npm run restart:full-replication
 ```
 
-Lancer la réplication incrémentale
+Si la réplication incrémentale a échoué :
+
 ``` bash
-scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-production npm run restart:incremental-replication
+npm run restart:incremental-replication
 ```
 
-##### Sur la BDD destinée aux externes
-Lancer la réplication par dump
+Si la réplication de LCMS a échoué :
+
 ``` bash
-scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-ex-production npm run restart:full-replication
+npm run restart:learning-content-replication
 ```
 
-##### Exécution partielle
-Dans certains cas, le besoin est de relancer uniquement les opérations de fin de réplication
+Si les notifications de fin ont échoué :
 
-###### Importer le référentiel pédagogique
 ``` bash
-scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-production npm run restart:learning-content-replication
-```
-
-###### Relancer les notifications de fin
-``` bash
-scalingo run --region osc-secnum-fr1 -a pix-datawarehouse-production npm run restart:notification
-```
-
-###### Enrichissement
-Création index, vues..
-``` bash
-node -e "steps=require('./src/steps'); steps.addEnrichment(require ('./src/config/extract-configuration-from-environment')())"
+npm run restart:notification
 ```
 
 ## Développement et exécution en local
 
 ### Installation
+
 Installez le dépôt
+
 ``` bash
 git clone git@github.com:1024pix/pix-db-replication.git && cd pix-db-replication
 nvm use
@@ -119,26 +101,26 @@ npm run preinstall
 ```
 
 Démarrer le serveur de BDD
-````shell
+
+````bash
 docker-compose up --detach
 ````
 
 Créer et charger les BDD
-````shell
+
+````bash
 npm run local:setup-databases
 ````
 
 Vérifiez que la source et la cible sont accessibles et qu'elles contiennent des données
-````shell
+
+````bash
 psql postgres://source_user@localhost/source_database
 psql postgres://target_user@localhost/target_database
 ````
 
-Installez le CLI Bull
-`npm install bull-repl -g`
-
-
 ### Paramétrage
+
 Créer un fichier `.env` à partir du fichier [sample.env](sample.env)
 
 ### Exécution
@@ -146,24 +128,28 @@ Créer un fichier `.env` à partir du fichier [sample.env](sample.env)
 #### Réplication complète
 
 Modifier le .env
+
 ``` bash
 DATABASE_URL=postgresql://target_user@localhost/target_database
-BACKUP_MODE= {}
+BACKUP_MODE={}
 RESTORE_FK_CONSTRAINTS=true
 ```
 
 Lancer la réplication
+
 ``` bash
-node -e "steps=require('./src/steps'); steps.fullReplicationAndEnrichment(require ('./src/config/extract-configuration-from-environment')())"
+node -e "require('./src/steps/backup-restore').run(require ('./src/config/extract-configuration-from-environment')())"
 ```
 
 Au bout de 5 minutes, vous devez obtenir le message
-``` bash
-"msg":"enrichment.add - Ended","time":"2021-01-08T08:26:13.000Z","v":0}
-"msg":"Import and enrichment done","time":"2021-01-08T08:26:13.000Z","v":0}
+
+``` json
+{"msg":"enrichment.add - Ended","time":"2021-01-08T08:26:13.000Z","v":0}
+{"msg":"Import and enrichment done","time":"2021-01-08T08:26:13.000Z","v":0}
 ```
 
 Pensez à recréer le backup sur le filesystem local, supprimé par la restauration
+
 ``` bash
 git checkout data/source.pgsql
 ```
@@ -173,6 +159,7 @@ git checkout data/source.pgsql
 ##### Initialiser l'environnement
 
 Supprimer les FK sortantes des tables à copier
+
 ``` bash
 psql postgresql://target_user@localhost/target_database
 ```
@@ -185,34 +172,15 @@ ALTER TABLE "knowledge-elements" DROP CONSTRAINT "knowledge_elements_userid_fore
 ```
 
 ##### Paramétrer
+
 Modifier le .env
+
 ``` bash
 SOURCE_DATABASE_URL=postgresql://source_user@localhost/source_database
 TARGET_DATABASE_URL=postgresql://target_user@localhost/target_database
 BACKUP_MODE='{"knowledge-elements":"incremental", "knowledge-element-snapshots":"incremental","answers":"incremental"}'
 RESTORE_FK_CONSTRAINTS=false
 ```
-
-##### Exécuter
-Exécuter
-``` bash
-node ./src/run-replicate-incrementally.js
-```
-
-#### Exécution partielle
-Dans certains cas, le besoin est de relancer uniquement les opérations de fin de réplication
-
-##### Importer le référentiel pédagogique
-``` bash
-npm run local:learning-content
-```
-
-##### Enrichissement
-Création index, vues..
-``` bash
-node -e "steps=require('./src/steps'); steps.addEnrichment(require ('./src/config/extract-configuration-from-environment')())"
-```
-
 
 #### Ordonnanceur
 
@@ -224,14 +192,17 @@ Mettez la planification à toutes les minutes dans le fichier `.env`
 
 Démarrez l'ordonnanceur
 
-`node ./src/replication_job.js | ./node_modules/.bin/bunyan`
+`node ./src/main.js | ./node_modules/.bin/bunyan`
 
 Vérifiez que le traitement se lance
-```shell
+
+```bash
 [2021-06-11T14:11:01.944Z]  INFO: pix-db-replication/83294 on OCTO-TOPI: Starting job in Learning Content replication queue: 10
 ```
+
 Vérifiez que bull a pu joindre redis
-```shell
+
+```bash
 redis-cli
 keys bull:*
 ```
@@ -239,29 +210,36 @@ keys bull:*
 Connectez-vous au CLI Bull pour suivre l'avancement.
 
 Pour se connecter via Scalingo, utiliser le connect avec les 4 options ci-dessous.
+
+``` bash
 connect [options] <queue>
     -h, --host <host>      Redis host for connection
     -p, --port <port>      Redis port for connection
     -d, --db <db>          Redis db for connection
     --password <password>  Redis password for connection
+```
+
 Puis saisir le nom de la queue.
 
 Pour la réplication par dump
-```shell
+
+```bash
 bull-repl
 connect "Replication queue"
 stats
 ```
 
 Pour la réplication incrémentale
-```shell
+
+```bash
 bull-repl
 connect "Incremental replication queue"
 stats
 ```
 
 Pour l'import LCMS
-```shell
+
+```bash
 bull-repl
 connect "Learning Content replication queue"
 stats
@@ -271,7 +249,7 @@ Vous obtenez, par exemple
 - en cours d'exécution d'un traitement
 - après 14 exécutions avec succès
 
-```shell
+```bash
 ┌───────────┬────────┐
 │  (index)  │ Values │
 ├───────────┼────────┤
@@ -286,42 +264,50 @@ Vous obtenez, par exemple
 
 
 ## Tests
+
 Une partie du code n'est pas testable de manière automatisée.
-Elle consiste en la récupération du backup.
+
 Il est donc important d'effectuer un test manuel en RA avant de merger une PR, même si la CI passe.
 
 ### Manuels
 
 #### Local
+
 Récupérer les données de LCMS :
+
 ``` bash
-node -e "steps=require('./src/steps'); steps.importLearningContent();"
+node -e "require('./src/steps/learning-content').run(require ('./src/config/extract-configuration-from-environment')())"
 ```
 
 #### RA Scalingo
-- Application Scalingo hors `osc-secnum-fr1` pour éviter les considérations de sécurité des données
 
-- Vérifier les données présentes dans la BDD à exporter
+- Faire un backup des données d'une application Scalingo hors `osc-secnum-fr1`
+pour éviter les considérations de sécurité des données
+
+- Vérifier les données présentes dans la BDD à exporter (exemple pour les données d'une review app)
 
 ``` bash
-$ scalingo -a pix-api-review-pr1973 pgsql-console
+scalingo -a pix-api-review-prxxx pgsql-console
 ```
 
 - Lancer un backup (ou ne rien faire, le dernier est utilisé par défaut)
 
-- Déterminer le nom de l'application, par exemple : `pix-datawarehouse-pr47`
+- Déterminer le nom de l'application de RA Scalingo de db-replication
+
 ``` bash
-NOM_APPLICATION=pix-datawarehouse-pr47
+NOM_APPLICATION=pix-datawarehouse-pr<NUMERO-PR>
 ```
 
-- Lancer le process de création et d'import du backup
+- Lancer le process de création et d'import du backup sur cette RA
+
 ``` bash
-scalingo run --region osc-fr1 --app pix-datawarehouse-pr<NUMERO-PR> --size S --detached node ./src/run.js
+scalingo run --region osc-fr1 --app $NOM_APPLICATION npm run restart:full-replication
 ```
 
-- Vérifier le résultat
+- Vérifier le résultat dans la bdd répliquée
+
 ``` bash
-scalingo -a pix-datawarehouse-pr<NUMERO-PR> pgsql-console
+scalingo -a $NOM_APPLICATION pgsql-console
 ```
 
 ```sql
@@ -333,32 +319,47 @@ SELECT id, email FROM "users" LIMIT 5;
 #### Local
 
 ##### Intégration
+
 Déroulement :
+
 - une BDD est créée en local sur l'URL `$TEST_POSTGRES_URL` (par défaut : `postgres://postgres@localhost`), instance `pix_replication_test`
 - la table `test_table` est créée et chargée avec 100 000 enregistrements (1 colonne, PK)
 - un export est effectué par `pg_dump --c` dans un dossier temporaire
 - la restauration à tester est appelée depuis `steps.js/restoreBackup`
 - les assertions SQL sont effectuées par un `runSql`, un wrapper autour de `psql`
 
-_Note :_ le dump Scalingo est créé avec des options `pg_dump` [différentes](https://doc.scalingo.com/databases/postgresql/dump-restore)
+> le dump Scalingo est créé avec des options `pg_dump` [différentes](https://doc.scalingo.com/databases/postgresql/dump-restore)
 
 - Se connecter à la BDD de test :
+
 ``` bash
 psql postgres://postgres@localhost/pix_replication_test
 ```
 
 #### CI
+
 La CI exécute l'intégralité des tests (unitaire et intégration).
 
 ## Parser les logs
+
+### Datadog
+
+Les logs en production sont parsés sur Datadog, et l'ensemble des éléments remontent dans des logs structurés.
+Il est ainsi possible de filtrer sur les status des logs pour obtenir les informations désirées.
+
+### A la main
+
 L'analyse de ce qui prend du temps est complexe sur les logs brutes s'il y a :
+
 - plusieurs jobs de restauration (variable d'environnement`PG_RESTORE_JOBS`)
 - beaucoup de tables.
 
 Pour faciliter l'analyse, utilisez le script d'analyse de log.
 
 Étapes :
+
 * récupérer les logs
+
 ``` bash
 scalingo --region osc-secnum-fr1 --app <NOM_APPLICATION> logs --lines 100000 > /tmp/logs.txt
 ```

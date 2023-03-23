@@ -1,8 +1,8 @@
-const { expect, axios, sinon, catchErr } = require('../test-helper');
+const { expect, axios, sinon, catchErr } = require('../../../test-helper');
 
-const lcmsClient = require('../../src/lcms-client');
+const lcmsClient = require('../../../../src/steps/learning-content/lcms-client');
 
-describe('Unit | lcms-client.js', () => {
+describe('Unit | Steps | learning content | lcms-client.js', () => {
   describe('#getLatest', () => {
     let learningContentGetUrl, configuration, headers;
 

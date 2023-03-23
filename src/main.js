@@ -2,11 +2,13 @@ require('dotenv').config();
 const Sentry = require('@sentry/node');
 const Queue = require('bull');
 const initSentry = require('./sentry-init');
-const steps = require('./steps');
 const logger = require('./logger');
-const replicateIncrementally = require('./replicate-incrementally');
-const notificationJob = require('./notification-job');
-const { configuration, jobOptions, repeatableJobOptions } = require('./config');
+const { pgclientSetup } = require('./setup');
+const backupRestore = require('./steps/backup-restore');
+const incremental = require('./steps/incremental');
+const notification = require('./steps/notification');
+const learningContent = require('./steps/learning-content');
+const { configuration, jobOptions, repeatableJobOptions, getTablesWithReplicationModes, REPLICATION_MODE } = require('./config');
 
 const replicationQueue = _createQueue('Replication queue');
 const learningContentReplicationQueue = _createQueue('Learning Content replication queue');
@@ -22,27 +24,29 @@ main()
 
 async function main() {
   initSentry(configuration);
-  await steps.pgclientSetup(configuration);
+  await pgclientSetup(configuration);
 
   replicationQueue.process(async function() {
-    await steps.fullReplicationAndEnrichment(configuration);
+    await backupRestore.run(configuration);
     incrementalReplicationQueue.add({}, jobOptions);
   });
 
   incrementalReplicationQueue.process(async function() {
     if (hasIncremental(configuration)) {
-      await replicateIncrementally.run(configuration);
+      await incremental.run(configuration);
     }
     learningContentReplicationQueue.add({}, jobOptions);
   });
 
   learningContentReplicationQueue.process(async function() {
-    await steps.importLearningContent(configuration);
+    logger.info('learningContent.run - Started');
+    await learningContent.run(configuration);
+    logger.info('learningContent.run - Ended');
     notificationQueue.add({}, { ...jobOptions, attempts: 1 });
   });
 
   notificationQueue.process(async function() {
-    await notificationJob.run(configuration);
+    await notification.run(configuration);
     logger.info('Import and enrichment done');
   });
 
@@ -112,7 +116,7 @@ function _addQueueEventsListeners(queue) {
 }
 
 function hasIncremental(configuration) {
-  const incrementalTables = steps.getTablesWithReplicationModes(configuration, [steps.REPLICATION_MODE.INCREMENTAL]);
+  const incrementalTables = getTablesWithReplicationModes(configuration, [REPLICATION_MODE.INCREMENTAL]);
   return incrementalTables.length > 0;
 }
 

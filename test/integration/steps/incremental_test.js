@@ -2,13 +2,13 @@ const chai = require('chai');
 const expect = chai.expect;
 chai.use(require('chai-as-promised'));
 const pgUrlParser = require('pg-connection-string').parse;
-const Database = require('../utils/database');
-const { createAndFillDatabase, createBackup } = require('./test-helper');
+const Database = require('../../utils/database');
+const { createAndFillDatabase, createBackup } = require('../test-helper');
 
-const steps = require('../../src/steps');
-const { run } = require('../../src/replicate-incrementally');
+const { restoreBackup } = require('../../../src/steps/backup-restore');
+const { run } = require('../../../src/steps/incremental');
 
-describe('Integration | replicate-incrementally.js', () => {
+describe('Integration | Steps | incremental.js', () => {
 
   describe('run', function() {
 
@@ -99,7 +99,7 @@ describe('Integration | replicate-incrementally.js', () => {
 
           // TODO: do not use production code to setup environment
           const firstDayConfiguration = { BACKUP_MODE: { [name]: 'none' }, RESTORE_FK_CONSTRAINTS: 'false', PG_RESTORE_JOBS: 4 };
-          await steps.restoreBackup({ backupFile, databaseUrl: targetDatabaseConfig.databaseUrl, configuration: firstDayConfiguration });
+          await restoreBackup({ backupFile, databaseUrl: targetDatabaseConfig.databaseUrl, configuration: firstDayConfiguration });
 
           // Day 2
 
@@ -136,7 +136,7 @@ describe('Integration | replicate-incrementally.js', () => {
 
         // TODO: do not use production code to setup environment
         const firstDayConfiguration = { BACKUP_MODE: {}, RESTORE_FK_CONSTRAINTS: 'false', PG_RESTORE_JOBS: 4 };
-        await steps.restoreBackup({ backupFile, databaseUrl: targetDatabaseConfig.databaseUrl, configuration: firstDayConfiguration });
+        await restoreBackup({ backupFile, databaseUrl: targetDatabaseConfig.databaseUrl, configuration: firstDayConfiguration });
 
         const answersCountBefore = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM answers'));
         expect(answersCountBefore).not.to.equal(0);

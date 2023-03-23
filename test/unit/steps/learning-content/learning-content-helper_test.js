@@ -1,8 +1,8 @@
-const { expect } = require('../test-helper');
+const { expect } = require('../../../test-helper');
 
-const learningContentHelper = require('../../src/learning-content-helper');
+const learningContentHelper = require('../../../../src/steps/learning-content/learning-content-helper');
 
-describe('Unit | learning-content-helper.js', () => {
+describe('Unit | Steps | learning content | learning-content-helper.js', () => {
 
   describe('#prepareLearningContentValueBeforeInsertion', function() {
 

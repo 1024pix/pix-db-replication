@@ -3,7 +3,7 @@ const format = require('pg-format');
 const _ = require('lodash');
 
 const { PrimaryKeyNotNullConstraintError } = require('./errors');
-const learningContentHelper = require('./learning-content-helper');
+const learningContentHelper = require('./steps/learning-content/learning-content-helper');
 
 const LCMS_CHUNK = 2000;
 

@@ -5,12 +5,12 @@ const pgUrlParser = require('pg-connection-string').parse;
 // eslint-disable-next-line no-process-env
 const DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://pix@localhost:5432/replication_target';
 
-const { createAndFillDatabase } = require('./test-helper');
-const Database = require('../utils/database');
+const { createAndFillDatabase } = require('../../test-helper');
+const Database = require('../../../utils/database');
 
-const { add } = require('../../src/enrichment');
+const { add } = require('../../../../src/steps/backup-restore/enrichment');
 
-describe('Integration | enrichment.js', () => {
+describe('Integration | Steps | Backup restore | enrichment.js', () => {
 
   const config = pgUrlParser(DATABASE_URL);
 
