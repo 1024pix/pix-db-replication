@@ -2,10 +2,22 @@
 
 set -eu
 
-dbclient-fetcher pgsql "$PG_CLIENT_VERSION"
+if command -v dbclient-fetcher &> /dev/null; then
+    dbclient-fetcher pgsql "$PG_CLIENT_VERSION"
+fi
 
-TABLE_NAME='external_opendata_caisse_des_depots_cpf_list'
-DATASET_URL='https://opendata.caissedesdepots.fr/api/records/1.0/search/?dataset=moncompteformation_catalogueformation&rows=2000&q=pix&facet=nom_departement&facet=nom_region&facet=rsrncp&facet=libelle_niveau_sortie_formation&facet=libelle_nsf_1&facet=code_certifinfo&facet=siret&facet=code_region&refine.rsrncp=RS'
+if [ -z "${TABLE_NAME+x}" ]; then
+    TABLE_NAME='external_opendata_caisse_des_depots_cpf_list'
+fi
+
+if [ -z "${DATASET_URL+x}" ]; then
+    DATASET_URL='https://opendata.caissedesdepots.fr/api/records/1.0/search/?dataset=moncompteformation_catalogueformation&q=&rows=2000&facet=nom_departement&facet=nom_region&facet=rsrncp&facet=libelle_niveau_sortie_formation&facet=libelle_nsf_1&facet=libelle_nsf_2&facet=libelle_nsf_3&facet=code_certifinfo&facet=siret&facet=code_region&refine.intitule_certification=Certificat+Pix'
+fi
+
+if [ -z "${DATABASE_URL+x}" ]; then
+    DATABASE_URL='postgres://postgres@localhost:5432/postgres'
+fi
+
 OUTPUT_FILE='/tmp/exportcpf.csv'
 
 psql "$DATABASE_URL" \
