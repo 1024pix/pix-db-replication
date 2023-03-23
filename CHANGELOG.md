@@ -1,5 +1,16 @@
 # pix-db-replication Changelog
 
+## v2.17.0 (23/03/2023)
+
+
+### :building_construction: Tech
+- [#156](https://github.com/1024pix/pix-db-replication/pull/156) [TECH] Corriger l'export des données CPF depuis l'open data
+- [#142](https://github.com/1024pix/pix-db-replication/pull/142) [TECH] Ajout de renovate
+
+### :coffee: Autre
+- [#148](https://github.com/1024pix/pix-db-replication/pull/148) [BUMP] Update redis Docker tag to v6.2
+- [#149](https://github.com/1024pix/pix-db-replication/pull/149) [BUMP] Update Node.js to v18
+
 ## v2.16.0 (20/03/2023)
 
 
