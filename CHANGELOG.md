@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.18.0 (23/03/2023)
+
+
+### :building_construction: Tech
+- [#143](https://github.com/1024pix/pix-db-replication/pull/143) [TECH] Nettoie et refactore l'aborescence
+
 ## v2.17.0 (23/03/2023)
 
 
