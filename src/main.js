@@ -8,7 +8,7 @@ const backupRestore = require('./steps/backup-restore');
 const incremental = require('./steps/incremental');
 const notification = require('./steps/notification');
 const learningContent = require('./steps/learning-content');
-const { configuration, jobOptions, repeatableJobOptions, getTablesWithReplicationModes, REPLICATION_MODE } = require('./config');
+const { configuration, jobOptions, repeatableJobOptions } = require('./config');
 
 const replicationQueue = _createQueue('Replication queue');
 const learningContentReplicationQueue = _createQueue('Learning Content replication queue');
@@ -32,9 +32,7 @@ async function main() {
   });
 
   incrementalReplicationQueue.process(async function() {
-    if (hasIncremental(configuration)) {
-      await incremental.run(configuration);
-    }
+    await incremental.run(configuration);
     learningContentReplicationQueue.add({}, jobOptions);
   });
 
@@ -113,11 +111,6 @@ function _addQueueEventsListeners(queue) {
     .on('failed', function(job, err) {
       logger.error(`Failed job in ${queue.name}: ${job.id} ${err} (Number of attempts: ${job.attemptsMade}/${job.opts.attempts})`);
     });
-}
-
-function hasIncremental(configuration) {
-  const incrementalTables = getTablesWithReplicationModes(configuration, [REPLICATION_MODE.INCREMENTAL]);
-  return incrementalTables.length > 0;
 }
 
 async function _flushSentryAndExit() {
