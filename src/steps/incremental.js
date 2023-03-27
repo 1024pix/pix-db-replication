@@ -10,10 +10,14 @@ function escapeSQLIdentifier(identifier) {
   return `"${identifier.replace(/"/g, '""')}"`;
 }
 
+function _hasIncrementalTables(incrementalTables) {
+  return incrementalTables.length > 0;
+}
+
 async function run(configuration) {
   const incrementalTables = getTablesWithReplicationModes(configuration, [REPLICATION_MODE.INCREMENTAL]);
-  if (incrementalTables.length === 0) {
-    logger.info('Exit because BACKUP_MODE is not incremental');
+  if (!_hasIncrementalTables(incrementalTables)) {
+    logger.info('No incremental tables configured');
     return;
   }
 
