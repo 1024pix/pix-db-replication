@@ -14,8 +14,8 @@ module.exports = class Database {
     this._superUserDatabaseUrl = `${this._superUserServerUrl}/${config.database}`;
   }
 
-  static async create({ serverUrl, databaseName, tableName, tableRowCount }) {
-    const database = new Database(serverUrl, databaseName, tableName, tableRowCount);
+  static async create({ serverUrl, databaseName }) {
+    const database = new Database(serverUrl, databaseName);
     await database.dropDatabase();
     await database.createDatabase();
     await database.createUser();
