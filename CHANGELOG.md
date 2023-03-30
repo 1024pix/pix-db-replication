@@ -1,5 +1,14 @@
 # pix-db-replication Changelog
 
+## v2.19.0 (30/03/2023)
+
+
+### :building_construction: Tech
+- [#160](https://github.com/1024pix/pix-db-replication/pull/160) [TECH] Refactorise quelques parties de la réplication
+
+### :coffee: Autre
+- [#159](https://github.com/1024pix/pix-db-replication/pull/159) [BUMP] Lock file maintenance
+
 ## v2.18.0 (23/03/2023)
 
 
