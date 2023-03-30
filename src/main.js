@@ -4,11 +4,8 @@ const Queue = require('bull');
 const initSentry = require('./sentry-init');
 const logger = require('./logger');
 const { pgclientSetup } = require('./setup');
-const backupRestore = require('./steps/backup-restore');
-const incremental = require('./steps/incremental');
-const notification = require('./steps/notification');
-const learningContent = require('./steps/learning-content');
-const { configuration, jobOptions, repeatableJobOptions, getTablesWithReplicationModes, REPLICATION_MODE } = require('./config');
+const steps = require('./steps');
+const { configuration, jobOptions, repeatableJobOptions } = require('./config');
 
 const replicationQueue = _createQueue('Replication queue');
 const learningContentReplicationQueue = _createQueue('Learning Content replication queue');
@@ -27,26 +24,24 @@ async function main() {
   await pgclientSetup(configuration);
 
   replicationQueue.process(async function() {
-    await backupRestore.run(configuration);
+    await steps.backupRestore(configuration);
     incrementalReplicationQueue.add({}, jobOptions);
   });
 
   incrementalReplicationQueue.process(async function() {
-    if (hasIncremental(configuration)) {
-      await incremental.run(configuration);
-    }
+    await steps.incremental(configuration);
     learningContentReplicationQueue.add({}, jobOptions);
   });
 
   learningContentReplicationQueue.process(async function() {
     logger.info('learningContent.run - Started');
-    await learningContent.run(configuration);
+    await steps.learningContent(configuration);
     logger.info('learningContent.run - Ended');
     notificationQueue.add({}, { ...jobOptions, attempts: 1 });
   });
 
   notificationQueue.process(async function() {
-    await notification.run(configuration);
+    await steps.notification(configuration);
     logger.info('Import and enrichment done');
   });
 
@@ -113,11 +108,6 @@ function _addQueueEventsListeners(queue) {
     .on('failed', function(job, err) {
       logger.error(`Failed job in ${queue.name}: ${job.id} ${err} (Number of attempts: ${job.attemptsMade}/${job.opts.attempts})`);
     });
-}
-
-function hasIncremental(configuration) {
-  const incrementalTables = getTablesWithReplicationModes(configuration, [REPLICATION_MODE.INCREMENTAL]);
-  return incrementalTables.length > 0;
 }
 
 async function _flushSentryAndExit() {

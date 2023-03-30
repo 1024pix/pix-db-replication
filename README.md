@@ -5,7 +5,7 @@ Ce projet a pour but de répliquer tout ou une partie des données d'une base de
 - via une sauvegarde / restauration
 - d'une manière incrémentale
 
-> Des enrichissements peuvent être fait à la fin de l'import.
+Des enrichissements peuvent être fait à la fin de l'import.
 
 Les données de pix-editor/lcms sont également répliquées.
 

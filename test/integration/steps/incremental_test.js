@@ -18,8 +18,6 @@ describe('Integration | Steps | incremental.js', () => {
     // eslint-disable-next-line no-process-env
     const TARGET_DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://pix@localhost:5432/replication_target';
 
-    let sourceDatabase;
-    let targetDatabase;
     let sourceDatabaseConfig;
     let targetDatabaseConfig;
 
@@ -54,7 +52,7 @@ describe('Integration | Steps | incremental.js', () => {
       it('should not copy any values', async function() {
 
         // given
-        targetDatabase = await Database.create(targetDatabaseConfig);
+        const targetDatabase = await Database.create(targetDatabaseConfig);
         await createAndFillDatabase(targetDatabase, targetDatabaseConfig, { createTablesNotToBeImported: true });
         const knowledgeElementsCountBefore = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM "knowledge-elements"'));
         expect(knowledgeElementsCountBefore).not.to.equal(0);
@@ -91,11 +89,10 @@ describe('Integration | Steps | incremental.js', () => {
         it(`should throw if table ${name} is empty`, async function() {
 
           // given
-
-          sourceDatabase = await Database.create(sourceDatabaseConfig);
+          let sourceDatabase = await Database.create(sourceDatabaseConfig);
           const backupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true });
 
-          targetDatabase = await Database.create(targetDatabaseConfig);
+          let targetDatabase = await Database.create(targetDatabaseConfig);
 
           // TODO: do not use production code to setup environment
           const firstDayConfiguration = { BACKUP_MODE: { [name]: 'none' }, RESTORE_FK_CONSTRAINTS: 'false', PG_RESTORE_JOBS: 4 };
@@ -129,10 +126,10 @@ describe('Integration | Steps | incremental.js', () => {
         // given
 
         // Day 1
-        sourceDatabase = await Database.create(sourceDatabaseConfig);
+        let sourceDatabase = await Database.create(sourceDatabaseConfig);
         const backupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true });
 
-        targetDatabase = await Database.create(targetDatabaseConfig);
+        const targetDatabase = await Database.create(targetDatabaseConfig);
 
         // TODO: do not use production code to setup environment
         const firstDayConfiguration = { BACKUP_MODE: {}, RESTORE_FK_CONSTRAINTS: 'false', PG_RESTORE_JOBS: 4 };
