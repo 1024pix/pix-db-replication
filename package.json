@@ -13,7 +13,6 @@
     "local:setup-databases": "npm run local:create-databases && npm run local:load-databases",
     "local:create-databases": "./local-setup/script/create-databases.sh",
     "local:load-databases": "./local-setup/script/load-databases.sh",
-    "local:learning-content": "node scripts/learning-content.js",
     "restart:full-replication": "node scripts/restart-replication-job.js 'Replication queue'",
     "restart:incremental-replication": "node scripts/restart-replication-job.js 'Incremental replication queue'",
     "restart:learning-content-replication": "node scripts/restart-replication-job.js 'Learning Content replication queue'",
