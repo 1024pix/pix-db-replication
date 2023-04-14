@@ -35,6 +35,8 @@ jobs:
         environment:
           POSTGRES_USER: postgres
           POSTGRES_HOST_AUTH_METHOD: trust
+    resource_class: small
+    working_directory: ~/pix/api
     steps:
       - checkout
       - run: cat package*.json > cachekey
@@ -84,8 +86,15 @@ jobs:
           command: |
             npm run preinstall
       - run:
-          name: Run test
-          command: |
-            npm run lint
-            npm run test
-
+          name: Lint
+          command: npm run lint
+      - run:
+          name: Test
+          command: npm run test
+          environment:
+            MOCHA_FILE: /home/circleci/test-results/test-results.[hash].xml
+            MOCHA_REPORTER: mocha-junit-reporter
+      - store_test_results:
+          path: /home/circleci/test-results
+      - store_artifacts:
+          path: /home/circleci/test-results
