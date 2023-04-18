@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.20.0 (18/04/2023)
+
+
+### :rocket: Amélioration
+- [#162](https://github.com/1024pix/pix-db-replication/pull/162) [FEATURE] Fournir l'application appelante à LCMS (PIX-7751)
+
 ## v2.19.0 (30/03/2023)
 
 
