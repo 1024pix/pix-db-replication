@@ -6,7 +6,7 @@
   "license": "AGPL-3.0",
   "author": "GIP Pix",
   "engines": {
-    "node": "18.15.x",
+    "node": "18.16.x",
     "npm": "9.5.x"
   },
   "scripts": {
