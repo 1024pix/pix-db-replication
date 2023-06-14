@@ -7,7 +7,7 @@
   "author": "GIP Pix",
   "engines": {
     "node": "18.16.x",
-    "npm": "9.5.x"
+    "npm": "9.7.x"
   },
   "scripts": {
     "local:setup-databases": "npm run local:create-databases && npm run local:load-databases",
