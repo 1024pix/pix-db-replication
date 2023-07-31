@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const lcmsClient = require('./lcms-client');
 const databaseHelper = require('../../database-helper');
 
@@ -92,11 +91,8 @@ const tables = [{
   name: 'courses',
   fields: [
     { name: 'name', type: 'text' },
-    { name: 'adaptive', type: 'boolean' },
-    { name: 'competences', type: 'text[]', isArray: true },
-    { name: 'competenceId', type: 'text', extractor: (record) => _.get(record['competences'], 0) },
   ],
-  indexes: ['competenceId'],
+  indexes: [],
 }, {
   name: 'tutorials',
   fields: [
