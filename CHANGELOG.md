@@ -1,5 +1,28 @@
 # pix-db-replication Changelog
 
+## v2.21.0 (31/07/2023)
+
+
+### :building_construction: Tech
+- [#190](https://github.com/1024pix/pix-db-replication/pull/190) [TECH] Supprimer les attributs inutilisés par Metabase de la table courses.
+- [#188](https://github.com/1024pix/pix-db-replication/pull/188) [TECH] Utiliser la configuration auto-minor au lieu de la configuration aggressive.
+
+### :arrow_up: Montée de version
+- [#192](https://github.com/1024pix/pix-db-replication/pull/192) [BUMP] Lock file maintenance (dossier racine).
+- [#191](https://github.com/1024pix/pix-db-replication/pull/191) [BUMP] Update postgres Docker tag to v14.8.
+- [#189](https://github.com/1024pix/pix-db-replication/pull/189) [BUMP] Update node.
+- [#183](https://github.com/1024pix/pix-db-replication/pull/183) [BUMP] Lock file maintenance (dossier racine).
+- [#174](https://github.com/1024pix/pix-db-replication/pull/174) [BUMP] Lock file maintenance (dossier racine).
+- [#168](https://github.com/1024pix/pix-db-replication/pull/168) [BUMP] Update postgres Docker tag to v14.7.
+- [#166](https://github.com/1024pix/pix-db-replication/pull/166) [BUMP] Lock file maintenance.
+- [#165](https://github.com/1024pix/pix-db-replication/pull/165) [BUMP] Update Node.js to v18.16.0.
+
+## v2.20.0 (18/04/2023)
+
+
+### :rocket: Amélioration
+- [#162](https://github.com/1024pix/pix-db-replication/pull/162) [FEATURE] Fournir l'application appelante à LCMS (PIX-7751)
+
 ## v2.19.0 (30/03/2023)
 
 

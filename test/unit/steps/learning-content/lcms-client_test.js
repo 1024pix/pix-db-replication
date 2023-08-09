@@ -10,7 +10,10 @@ describe('Unit | Steps | learning content | lcms-client.js', () => {
       const lcmsApiUrl = 'https://lcms-test.pix.fr/api';
       const lcmsApiKey = 'abcd';
       learningContentGetUrl = lcmsApiUrl + '/databases/airtable';
-      headers = { 'Authorization': `Bearer ${lcmsApiKey}` };
+      headers = {
+        'Authorization': `Bearer ${lcmsApiKey}`,
+        client: 'pix-db-replication',
+      };
       configuration = {
         LCMS_API_URL: lcmsApiUrl,
         LCMS_API_KEY: lcmsApiKey,

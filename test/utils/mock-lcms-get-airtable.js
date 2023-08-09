@@ -364,65 +364,34 @@ function mockLcmsAirtableData() {
     ],
     'courses': [
       {
-        'adaptive': false,
-        'challenges': [
-          'recPbD9nJKGqmopDI',
-          'recpl233mvKQqIzZe',
-          'recqVyHUcAqNEb4qs',
-        ],
         'id': 'rec5UecGJn0kr2odZ',
         'name': 'Démo essentiels',
       },
       {
-        'adaptive': true,
-        'competences': [
-          'recxf7xB2qNV8g5ZT',
-        ],
         'id': 'rec8nO3qZEI41BL5G',
         'name': '2.1 Arts',
       },
       {
-        'adaptive': true,
-        'competences': [
-          'recZ1Gm4rud4zLhbF',
-        ],
         'id': 'recBXNHQwClYhDuwq',
         'name': '1.4 Français',
       },
       {
-        'adaptive': true,
-        'competences': [
-          'recxlJqKdbWHHFZMQ',
-        ],
         'id': 'recbY79yZlzPqK4uB',
         'name': '1.2 Géographie',
       },
       {
-        'adaptive': true,
-        'competences': [
-          'recoVElv3xmVppK5a',
-        ],
         'id': 'recCSTyGclCCJ0iyc',
         'name': '2.2 Philosophie',
       },
       {
-        'adaptive': false,
         'id': 'recKUFCoFaJD87SMi',
         'name': 'Test avec épreuve timée',
       },
       {
-        'adaptive': true,
-        'competences': [
-          'recH9MjIzN54zXlwr',
-        ],
         'id': 'recLFghcJgbaQreUT',
         'name': '1.1 Mathématiques',
       },
       {
-        'adaptive': true,
-        'competences': [
-          'recKxnZJh5dyRCQQn',
-        ],
         'id': 'recNtSu9uN3pjWOQJ',
         'name': '1.3 Histoire',
       },
