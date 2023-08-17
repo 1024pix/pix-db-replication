@@ -6,6 +6,7 @@ const Database = require('../../../utils/database');
 
 const { expect } = require('../../../test-helper');
 const steps = require('../../../../src/steps/backup-restore');
+const { getTablesWithReplicationModes, REPLICATION_MODE } = require('../../../../src/config');
 
 describe('Integration | Steps | Backup restore | index.js', () => {
 
@@ -647,7 +648,8 @@ describe('Integration | Steps | Backup restore | index.js', () => {
       };
 
       // when
-      const dumpFile = await steps.createBackup(configuration);
+      const tablesToExcludeFromBackup = getTablesWithReplicationModes(configuration, [REPLICATION_MODE.INCREMENTAL, REPLICATION_MODE.TO_EXCLUDE]);
+      const dumpFile = await steps.createBackup(configuration, tablesToExcludeFromBackup);
       const result = fs.existsSync(dumpFile);
 
       // then

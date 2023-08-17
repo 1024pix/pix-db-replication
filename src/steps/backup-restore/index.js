@@ -58,12 +58,12 @@ async function restoreBackup({ backupFile, databaseUrl, configuration }) {
   logger.info('Restore done');
 }
 
-async function createBackup(configuration) {
+async function createBackup(configuration, tablesToExcludeFromBackup) {
   logger.info('Start create Backup');
   const backupFilename = './dump.pgsql';
 
   let excludeOptions = [];
-  const tablesToExcludeFromBackup = getTablesWithReplicationModes(configuration, [REPLICATION_MODE.INCREMENTAL, REPLICATION_MODE.TO_EXCLUDE]);
+
   if (tablesToExcludeFromBackup.length > 0) {
     excludeOptions = tablesToExcludeFromBackup.reduce((excludeTablesOptions, tableName) => [...excludeTablesOptions, '--exclude-table', tableName], []);
   }
@@ -117,7 +117,8 @@ async function addEnrichment(configuration) {
 }
 
 async function backupAndRestore(configuration) {
-  const backup = await createBackup(configuration);
+  const tablesToExcludeFromBackup = getTablesWithReplicationModes(configuration, [REPLICATION_MODE.INCREMENTAL, REPLICATION_MODE.TO_EXCLUDE]);
+  const backup = await createBackup(configuration, tablesToExcludeFromBackup);
   await dropObjectAndRestoreBackup(backup, configuration);
 }
 

@@ -1,5 +1,6 @@
 const { expect, sinon } = require('../../../test-helper');
 const proxyquire = require('proxyquire').noPreserveCache();
+const { getTablesWithReplicationModes, REPLICATION_MODE } = require('../../../../src/config');
 
 describe('Unit | steps | Backup restore | index.js', () => {
 
@@ -25,7 +26,7 @@ describe('Unit | steps | Backup restore | index.js', () => {
       };
 
       // when
-      const backupFilename = await createBackup(configuration);
+      const backupFilename = await createBackup(configuration, []);
 
       // then
       expect(execStub).to.have.been.calledWith(
@@ -56,7 +57,8 @@ describe('Unit | steps | Backup restore | index.js', () => {
         };
 
         // when
-        await createBackup(configuration);
+        const tablesToExcludeFromBackup = getTablesWithReplicationModes(configuration, [REPLICATION_MODE.INCREMENTAL, REPLICATION_MODE.TO_EXCLUDE]);
+        await createBackup(configuration, tablesToExcludeFromBackup);
 
         // then
         expect(execStub).to.have.been.calledWith(
@@ -91,7 +93,8 @@ describe('Unit | steps | Backup restore | index.js', () => {
         };
 
         // when
-        await createBackup(configuration);
+        const tablesToExcludeFromBackup = getTablesWithReplicationModes(configuration, [REPLICATION_MODE.INCREMENTAL, REPLICATION_MODE.TO_EXCLUDE]);
+        await createBackup(configuration, tablesToExcludeFromBackup);
 
         // then
         expect(execStub).to.have.been.calledWith(
