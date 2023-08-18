@@ -54,6 +54,13 @@ const extractConfigurationFromEnvironmentVariable = function() {
     SENTRY_MAX_VALUE_LENGTH: 1000,
     REDIS_URL: process.env.REDIS_URL || 'redis://127.0.0.1:6379',
     NOTIFICATION_URLS,
+    S3_ACCESS_KEY: process.env.S3_ACCESS_KEY,
+    S3_SECRET_ACCESS_KEY: process.env.S3_SECRET_ACCESS_KEY,
+    S3_ENDPOINT: process.env.S3_ENDPOINT,
+    S3_REGION: process.env.S3_REGION,
+    S3_BUCKET_NAME: process.env.S3_BUCKET_NAME,
+    S3_OBJECT_NAME_PREFIX: process.env.S3_OBJECT_NAME_PREFIX,
+    S3_SSL_ENABLED: process.env.S3_SSL_ENABLED || true,
   };
 };
 

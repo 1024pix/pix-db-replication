@@ -26,7 +26,7 @@ describe('Unit | steps | Backup restore | index.js', () => {
       };
 
       // when
-      const backupFilename = await createBackup(configuration, []);
+      const backupFilename = await createBackup({ configuration, tablesToExcludeFromBackup: [] });
 
       // then
       expect(execStub).to.have.been.calledWith(
@@ -58,10 +58,11 @@ describe('Unit | steps | Backup restore | index.js', () => {
 
         // when
         const tablesToExcludeFromBackup = getTablesWithReplicationModes(configuration, [REPLICATION_MODE.INCREMENTAL, REPLICATION_MODE.TO_EXCLUDE]);
-        await createBackup(configuration, tablesToExcludeFromBackup);
+
+        await createBackup({ configuration, tablesToExcludeFromBackup });
 
         // then
-        expect(execStub).to.have.been.calledWith(
+        expect(execStub).to.have.been.calledOnceWith(
           'pg_dump',
           [
             '--clean',
@@ -94,7 +95,8 @@ describe('Unit | steps | Backup restore | index.js', () => {
 
         // when
         const tablesToExcludeFromBackup = getTablesWithReplicationModes(configuration, [REPLICATION_MODE.INCREMENTAL, REPLICATION_MODE.TO_EXCLUDE]);
-        await createBackup(configuration, tablesToExcludeFromBackup);
+
+        await createBackup({ configuration, tablesToExcludeFromBackup });
 
         // then
         expect(execStub).to.have.been.calledWith(

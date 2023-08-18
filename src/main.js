@@ -11,6 +11,7 @@ const replicationQueue = _createQueue('Replication queue');
 const learningContentReplicationQueue = _createQueue('Learning Content replication queue');
 const incrementalReplicationQueue = _createQueue('Incremental replication queue');
 const notificationQueue = _createQueue('Notification queue');
+const dumpAndPushtoS3UploadQueue = _createQueue('Notification queue');
 
 main()
   .catch(async (error) => {
@@ -45,13 +46,20 @@ async function main() {
     logger.info('Import and enrichment done');
   });
 
+  dumpAndPushtoS3UploadQueue.process(async function() {
+    logger.info('dumpAndPushS3Queue.run - Started');
+    await steps.dumpAndPushS3({ configuration });
+    logger.info('dumpAndPushS3Queue.run - Ended');
+    notificationQueue.add({}, { ...jobOptions });
+  });
+
   replicationQueue.add({}, repeatableJobOptions);
 
   await _setInterruptedJobsAsFailed();
 }
 
 async function _setInterruptedJobsAsFailed() {
-  const promises = [replicationQueue, learningContentReplicationQueue, incrementalReplicationQueue, notificationQueue].map(async (queue) => {
+  const promises = [replicationQueue, learningContentReplicationQueue, incrementalReplicationQueue, notificationQueue, dumpAndPushS3Queue].map(async (queue) => {
     const activeJobs = await queue.getActive();
 
     for (const job of activeJobs) {

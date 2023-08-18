@@ -649,7 +649,7 @@ describe('Integration | Steps | Backup restore | index.js', () => {
 
       // when
       const tablesToExcludeFromBackup = getTablesWithReplicationModes(configuration, [REPLICATION_MODE.INCREMENTAL, REPLICATION_MODE.TO_EXCLUDE]);
-      const dumpFile = await steps.createBackup(configuration, tablesToExcludeFromBackup);
+      const dumpFile = await steps.createBackup({ configuration, tablesToExcludeFromBackup });
       const result = fs.existsSync(dumpFile);
 
       // then

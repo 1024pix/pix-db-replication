@@ -376,7 +376,8 @@ Exemples de résultat sur `pix-datawarehouse-production` le 22/10/2020
 node utils/parse-replication-logs.js ./logs.txt 2020-10-22
 ```
 
-```                                                                                                                                                                                        1 ↵
+```
+
 Durée de récupération du backup: 1h 27min 42s
 Durée de réplication: 8h 51min 17s
 Durée de l'enrichissement: 1h 39min 42s
@@ -422,3 +423,9 @@ DB_SCHEMA_EXPORTER_DATABASE_TARGET=postgres://user:password@database:port/db
 ```
 
 Tous les jours à midi, le schéma de la base actuelle sera dupliqué sur la BDD distante.
+
+# Lancer la sauvegarde de la base à la main
+
+``` bash
+node -e "require('./src/steps/dump-and-push-on-S3').run(require ('./src/config/extract-configuration-from-environment')())"
+```
