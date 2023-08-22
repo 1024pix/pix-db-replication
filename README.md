@@ -408,3 +408,17 @@ S'il y a eu :
 - une exécution incomplète (pas de message `Start restore` ou `Restore done`)
 
 Alors vous obtiendrez le message suivant `TypeError: Cannot read property '0' of null`
+
+## Duplication des schémas uniquement
+
+Afin de pouvoir alimenter une base de données contenant uniquement le schéma de BDD, notamment pour des besoins de Data Catalog,
+le script `db-schema-exporter.sh` peut être utilisé.
+
+En définissant les variables suivantes :
+
+```bash
+DB_SCHEMA_EXPORTER_ENABLED=true
+DB_SCHEMA_EXPORTER_DATABASE_TARGET=postgres://user:password@database:port/db
+```
+
+Tous les jours à midi, le schéma de la base actuelle sera dupliqué sur la BDD distante.

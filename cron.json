@@ -2,6 +2,9 @@
     "jobs": [
         {
             "command": "0 0 * * 1 ./cpf/scripts/fetch-cpf-formations.sh"
+        },
+        {
+            "command": "0 12 * * * ./db-schema-exporter.sh"
         }
     ]
 }
