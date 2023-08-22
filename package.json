@@ -1,6 +1,6 @@
 {
   "name": "pix-db-replication",
-  "version": "2.21.0",
+  "version": "2.22.0",
   "private": false,
   "description": "Socle d'application décisionnelle: import données par backup/copie à chaud/API et enrichissement ",
   "license": "AGPL-3.0",

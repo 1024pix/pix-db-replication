@@ -1,5 +1,16 @@
 # pix-db-replication Changelog
 
+## v2.22.0 (22/08/2023)
+
+
+### :rocket: Amélioration
+- [#197](https://github.com/1024pix/pix-db-replication/pull/197) [FEATURE] :sparkles: Ajout d'un cron pour exporter le schéma de données dans une base dédiée.
+
+### :arrow_up: Montée de version
+- [#199](https://github.com/1024pix/pix-db-replication/pull/199) [BUMP] Update node.
+- [#198](https://github.com/1024pix/pix-db-replication/pull/198) [BUMP] Update redis Docker tag to v7.
+- [#193](https://github.com/1024pix/pix-db-replication/pull/193) [BUMP] Lock file maintenance (dossier racine).
+
 ## v2.21.0 (31/07/2023)
 
 
