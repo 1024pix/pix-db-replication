@@ -6,7 +6,7 @@
   "license": "AGPL-3.0",
   "author": "GIP Pix",
   "engines": {
-    "node": "^18.17.0"
+    "node": "^v18.17.1"
   },
   "scripts": {
     "local:setup-databases": "npm run local:create-databases && npm run local:load-databases",
