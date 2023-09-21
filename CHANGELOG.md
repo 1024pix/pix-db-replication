@@ -1,5 +1,14 @@
 # pix-db-replication Changelog
 
+## v2.23.0 (21/09/2023)
+
+
+### :rocket: Amélioration
+- [#203](https://github.com/1024pix/pix-db-replication/pull/203) [FEATURE] Ajout de champs dans la réplication des épreuves depuis LCMS (PIX-7820).
+
+### :arrow_up: Montée de version
+- [#201](https://github.com/1024pix/pix-db-replication/pull/201) [BUMP] Lock file maintenance (dossier racine).
+
 ## v2.22.0 (22/08/2023)
 
 
