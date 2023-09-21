@@ -85,6 +85,12 @@ const tables = [{
     { name: 'genealogy', type: 'text' },
     { name: 'version', type: 'smallint' },
     { name: 'alternativeVersion', type: 'smallint' },
+    { name: 'declinable', type: 'text' },
+    { name: 'proposals', type: 'text' },
+    { name: 'solution', type: 'text' },
+    { name: 'pedagogy', type: 'text' },
+    { name: 'shuffled', type: 'boolean', extractor: (record) => !!record['shuffled'] },
+    { name: 'contextualizedFields', type: 'text []', isArray: true },
   ],
   indexes: ['firstSkillId'],
 }, {
