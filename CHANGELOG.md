@@ -1,5 +1,17 @@
 # pix-db-replication Changelog
 
+## v2.24.0 (30/10/2023)
+
+
+### :building_construction: Tech
+- [#206](https://github.com/1024pix/pix-db-replication/pull/206) [TECH] Pouvoir configurer le delay sur le retry des jobs.
+
+### :arrow_up: Montée de version
+- [#209](https://github.com/1024pix/pix-db-replication/pull/209) [BUMP] Update dependency sinon to v17 (dossier racine).
+- [#208](https://github.com/1024pix/pix-db-replication/pull/208) [BUMP] Update node to v20 (major).
+- [#207](https://github.com/1024pix/pix-db-replication/pull/207) [BUMP] Lock file maintenance (dossier racine).
+- [#202](https://github.com/1024pix/pix-db-replication/pull/202) [BUMP] Update dependency sinon to v16 (dossier racine).
+
 ## v2.23.0 (21/09/2023)
 
 
