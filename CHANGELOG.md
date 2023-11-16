@@ -1,5 +1,14 @@
 # pix-db-replication Changelog
 
+## v2.25.0 (16/11/2023)
+
+
+### :building_construction: Tech
+- [#213](https://github.com/1024pix/pix-db-replication/pull/213) [TECH] :sparkles: Supprimer les vues postgres avant de les réinsérer .
+
+### :arrow_up: Montée de version
+- [#210](https://github.com/1024pix/pix-db-replication/pull/210) [BUMP] Lock file maintenance (dossier racine).
+
 ## v2.24.0 (30/10/2023)
 
 
