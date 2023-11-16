@@ -10,9 +10,10 @@ async function createBackup(database, databaseConfig, {
   createTablesNotToBeImported = false,
   createForeignKeys = false,
   createFunction = false,
+  createViews = false,
   dropDatabase = true,
 }) {
-  await createAndFillDatabase(database, databaseConfig, { createTablesNotToBeImported, createForeignKeys, createFunction });
+  await createAndFillDatabase(database, databaseConfig, { createTablesNotToBeImported, createForeignKeys, createFunction, createViews });
   const backupFile = await database.createBackup();
   if (dropDatabase) {
     await database.dropDatabase();
@@ -24,6 +25,7 @@ async function createAndFillDatabase(database, databaseConfig, {
   createTablesNotToBeImported = false,
   createForeignKeys = false,
   createFunction = false,
+  createViews = false,
 }) {
   await createTables(database, databaseConfig);
   await fillTables(database, databaseConfig);
@@ -39,10 +41,17 @@ async function createAndFillDatabase(database, databaseConfig, {
   if (createFunction) {
     await createTestFunction(database);
   }
+  if (createViews) {
+    await createCustomViews(database);
+  }
 }
 
 async function createTableToBeBaseForView(database) {
   await database.runSql('CREATE TABLE "schooling-registrations" (id INT NOT NULL PRIMARY KEY)');
+}
+
+async function createCustomViews(database) {
+  await database.runSql('CREATE VIEW "custom-view" AS SELECT schemaname,tablename FROM pg_catalog.pg_tables;');
 }
 
 async function createTablesThatMayNotBeRestored(database) {
