@@ -576,7 +576,7 @@ describe('Integration | Steps | Backup restore | index.js', () => {
       });
     });
 
-    it('should not fail when database contains plpgsql source', async function() {
+    it('should not fail when database contains plpgsql source (pg functions)', async function() {
       // given
 
       // Day 1
@@ -596,14 +596,49 @@ describe('Integration | Steps | Backup restore | index.js', () => {
         DATABASE_URL: targetDatabase._databaseUrl,
         PG_RESTORE_JOBS: 4,
       };
+      let result;
 
-      const dropObjectAndRestoreBackupWithArguments = function() {
-        steps.dropObjectAndRestoreBackup(secondDayBackupFile, secondDayTargetConfiguration);
-      };
-
+      try {
+        await steps.dropObjectAndRestoreBackup(secondDayBackupFile, secondDayTargetConfiguration);
+      } catch (err) {
+        result = err;
+      }
       // when
       // then
-      expect(dropObjectAndRestoreBackupWithArguments).not.to.throw;
+      expect(result).not.instanceOf(Error);
+    });
+
+    it('should not fail when database contains custom views', async function() {
+      // given
+
+      // Day 1
+      const firstDayTargetConfiguration = { BACKUP_MODE: {}, PG_RESTORE_JOBS: 4,
+        DATABASE_URL: targetDatabase._databaseUrl };
+      const firstDayBackupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true, createViews: true });
+      await steps.dropObjectAndRestoreBackup(firstDayBackupFile, firstDayTargetConfiguration);
+
+      // Day 2
+      sourceDatabase = await Database.create(sourceDatabaseConfig);
+      const secondDayBackupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true, createViews: true });
+      const secondDayTargetConfiguration = {
+        BACKUP_MODE: {
+          'knowledge-elements': 'incremental',
+          'knowledge-element-snapshots': 'incremental',
+          'answers': 'incremental',
+        },
+        DATABASE_URL: targetDatabase._databaseUrl,
+        PG_RESTORE_JOBS: 4,
+      };
+      let result;
+
+      try {
+        await steps.dropObjectAndRestoreBackup(secondDayBackupFile, secondDayTargetConfiguration);
+      } catch (err) {
+        result = err;
+      }
+      // when
+      // then
+      expect(result).not.instanceOf(Error);
     });
   });
 
