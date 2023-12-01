@@ -625,92 +625,170 @@ function mockLcmsAirtableData() {
         'competenceId': 'recKxnZJh5dyRCQQn',
         'id': 'rec5DesjmlUemhJCJ',
         'name': 'batailles',
-        'practicalTitleEnUs': 'Batailles',
-        'practicalTitleFrFr': 'Batailles',
+        'practicalTitle_i18n': {
+          'en': 'Batailles en',
+          'fr': 'Batailles',
+        },
+        'practicalDescription_i18n': {
+          'en': 'Batailles description en',
+          'fr': 'Batailles description',
+        },
       },
       {
         'competenceId': 'recH9MjIzN54zXlwr',
         'id': 'rec5WT8N6ksCs7IdT',
         'name': 'multiplication',
-        'practicalTitleEnUs': 'Mutliplication',
-        'practicalTitleFrFr': 'Mutliplication',
+        'practicalTitle_i18n': {
+          'en': 'Mutliplication en',
+          'fr': 'Mutliplication',
+        },
+        'practicalDescription_i18n': {
+          'en': 'Mutliplication description en',
+          'fr': 'Mutliplication description',
+        },
       },
       {
         'competenceId': 'recoVElv3xmVppK5a',
         'id': 'rec6GZcGX6V0oSnrB',
         'name': 'concepts',
-        'practicalTitleEnUs': 'Concepts',
-        'practicalTitleFrFr': 'Concepts',
+        'practicalTitle_i18n': {
+          'en': 'Concepts en',
+          'fr': 'Concepts',
+        },
+        'practicalDescription_i18n': {
+          'en': 'Concepts description en',
+          'fr': 'Concepts description',
+        },
       },
       {
         'competenceId': 'recxf7xB2qNV8g5ZT',
         'id': 'rec9dwOqgka7iojCb',
         'name': 'artistes',
-        'practicalTitleEnUs': 'Artistes',
-        'practicalTitleFrFr': 'Artistes',
+        'practicalTitle_i18n': {
+          'en': 'Artistes en',
+          'fr': 'Artistes',
+        },
+        'practicalDescription_i18n': {
+          'en': 'Artistes description en',
+          'fr': 'Artistes description',
+        },
       },
       {
         'competenceId': 'recZ1Gm4rud4zLhbF',
         'id': 'recHE60AdMfB54ckt',
         'name': 'vocabulaire',
-        'practicalTitleEnUs': 'Vocabulaire',
-        'practicalTitleFrFr': 'Vocabulaire',
+        'practicalTitle_i18n': {
+          'en': 'Vocabulaire en',
+          'fr': 'Vocabulaire',
+        },
+        'practicalDescription_i18n': {
+          'en': 'Vocabulaire description en',
+          'fr': 'Vocabulaire description',
+        },
       },
       {
         'competenceId': 'recxlJqKdbWHHFZMQ',
         'id': 'recKRW0m1Reo5eq3h',
         'name': 'mers',
-        'practicalTitleEnUs': 'Mers',
-        'practicalTitleFrFr': 'Mers',
+        'practicalTitle_i18n': {
+          'en': 'Mers en',
+          'fr': 'Mers',
+        },
+        'practicalDescription_i18n': {
+          'en': 'Mers description en',
+          'fr': 'Mers description',
+        },
       },
       {
         'competenceId': 'recKxnZJh5dyRCQQn',
         'id': 'recP3qhozxftiQyH5',
         'name': 'présidents',
-        'practicalTitleEnUs': 'Présidents',
-        'practicalTitleFrFr': 'Présidents',
+        'practicalTitle_i18n': {
+          'en': 'Présidents en',
+          'fr': 'Présidents',
+        },
+        'practicalDescription_i18n': {
+          'en': 'Présidents description en',
+          'fr': 'Présidents description',
+        },
       },
       {
         'competenceId': 'recZ1Gm4rud4zLhbF',
         'id': 'recphrRTVShqa389P',
         'name': 'conjugaison',
-        'practicalTitleEnUs': 'Conjugaison',
-        'practicalTitleFrFr': 'Conjugaison',
+        'practicalTitle_i18n': {
+          'en': 'Conjugaison en',
+          'fr': 'Conjugaison',
+        },
+        'practicalDescription_i18n': {
+          'en': 'Conjugaison description en',
+          'fr': 'Conjugaison description',
+        },
       },
       {
         'competenceId': 'recxlJqKdbWHHFZMQ',
         'id': 'recR9y2U4RBJdhZ1c',
         'name': 'capitales',
-        'practicalTitleEnUs': 'Capitales',
-        'practicalTitleFrFr': 'Capitales',
+        'practicalTitle_i18n': {
+          'en': 'Capitales en',
+          'fr': 'Capitales',
+        },
+        'practicalDescription_i18n': {
+          'en': 'Capitales description en',
+          'fr': 'Capitales description',
+        },
       },
       {
         'competenceId': 'recH9MjIzN54zXlwr',
         'id': 'recSKNxZX5KKrv3Lu',
         'name': 'addition',
-        'practicalTitleEnUs': 'Addition',
-        'practicalTitleFrFr': 'Addition',
+        'practicalTitle_i18n': {
+          'en': 'Addition en',
+          'fr': 'Addition',
+        },
+        'practicalDescription_i18n': {
+          'en': 'Addition description en',
+          'fr': 'Addition description',
+        },
       },
       {
         'competenceId': 'recxf7xB2qNV8g5ZT',
         'id': 'recVYYbDM3DfEmRyX',
         'name': 'œuvres',
-        'practicalTitleEnUs': 'Œuvres',
-        'practicalTitleFrFr': 'Œuvres',
+        'practicalTitle_i18n': {
+          'en': 'Œuvres en',
+          'fr': 'Œuvres',
+        },
+        'practicalDescription_i18n': {
+          'en': 'Œuvres description en',
+          'fr': 'Œuvres description',
+        },
       },
       {
         'competenceId': 'recoVElv3xmVppK5a',
         'id': 'recWlYOH61aFXbij9',
         'name': 'philosophes',
-        'practicalTitleEnUs': 'Philosophes',
-        'practicalTitleFrFr': 'Philosophes',
+        'practicalTitle_i18n': {
+          'en': 'Philosophes en',
+          'fr': 'Philosophes',
+        },
+        'practicalDescription_i18n': {
+          'en': 'Philosophes description en',
+          'fr': 'Philosophes description',
+        },
       },
       {
         'competenceId': 'recZ1Gm4rud4zLhbF',
         'id': 'recY9qnbpPoNCowf8',
         'name': 'grammaire',
-        'practicalTitleEnUs': 'Grammaire',
-        'practicalTitleFrFr': 'Grammaire',
+        'practicalTitle_i18n': {
+          'en': 'Grammaire en',
+          'fr': 'Grammaire',
+        },
+        'practicalDescription_i18n': {
+          'en': 'Grammaire description en',
+          'fr': 'Grammaire description',
+        },
       },
     ],
     'tutorials': [
