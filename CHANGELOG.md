@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.26.0 (01/12/2023)
+
+
+### :rocket: Amélioration
+- [#214](https://github.com/1024pix/pix-db-replication/pull/214) [FEATURE] Ajout des champs `practicalTitle` et `practicalDescription` dans la table `tubes` (PIX-10202).
+
 ## v2.25.0 (16/11/2023)
 
 
