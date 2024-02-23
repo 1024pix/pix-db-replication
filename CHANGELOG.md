@@ -1,5 +1,21 @@
 # pix-db-replication Changelog
 
+## v2.27.0 (23/02/2024)
+
+
+### :building_construction: Tech
+- [#216](https://github.com/1024pix/pix-db-replication/pull/216) [TECH] Monter la version de l'image postgresql.
+
+### :bug: Correction
+- [#223](https://github.com/1024pix/pix-db-replication/pull/223) [BUGFIX] Ne supprimer que les enums du namespace "public".
+- [#222](https://github.com/1024pix/pix-db-replication/pull/222) [BUGFIX] Corriger la réplication en supprimant les enums.
+
+### :arrow_up: Montée de version
+- [#221](https://github.com/1024pix/pix-db-replication/pull/221) [BUMP] Lock file maintenance (dossier racine).
+- [#215](https://github.com/1024pix/pix-db-replication/pull/215) [BUMP] Lock file maintenance (dossier racine).
+- [#220](https://github.com/1024pix/pix-db-replication/pull/220) [BUMP] Update dependency husky to v9 (dossier racine).
+- [#218](https://github.com/1024pix/pix-db-replication/pull/218) [BUMP] Update dependency redis to v7.2.3.
+
 ## v2.26.0 (01/12/2023)
 
 
