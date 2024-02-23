@@ -22,7 +22,7 @@ async function dropCurrentObjects(configuration) {
 async function dropCurrentObjectsExceptTables(databaseUrl, tableNames) {
   const tableNamesForQuery = tableNames.map((tableName) => `'${tableName}'`).join(',');
   const dropTableQuery = await execStdOut('psql', [ databaseUrl, '--tuples-only', '--command', `select string_agg('drop table "' || tablename || '" CASCADE', '; ') from pg_tables where schemaname = 'public' and tablename not in (${tableNamesForQuery});` ]);
-  const dropEnumQuery = await execStdOut('psql', [ databaseUrl, '--tuples-only', '--command', 'select string_agg(\'drop type "\' || typname || \'"\', \'; \') from (select distinct t.typname from pg_type t join pg_enum e on t.oid = e.enumtypid) as typenames;' ]);
+  const dropEnumQuery = await execStdOut('psql', [ databaseUrl, '--tuples-only', '--command', 'select string_agg(\'drop type "\' || typname || \'"\', \'; \') from (select distinct t.typname from pg_type t join pg_enum e on t.oid = e.enumtypid join pg_namespace as n on t.typnamespace = n.oid where n.nspname = \'public\') as typenames;' ]);
   const dropFunction = await execStdOut('psql', [ databaseUrl, '--tuples-only', '--command', 'select string_agg(\'drop function "\' || proname || \'"\', \'; \') FROM pg_proc pp INNER JOIN pg_roles pr ON pp.proowner = pr.oid WHERE pr.rolname = current_user ' ]);
   const dropViews = await execStdOut('psql', [ databaseUrl, '--tuples-only', '--command', 'select string_agg(\'drop view "\' || viewname || \'"\', \'; \') FROM pg_views where viewowner=current_user']);
   await exec('psql', [ databaseUrl, '--set', 'ON_ERROR_STOP=on', '--echo-all', '--command', dropTableQuery ]);
