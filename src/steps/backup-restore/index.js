@@ -34,7 +34,7 @@ async function dropCurrentObjectsExceptTables(databaseUrl, tableNames) {
 async function writeListFileForReplication({ backupFile, configuration }) {
   const backupObjectList = await execStdOut('pg_restore', [ backupFile, '-l' ]);
   const backupObjectLines = backupObjectList.split('\n');
-  const filteredObjectLines = _filterObjectLines(backupObjectLines, configuration);
+  const filteredObjectLines = filterObjectLines(backupObjectLines, configuration);
   fs.writeFileSync(RESTORE_LIST_FILENAME, filteredObjectLines.join('\n'));
 }
 
@@ -137,8 +137,8 @@ async function fullReplicationAndEnrichment(configuration) {
 
 }
 
-function _filterObjectLines(objectLines, configuration) {
-  const patternsToFilter = [' COMMENT '];
+function filterObjectLines(objectLines, configuration) {
+  const patternsToFilter = ['COMMENT'];
 
   const restoreFkConstraints = configuration.RESTORE_FK_CONSTRAINTS === 'true';
 
@@ -147,14 +147,17 @@ function _filterObjectLines(objectLines, configuration) {
   }
 
   const tablesToFilterFromBackupRestore = getTablesWithReplicationModes(configuration, [REPLICATION_MODE.INCREMENTAL, REPLICATION_MODE.TO_EXCLUDE]);
+
+  // getFullObjectListMatchForTableName
   if (tablesToFilterFromBackupRestore.length > 0) {
+    // matches objects that use - instead of _ in table name
     const prepareTableNameForRegex = (tableName) => tableName.split(/[-_]/).join('[-_]');
     const tableNamesForRegex = tablesToFilterFromBackupRestore.map(prepareTableNameForRegex);
     patternsToFilter.push(...tableNamesForRegex);
   }
 
-  const regexp = patternsToFilter.join('|');
-
+  const patternToRegexMatcher = (pattern)=> ` ${pattern} | ${pattern}_.*_seq | ${pattern}_.*_index `;
+  const regexp = patternsToFilter.map(patternToRegexMatcher).join('|');
   return objectLines.filter((line) => !new RegExp(regexp).test(line));
 }
 
@@ -166,4 +169,5 @@ module.exports = {
   run: fullReplicationAndEnrichment,
   getTablesWithReplicationModes,
   restoreBackup,
+  filterObjectLines,
 };
