@@ -31,7 +31,6 @@ const tables = [{
   name: 'tubes',
   fields: [
     { name: 'name', type: 'text' },
-    { name: 'title', type: 'text' },
     { name: 'practicalTitle', type: 'text', extractor: (record) => record.practicalTitle_i18n.fr },
     { name: 'practicalDescription', type: 'text', extractor: (record) => record.practicalDescription_i18n.fr },
     { name: 'competenceId', type: 'text', isArray: false },
