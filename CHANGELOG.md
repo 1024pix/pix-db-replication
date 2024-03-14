@@ -1,5 +1,20 @@
 # pix-db-replication Changelog
 
+## v2.28.0 (14/03/2024)
+
+
+### :building_construction: Tech
+- [#228](https://github.com/1024pix/pix-db-replication/pull/228) [TECH] Ne plus exposer le champ déprécié "title" de la table "tubes" (PIX-11631).
+
+### :bug: Correction
+- [#219](https://github.com/1024pix/pix-db-replication/pull/219) [BUGFIX] :bug: Corriger le filtrage des tables lors de la restoration.
+
+### :arrow_up: Montée de version
+- [#226](https://github.com/1024pix/pix-db-replication/pull/226) [BUMP] Update dependency postgres to v14.11.
+- [#227](https://github.com/1024pix/pix-db-replication/pull/227) [BUMP] Lock file maintenance (dossier racine).
+- [#225](https://github.com/1024pix/pix-db-replication/pull/225) [BUMP] Lock file maintenance (dossier racine).
+- [#224](https://github.com/1024pix/pix-db-replication/pull/224) [BUMP] Lock file maintenance (dossier racine).
+
 ## v2.27.0 (23/02/2024)
 
 
