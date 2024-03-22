@@ -49,6 +49,10 @@ const tables = [{
     { name: 'tutorialIds', type: 'text []', isArray: true },
     { name: 'learningMoreTutorialIds', type: 'text []', isArray: true },
     { name: 'internationalisation', type: 'text' },
+    { name: 'Spoil_focus', type: 'text' },
+    { name: 'Spoil_variabilisation', type: 'text []', isArray: true },
+    { name: 'Spoil_mauvaisereponse', type: 'text []', isArray: true },
+    { name: 'Spoil_nouvelacquis', type: 'text' },
   ],
   indexes: ['tubeId'],
 }, {
