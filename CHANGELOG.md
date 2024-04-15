@@ -1,5 +1,15 @@
 # pix-db-replication Changelog
 
+## v2.29.0 (15/04/2024)
+
+
+### :rocket: Amélioration
+- [#231](https://github.com/1024pix/pix-db-replication/pull/231) [FEATURE] Rajouter les champs spoil pour les acquis (PIX-11739).
+
+### :arrow_up: Montée de version
+- [#230](https://github.com/1024pix/pix-db-replication/pull/230) [BUMP] Replace dependency eslint-plugin-node with eslint-plugin-n ^14.0.0 (dossier racine).
+- [#229](https://github.com/1024pix/pix-db-replication/pull/229) [BUMP] Lock file maintenance (dossier racine).
+
 ## v2.28.0 (14/03/2024)
 
 
