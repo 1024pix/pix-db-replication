@@ -1,5 +1,16 @@
 # pix-db-replication Changelog
 
+## v2.29.1 (16/04/2024)
+
+
+### :bug: Correction
+- [#236](https://github.com/1024pix/pix-db-replication/pull/236) [BUGFIX] Mauvaise casse pour les champs "spoil" des acquis (PIX-12148).
+
+### :arrow_up: Montée de version
+- [#235](https://github.com/1024pix/pix-db-replication/pull/235) [BUMP] Update dependency eslint-plugin-n to v17 (dossier racine).
+- [#233](https://github.com/1024pix/pix-db-replication/pull/233) [BUMP] Update dependency eslint-plugin-n to v16 (dossier racine).
+- [#232](https://github.com/1024pix/pix-db-replication/pull/232) [BUMP] Update dependency eslint-plugin-n to v15 (dossier racine).
+
 ## v2.29.0 (15/04/2024)
 
 
