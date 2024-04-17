@@ -1,10 +1,11 @@
-const { expect, sinon } = require('../../../test-helper');
-const lcmsClient = require('../../../../src/steps/learning-content/lcms-client');
-const databaseHelper = require('../../../../src/database-helper');
-const learningContent = require('../../../../src/steps/learning-content');
+import { expect, sinon } from '../../../test-helper.js';
+import * as learningContent from '../../../../src/steps/learning-content/index.js';
 
 describe('Unit | Steps | learning-content | index.js', () => {
   describe('#run', () => {
+    let databaseHelper;
+    let lcmsClient;
+
     beforeEach(async() => {
       const databaseConfig = {};
       const content = {
@@ -16,12 +17,19 @@ describe('Unit | Steps | learning-content | index.js', () => {
           origin: 'Pix',
         }],
       };
-      sinon.stub(databaseHelper, 'dropTable').resolves();
-      sinon.stub(databaseHelper, 'createTable').resolves();
-      sinon.stub(databaseHelper, 'saveLearningContent').resolves();
-      sinon.stub(lcmsClient, 'getLearningContent').resolves(content);
+      databaseHelper = {
+        dropTable: sinon.stub(),
+        createTable: sinon.stub(),
+        saveLearningContent: sinon.stub(),
+      };
+      databaseHelper.dropTable.resolves();
+      databaseHelper.createTable.resolves();
+      databaseHelper.saveLearningContent.resolves();
+      lcmsClient = {
+        getLearningContent: sinon.stub().resolves(content),
+      };
 
-      await learningContent.run(databaseConfig);
+      await learningContent.run(databaseConfig, { lcmsClient: lcmsClient, databaseHelper: databaseHelper });
     });
 
     it('should fetch learning-content from LCMS', async() => {

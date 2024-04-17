@@ -16,7 +16,7 @@ plugins:
 
 parserOptions:
   ecmaVersion: 2020
-  sourceType: script
+  sourceType: module
 
 env:
   es6: true

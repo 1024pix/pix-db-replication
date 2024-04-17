@@ -1,5 +1,5 @@
-const { expect } = require('../test-helper');
-const { PrimaryKeyNotNullConstraintError } = require('../../src/errors');
+import { expect } from '../test-helper.js';
+import { PrimaryKeyNotNullConstraintError } from '../../src/errors.js';
 
 describe('Unit | errors.js', () => {
 

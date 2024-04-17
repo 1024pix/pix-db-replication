@@ -1,10 +1,10 @@
 'use strict';
 
-const execa = require('execa');
-const { execStdOut } = require('../exec');
-const { getTablesWithReplicationModes, REPLICATION_MODE } = require('../config');
+import { execa } from 'execa';
+import { execStdOut } from '../exec.js';
+import { getTablesWithReplicationModes, REPLICATION_MODE } from '../config/index.js';
 
-const logger = require('../logger');
+import { logger } from '../logger.js';
 
 function escapeSQLIdentifier(identifier) {
   return `"${identifier.replace(/"/g, '""')}"`;
@@ -104,6 +104,6 @@ async function run(configuration) {
   logger.info('Incremental replication done');
 }
 
-module.exports = {
+export {
   run,
 };

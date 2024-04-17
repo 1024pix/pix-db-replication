@@ -1,11 +1,11 @@
-require('dotenv').config();
-const Sentry = require('@sentry/node');
-const Queue = require('bull');
-const initSentry = require('./sentry-init');
-const logger = require('./logger');
-const { pgclientSetup } = require('./setup');
-const steps = require('./steps');
-const { configuration, jobOptions, repeatableJobOptions } = require('./config');
+import 'dotenv/config';
+import * as Sentry from '@sentry/node';
+import * as Queue from 'bull';
+import { initSentry } from './sentry-init.js';
+import { logger } from './logger.js';
+import { pgclientSetup } from './setup.js';
+import * as steps from './steps/index.js';
+import { configuration, jobOptions, repeatableJobOptions } from './config/index.js';
 
 const replicationQueue = _createQueue('Replication queue');
 const learningContentReplicationQueue = _createQueue('Learning Content replication queue');

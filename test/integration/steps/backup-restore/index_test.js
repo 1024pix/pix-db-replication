@@ -1,11 +1,12 @@
-const fs = require('fs');
-const pgUrlParser = require('pg-connection-string').parse;
+import fs from 'fs';
+import pgConnectionString from 'pg-connection-string';
+const pgUrlParser = pgConnectionString.parse;
 
-const { createBackupAndCreateEmptyDatabase, createAndFillDatabase, createBackup } = require('../../test-helper');
-const Database = require('../../../utils/database');
+import { createBackupAndCreateEmptyDatabase, createAndFillDatabase, createBackup } from '../../test-helper.js';
+import { Database } from '../../../utils/database.js';
 
-const { expect } = require('../../../test-helper');
-const steps = require('../../../../src/steps/backup-restore');
+import { expect } from '../../../test-helper.js';
+import * as steps from '../../../../src/steps/backup-restore/index.js';
 
 describe('Integration | Steps | Backup restore | index.js', () => {
 

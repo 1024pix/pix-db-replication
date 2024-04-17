@@ -1,6 +1,6 @@
-const { expect } = require('../../../test-helper');
+import { expect } from '../../../test-helper.js';
 
-const learningContentHelper = require('../../../../src/steps/learning-content/learning-content-helper');
+import * as learningContentHelper from '../../../../src/steps/learning-content/learning-content-helper.js';
 
 describe('Unit | Steps | learning content | learning-content-helper.js', () => {
 

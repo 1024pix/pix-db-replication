@@ -1,10 +1,12 @@
-const pgUrlParser = require('pg-connection-string').parse;
-const _ = require('lodash');
-const { expect, catchErr } = require('../test-helper');
-const Database = require('../utils/database');
-const mockLcmsGetAirtable = require('../utils/mock-lcms-get-airtable');
-const databaseHelper = require('../../src/database-helper');
-const { PrimaryKeyNotNullConstraintError } = require('../../src/errors');
+import pgConnectionString from 'pg-connection-string';
+const pgUrlParser = pgConnectionString.parse;
+
+import _ from 'lodash';
+import { expect, catchErr } from '../test-helper.js';
+import { Database } from '../utils/database.js';
+import { mockLcmsAirtableData } from '../utils/mock-lcms-get-airtable.js';
+import * as databaseHelper from '../../src/database-helper.js';
+import { PrimaryKeyNotNullConstraintError } from '../../src/errors.js';
 
 describe('Integration | db-connection.js', () => {
 
@@ -102,7 +104,7 @@ describe('Integration | db-connection.js', () => {
         ],
         indexes: ['firstSkillId'],
       };
-      const fullLearningContent = mockLcmsGetAirtable();
+      const fullLearningContent = mockLcmsAirtableData();
       const learningContent = fullLearningContent[table.name];
 
       await databaseHelper.saveLearningContent(table, learningContent, databaseConfig);

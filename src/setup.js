@@ -1,4 +1,4 @@
-const { execShell, exec } = require('./exec');
+import { execShell, exec } from './exec.js';
 
 // dbclient-fetch assumes $HOME/bin is in the PATH
 async function setupPath() {
@@ -19,6 +19,6 @@ async function pgclientSetup(configuration) {
   }
 }
 
-module.exports = {
+export {
   pgclientSetup,
 };

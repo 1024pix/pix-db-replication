@@ -1,9 +1,10 @@
-const axios = require('axios');
-const sinon = require('sinon');
-const chai = require('chai');
-const nock = require('nock');
+import axios from 'axios';
+import sinon from 'sinon';
+import * as chai from 'chai';
+import nock from 'nock';
 const { expect } = chai;
-chai.use(require('sinon-chai'));
+import sinonChai from 'sinon-chai';
+chai.use(sinonChai);
 
 afterEach(() => {
   sinon.restore();
@@ -20,7 +21,7 @@ function catchErr(promiseFn, ctx) {
   };
 }
 
-module.exports = {
+export {
   axios,
   catchErr,
   expect,

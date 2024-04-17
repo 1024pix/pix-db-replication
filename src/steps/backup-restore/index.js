@@ -1,13 +1,13 @@
 'use strict';
 
-const fs = require('fs');
+import fs from 'node:fs';
 
-const { getTablesWithReplicationModes, REPLICATION_MODE } = require('../../config');
-const { exec, execStdOut } = require('../../exec');
-const logger = require('../../logger');
-const enrichment = require('./enrichment');
+import { getTablesWithReplicationModes, REPLICATION_MODE } from '../../config/index.js';
+import { exec, execStdOut } from '../../exec.js';
+import { logger } from '../../logger.js';
+import * as enrichment from './enrichment.js';
 
-const createViewsForMissingTables = require('./create-views-for-missing-tables');
+import { createViewForMissingTables } from './create-views-for-missing-tables.js';
 
 const RESTORE_LIST_FILENAME = 'restore.list';
 
@@ -62,7 +62,7 @@ async function restoreBackup({ backupFile, databaseUrl, configuration }) {
   logger.info('Restore done');
 }
 
-async function createBackup(configuration) {
+async function createBackup(configuration, dependencies = { exec: exec }) {
   logger.info('Start create Backup');
   const backupFilename = './dump.pgsql';
 
@@ -75,7 +75,7 @@ async function createBackup(configuration) {
   // eslint-disable-next-line no-process-env
   const verboseOptions = process.env.NODE_ENV === 'test' ? [] : ['--verbose'];
 
-  await exec('pg_dump', [
+  await dependencies.exec('pg_dump', [
     '--clean',
     '--if-exists',
     '--format', 'c',
@@ -104,7 +104,7 @@ async function dropObjectAndRestoreBackup(backupFile, configuration) {
   logger.info('End restore Backup');
 
   logger.info('Start create view');
-  await createViewsForMissingTables(configuration);
+  await createViewForMissingTables(configuration);
   logger.info('End create view');
 
 }
@@ -161,12 +161,14 @@ function filterObjectLines(objectLines, configuration) {
   return objectLines.filter((line) => !new RegExp(regexp).test(line));
 }
 
-module.exports = {
+const run = fullReplicationAndEnrichment;
+
+export {
   addEnrichment,
   backupAndRestore,
   createBackup,
   dropObjectAndRestoreBackup,
-  run: fullReplicationAndEnrichment,
+  run,
   getTablesWithReplicationModes,
   restoreBackup,
   filterObjectLines,

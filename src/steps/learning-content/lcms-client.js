@@ -1,5 +1,5 @@
-const axios = require('axios');
-const logger = require('../../logger');
+import axios from 'axios';
+import { logger } from '../../logger.js';
 
 const timeout = 60 * 1000 * 3;
 
@@ -25,6 +25,6 @@ async function getLearningContent(configuration) {
   }
 }
 
-module.exports = {
+export {
   getLearningContent,
 };

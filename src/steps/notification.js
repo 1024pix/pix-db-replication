@@ -1,7 +1,7 @@
 'use strict';
 
-const axios = require('axios');
-const logger = require('../logger');
+import axios from 'axios';
+import { logger } from '../logger.js';
 
 async function run(configuration) {
   logger.info('Start notification');
@@ -24,6 +24,6 @@ async function notifyUrl(url) {
   }
 }
 
-module.exports = {
+export {
   run,
 };

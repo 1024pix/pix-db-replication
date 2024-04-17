@@ -1,9 +1,9 @@
 'use strict';
 
-const toPairs = require('lodash/toPairs');
+import toPairs from 'lodash/toPairs.js';
 
-const { runDBOperation } = require('../../database-helper');
-const logger = require('../../logger');
+import { runDBOperation } from '../../database-helper.js';
+import { logger } from '../../logger.js';
 
 async function add(configuration) {
   await runDBOperation(async (client) => {
@@ -41,6 +41,6 @@ function _getTablesToNotBeEnriched(configuration) {
     .map(([tableName, _]) => tableName);
 }
 
-module.exports = {
+export {
   add,
 };
