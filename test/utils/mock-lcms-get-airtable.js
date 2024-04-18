@@ -823,5 +823,5 @@ function mockLcmsAirtableData() {
   };
 }
 
-module.exports = mockLcmsAirtableData;
+export { mockLcmsAirtableData };
 

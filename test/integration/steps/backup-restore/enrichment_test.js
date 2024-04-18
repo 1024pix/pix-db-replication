@@ -1,14 +1,15 @@
-const { expect } = require('chai');
-const pgUrlParser = require('pg-connection-string').parse;
+import { expect } from 'chai';
+import pgConnectionString from 'pg-connection-string';
+const pgUrlParser = pgConnectionString.parse;
 
 // CircleCI set up environment variables to access DB, so we need to read them here
 // eslint-disable-next-line no-process-env
 const DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://pix@localhost:5432/replication_target';
 
-const { createAndFillDatabase } = require('../../test-helper');
-const Database = require('../../../utils/database');
+import { createAndFillDatabase } from '../../test-helper.js';
+import { Database } from '../../../utils/database.js';
 
-const { add } = require('../../../../src/steps/backup-restore/enrichment');
+import { add } from '../../../../src/steps/backup-restore/enrichment.js';
 
 describe('Integration | Steps | Backup restore | enrichment.js', () => {
 

@@ -1,8 +1,9 @@
-const execa = require('execa');
-const tmp = require('tmp-promise');
-const pgUrlParser = require('pg-connection-string').parse;
+import { execa } from 'execa';
+import * as tmp from 'tmp-promise';
+import pgConnectionString from 'pg-connection-string';
+const pgUrlParser = pgConnectionString.parse;
 
-module.exports = class Database {
+export class Database {
 
   constructor(serverUrl, databaseName) {
     this._serverUrl = serverUrl;
@@ -78,4 +79,4 @@ module.exports = class Database {
     return tableExists === 't';
   }
 
-};
+}

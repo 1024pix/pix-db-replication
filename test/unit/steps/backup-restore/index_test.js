@@ -1,13 +1,12 @@
-const { expect, sinon } = require('../../../test-helper');
-const { filterObjectLines } = require('../../../../src/steps/backup-restore');
-const proxyquire = require('proxyquire').noPreserveCache();
+import { expect, sinon } from '../../../test-helper.js';
+import { filterObjectLines } from '../../../../src/steps/backup-restore/index.js';
 
 describe('Unit | steps | Backup restore | index.js', () => {
   describe('#filterObjectLines', ()=>{
     context('using default configuration', async () => {
       it('should only remove comments and FK from file', async () => {
       // given
-        objectLines = [
+        const objectLines = [
           '4688; 0 0 COMMENT - EXTENSION pgcrypto',
           '2; 3079 38970 EXTENSION - pgcrypto',
           '4344; 2606 38649 FK CONSTRAINT public account-recovery-demands account-recovery-demands_organizationlearnerid_foreign postgres',
@@ -41,12 +40,12 @@ describe('Unit | steps | Backup restore | index.js', () => {
 
     it('should only filter specified table', async () => {
       // given
-      configuration = {
+      const configuration = {
         RESTORE_FK_CONSTRAINTS: 'false',
         BACKUP_MODE: { 'element-answers': 'incremental' },
       };
 
-      objectLines = [
+      const objectLines = [
         'SEQUENCE SET public answers postgres',
         'SEQUENCE SET public element-answers postgres',
         'SEQUENCE SET public answers-corrected postgres',
@@ -71,11 +70,11 @@ describe('Unit | steps | Backup restore | index.js', () => {
 
     it('should keep fk constraints', async () => {
       // given
-      configuration = {
+      const configuration = {
         RESTORE_FK_CONSTRAINTS: 'true',
         BACKUP_MODE: {},
       };
-      objectLines = [
+      const objectLines = [
         '4344; 2606 38649 INDEX public users_email_lower postgres',
         '4344; 2606 38649 FK CONSTRAINT public account-recovery-demands account-recovery-demands_organizationlearnerid_foreign postgres',
         '4344; 2606 38649 FK CONSTRAINT public account-recovery-demands account_recovery_demands_userid_foreign postgres',
@@ -91,16 +90,9 @@ describe('Unit | steps | Backup restore | index.js', () => {
 
   describe('#createBackup', () => {
     let execStub;
-    let createBackup;
 
     beforeEach(() => {
       execStub = sinon.stub();
-      const newIndex = proxyquire('../../../../src/steps/backup-restore', {
-        '../../exec': {
-          exec: execStub,
-        },
-      });
-      createBackup = newIndex.createBackup;
     });
 
     it('should use pg_dump to create a full backup', async () => {
@@ -109,9 +101,10 @@ describe('Unit | steps | Backup restore | index.js', () => {
         SOURCE_DATABASE_URL: 'postgresql://source.url',
         BACKUP_MODE: {},
       };
+      const backUpRestore = await import('../../../../src/steps/backup-restore/index.js');
 
       // when
-      const backupFilename = await createBackup(configuration);
+      const backupFilename = await backUpRestore.createBackup(configuration, { exec: execStub });
 
       // then
       expect(execStub).to.have.been.calledWith(
@@ -140,9 +133,10 @@ describe('Unit | steps | Backup restore | index.js', () => {
           SOURCE_DATABASE_URL: 'postgresql://source.url',
           BACKUP_MODE: { 'knowledge-elements': 'incremental', 'knowledge-element-snapshots': 'incremental', 'answers': 'incremental' },
         };
+        const backUpRestore = await import('../../../../src/steps/backup-restore/index.js');
 
         // when
-        await createBackup(configuration);
+        await backUpRestore.createBackup(configuration, { exec: execStub });
 
         // then
         expect(execStub).to.have.been.calledWith(
@@ -175,9 +169,10 @@ describe('Unit | steps | Backup restore | index.js', () => {
           SOURCE_DATABASE_URL: 'postgresql://source.url',
           BACKUP_MODE: { 'knowledge-elements': 'none', 'knowledge-element-snapshots': 'none', 'answers': 'none' },
         };
+        const backUpRestore = await import('../../../../src/steps/backup-restore/index.js');
 
         // when
-        await createBackup(configuration);
+        await backUpRestore.createBackup(configuration, { exec: execStub });
 
         // then
         expect(execStub).to.have.been.calledWith(

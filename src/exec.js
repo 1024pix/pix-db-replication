@@ -1,4 +1,4 @@
-const execa = require('execa');
+import { execa } from 'execa';
 
 async function execStdOut(cmd, args) {
   const { stdout } = await execa(cmd, args, { stderr: 'inherit' });
@@ -13,7 +13,7 @@ function exec(cmd, args) {
   return execa(cmd, args, { stdio: 'inherit' });
 }
 
-module.exports = {
+export {
   execStdOut,
   execShell,
   exec,

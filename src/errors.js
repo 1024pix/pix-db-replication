@@ -5,6 +5,6 @@ class PrimaryKeyNotNullConstraintError extends Error {
   }
 }
 
-module.exports = {
+export {
   PrimaryKeyNotNullConstraintError,
 };

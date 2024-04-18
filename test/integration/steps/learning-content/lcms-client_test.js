@@ -1,6 +1,6 @@
-const { expect, catchErr, nock } = require('../../../test-helper');
+import { expect, catchErr, nock } from '../../../test-helper.js';
 
-const lcmsClient = require('../../../../src/steps/learning-content/lcms-client');
+import * as lcmsClient from '../../../../src/steps/learning-content/lcms-client.js';
 
 describe('Integration | Steps | learning-content | lcms-client.js', () => {
   describe('#getLatest', () => {

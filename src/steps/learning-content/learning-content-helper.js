@@ -7,6 +7,6 @@ function prepareLearningContentValueBeforeInsertion(learningContentItem, fieldSt
   return fieldStructure.isArray ? `{${value.join(',')}}` : value[0];
 }
 
-module.exports = {
+export {
   prepareLearningContentValueBeforeInsertion,
 };

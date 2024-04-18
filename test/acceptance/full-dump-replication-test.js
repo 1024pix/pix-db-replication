@@ -1,13 +1,14 @@
-const { after, before, describe, it } = require('mocha');
-const { createAndFillDatabase } = require('../integration/test-helper');
-const pgUrlParser = require('pg-connection-string').parse;
+import { after, before, describe, it } from 'mocha';
+import { createAndFillDatabase } from '../integration/test-helper.js';
+import pgConnectionString from 'pg-connection-string';
+const pgUrlParser = pgConnectionString.parse;
 
-const Database = require('../utils/database');
-const { expect, sinon } = require('../test-helper');
-const mockLcmsGetAirtable = require('../utils/mock-lcms-get-airtable');
-const { run: runBackupRestore } = require('../../src/steps/backup-restore');
-const { run: runLearningContent } = require('../../src/steps/learning-content');
-const lcmsClient = require('../../src/steps/learning-content/lcms-client');
+import { Database } from '../utils/database.js';
+import { expect, sinon } from '../test-helper.js';
+import { mockLcmsAirtableData } from '../utils/mock-lcms-get-airtable.js';
+import { run as runBackupRestore } from '../../src/steps/backup-restore/index.js';
+import { run as runLearningContent } from '../../src/steps/learning-content/index.js';
+import * as databaseHelper from '../../src/database-helper.js';
 
 async function getCountFromTable({ targetDatabase, tableName }) {
   return parseInt(await targetDatabase.runSql(`SELECT COUNT(*) FROM ${tableName}`));
@@ -100,10 +101,12 @@ describe('Acceptance | fullReplicationAndEnrichment', () => {
   describe('should import learning content', () => {
     let fullLearningContent;
     before(async function() {
-      fullLearningContent = mockLcmsGetAirtable();
-      sinon.stub(lcmsClient, 'getLearningContent').resolves(fullLearningContent);
+      fullLearningContent = mockLcmsAirtableData();
+      const lcmClientStub = {
+        getLearningContent: sinon.stub().resolves(fullLearningContent),
+      };
 
-      await runLearningContent(configuration);
+      await runLearningContent(configuration, { lcmsClient: lcmClientStub, databaseHelper: databaseHelper });
     });
 
     it('should import areas ', async () => {

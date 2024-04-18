@@ -1,5 +1,5 @@
-const toPairs = require('lodash/toPairs');
-const extractConfigurationFromEnvironment = require('./extract-configuration-from-environment');
+import toPairs from 'lodash/toPairs.js';
+import { extractConfigurationFromEnvironment } from './extract-configuration-from-environment.js';
 
 const configuration = extractConfigurationFromEnvironment();
 const parisTimezone = 'Europe/Paris';
@@ -26,7 +26,7 @@ function getTablesWithReplicationModes(configuration, modes = []) {
     .map(([tableName, _]) => tableName);
 }
 
-module.exports = {
+export {
   configuration,
   jobOptions,
   repeatableJobOptions,

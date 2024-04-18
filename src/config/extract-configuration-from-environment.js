@@ -1,5 +1,5 @@
 /* eslint no-process-env: "off" */
-const logger = require('../logger');
+import { logger } from '../logger.js';
 
 const extractConfigurationFromEnvironment = function() {
   loadEnvironmentVariableFromFileIfNotOnPaas();
@@ -11,12 +11,13 @@ const loadEnvironmentVariableFromFileIfNotOnPaas = function() {
   if (process.env.NODE_ENV && (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'test')) {
     return;
   } else {
-    require('dotenv').config();
+    import('dotenv/config');
   }
 };
 
 const extractConfigurationFromEnvironmentVariable = function() {
   let BACKUP_MODE;
+  let NOTIFICATION_URLS;
 
   try {
     BACKUP_MODE = process.env.BACKUP_MODE ? JSON.parse(process.env.BACKUP_MODE) : {};
@@ -61,4 +62,4 @@ const extractConfigurationFromEnvironmentVariable = function() {
 const extractInteger = function(arg) {
   return parseInt(arg, 10);
 };
-module.exports = extractConfigurationFromEnvironment;
+export { extractConfigurationFromEnvironment };

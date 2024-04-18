@@ -1,9 +1,9 @@
 'use strict';
 
-const { runDBOperation } = require('../../database-helper');
-const logger = require('../../logger');
+import { runDBOperation } from '../../database-helper.js';
+import { logger } from '../../logger.js';
 
-async function createViewForMissingTable(configuration) {
+async function createViewForMissingTables(configuration) {
   await runDBOperation(async (client) => {
     const results = await client.query('SELECT * FROM "pg_tables" WHERE "tablename" = \'schooling-registrations\'');
 
@@ -15,4 +15,4 @@ async function createViewForMissingTable(configuration) {
   }, configuration);
 }
 
-module.exports = createViewForMissingTable;
+export { createViewForMissingTables };

@@ -1,13 +1,14 @@
-const { expect } = require('chai');
-const pgUrlParser = require('pg-connection-string').parse;
+import { expect } from 'chai';
+import pgConnectionString from 'pg-connection-string';
+const pgUrlParser = pgConnectionString.parse;
 
 // CircleCI set up environment variables to access DB, so we need to read them here
 // eslint-disable-next-line no-process-env
 const DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://pix@localhost:5432/replication_target';
 
-const Database = require('../../../utils/database');
+import { Database } from '../../../utils/database.js';
 
-const createViewsForMissingTables = require('../../../../src/steps/backup-restore/create-views-for-missing-tables');
+import { createViewForMissingTables } from '../../../../src/steps/backup-restore/create-views-for-missing-tables.js';
 
 describe('Integration | Steps | Backup restore | createViewsForMissingTables', () => {
   let database;
@@ -35,7 +36,7 @@ describe('Integration | Steps | Backup restore | createViewsForMissingTables', (
     it('create a view schooling registrations', async function() {
       await database.runSql('CREATE TABLE "organization-learners" (id integer);');
 
-      await createViewsForMissingTables(configuration);
+      await createViewForMissingTables(configuration);
 
       const result = await database.runSql('SELECT COUNT(viewname) FROM "pg_views" WHERE viewname = \'schooling-registrations\'');
       expect(result).to.equal('1');
@@ -47,7 +48,7 @@ describe('Integration | Steps | Backup restore | createViewsForMissingTables', (
       await database.runSql('CREATE TABLE "organization-learners" (id integer);');
       await database.runSql('CREATE TABLE "schooling-registrations" (id integer);');
 
-      await createViewsForMissingTables(configuration);
+      await createViewForMissingTables(configuration);
 
       const result = await database.runSql('SELECT COUNT(viewname) FROM "pg_views" WHERE viewname = \'schooling-registrations\'');
       expect(result).to.equal('0');

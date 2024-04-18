@@ -1,12 +1,15 @@
-const chai = require('chai');
+import * as chai from 'chai';
 const expect = chai.expect;
-chai.use(require('chai-as-promised'));
-const pgUrlParser = require('pg-connection-string').parse;
-const Database = require('../../utils/database');
-const { createAndFillDatabase, createBackup } = require('../test-helper');
+import chaiAsPromised from 'chai-as-promised';
+chai.use(chaiAsPromised);
+import pgConnectionString from 'pg-connection-string';
+const pgUrlParser = pgConnectionString.parse;
 
-const { restoreBackup } = require('../../../src/steps/backup-restore');
-const { run } = require('../../../src/steps/incremental');
+import { Database } from '../../utils/database.js';
+import { createAndFillDatabase, createBackup } from '../test-helper.js';
+
+import { restoreBackup } from '../../../src/steps/backup-restore/index.js';
+import { run } from '../../../src/steps/incremental.js';
 
 describe('Integration | Steps | incremental.js', () => {
 

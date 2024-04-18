@@ -108,4 +108,4 @@ async function createTestFunction(database) {
   );
 }
 
-module.exports = { createBackupAndCreateEmptyDatabase, createAndFillDatabase, createBackup };
+export { createBackupAndCreateEmptyDatabase, createAndFillDatabase, createBackup };

@@ -1,10 +1,12 @@
-const pgUrlParser = require('pg-connection-string').parse;
-const Database = require('../../../utils/database');
-const { expect, sinon } = require('../../../test-helper');
-const mockLcmsGetAirtable = require('../../../utils/mock-lcms-get-airtable');
+import pgConnectionString from 'pg-connection-string';
+const pgUrlParser = pgConnectionString.parse;
 
-const lcmsClient = require('../../../../src/steps/learning-content/lcms-client');
-const { run } = require('../../../../src/steps/learning-content');
+import { Database } from '../../../utils/database.js';
+import { expect, sinon } from '../../../test-helper.js';
+import { mockLcmsAirtableData } from '../../../utils/mock-lcms-get-airtable.js';
+import * as databaseHelper from '../../../../src/database-helper.js';
+
+import { run } from '../../../../src/steps/learning-content/index.js';
 
 describe('Integration | Steps | learning-content | index.js', () => {
   let targetDatabaseConfig;
@@ -31,11 +33,14 @@ describe('Integration | Steps | learning-content | index.js', () => {
     const configuration = {
       DATABASE_URL: `${targetDatabaseConfig.serverUrl}/${targetDatabaseConfig.databaseName}`,
     };
-    const fullLearningContent = mockLcmsGetAirtable();
-    sinon.stub(lcmsClient, 'getLearningContent').resolves(fullLearningContent);
+    const fullLearningContent = mockLcmsAirtableData();
+    const lcmsClient = {
+      getLearningContent: sinon.stub(),
+    };
+    lcmsClient.getLearningContent.resolves(fullLearningContent);
 
     // when
-    await run(configuration);
+    await run(configuration, { lcmsClient, databaseHelper });
 
     // then
     const competenceRowCount = parseInt(await targetDatabase.runSql('SELECT COUNT(*) FROM competences'));

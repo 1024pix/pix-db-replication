@@ -1,5 +1,5 @@
-const lcmsClient = require('./lcms-client');
-const databaseHelper = require('../../database-helper');
+import * as lcmsClient from './lcms-client.js';
+import * as databaseHelper from '../../database-helper.js';
 
 const tables = [{
   name: 'areas',
@@ -116,17 +116,18 @@ const tables = [{
   indexes: ['title'],
 }];
 
-async function run(configuration) {
-  const learningContent = await lcmsClient.getLearningContent(configuration);
+async function run(configuration, dependencies = { databaseHelper: databaseHelper, lcmsClient: lcmsClient }) {
+  console.log(dependencies);
+  const learningContent = await dependencies.lcmsClient.getLearningContent(configuration);
   if (learningContent) {
     for await (const table of tables) {
-      await databaseHelper.dropTable(table.name, configuration);
-      await databaseHelper.createTable(table, configuration);
-      await databaseHelper.saveLearningContent(table, learningContent[table.name], configuration);
+      await dependencies.databaseHelper.dropTable(table.name, configuration);
+      await dependencies.databaseHelper.createTable(table, configuration);
+      await dependencies.databaseHelper.saveLearningContent(table, learningContent[table.name], configuration);
     }
   }
 }
 
-module.exports = {
+export {
   run,
 };

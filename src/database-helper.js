@@ -1,9 +1,10 @@
-const { Client } = require('pg');
-const format = require('pg-format');
-const _ = require('lodash');
+import pg from 'pg';
+const { Client } = pg;
+import format from 'pg-format';
+import _ from 'lodash';
 
-const { PrimaryKeyNotNullConstraintError } = require('./errors');
-const learningContentHelper = require('./steps/learning-content/learning-content-helper');
+import { PrimaryKeyNotNullConstraintError } from './errors.js';
+import * as learningContentHelper from './steps/learning-content/learning-content-helper.js';
 
 const LCMS_CHUNK = 2000;
 
@@ -75,7 +76,7 @@ function _insertValues(tableName, fieldNames, values, client) {
   return client.query(saveQuery);
 }
 
-module.exports = {
+export {
   createTable,
   dropTable,
   runDBOperation,

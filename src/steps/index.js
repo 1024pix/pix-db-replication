@@ -1,9 +1,9 @@
-const { run: backupRestore } = require('./backup-restore');
-const { run: incremental } = require('./incremental');
-const { run: learningContent } = require('./learning-content');
-const { run: notification } = require('./notification');
+import { run as backupRestore } from './backup-restore.js';
+import { run as incremental } from './incremental.js';
+import { run as learningContent } from './learning-content.js';
+import { run as notification } from './notification.js';
 
-module.exports = {
+export {
   backupRestore,
   incremental,
   learningContent,

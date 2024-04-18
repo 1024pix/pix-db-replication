@@ -20,4 +20,4 @@ const initSentry = function(configuration) {
   });
 };
 
-module.exports = initSentry;
+export { initSentry };
