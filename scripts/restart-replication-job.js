@@ -1,5 +1,5 @@
-const { configuration, jobOptions } = require('../src/config');
-const Queue = require('bull');
+import { configuration, jobOptions } from '../src/config/index.js';
+import Queue from 'bull';
 
 async function main() {
   const QUEUE_NAME = process.argv[2];

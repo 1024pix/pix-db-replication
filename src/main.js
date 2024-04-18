@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import * as Sentry from '@sentry/node';
-import * as Queue from 'bull';
+import Queue from 'bull';
 import { initSentry } from './sentry-init.js';
 import { logger } from './logger.js';
 import { pgclientSetup } from './setup.js';
