@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.29.2 (18/04/2024)
+
+
+### :building_construction: Tech
+- [#237](https://github.com/1024pix/pix-db-replication/pull/237) [TECH] Migrer de cjs à esm le projet.
+
 ## v2.29.1 (16/04/2024)
 
 
