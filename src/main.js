@@ -113,5 +113,6 @@ function _addQueueEventsListeners(queue) {
 async function _flushSentryAndExit() {
   const TIMEOUT = 2000;
   await Sentry.close(TIMEOUT);
+  // eslint-disable-next-line n/no-process-exit
   process.exit(1);
 }

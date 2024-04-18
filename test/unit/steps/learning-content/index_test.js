@@ -1,12 +1,12 @@
 import { expect, sinon } from '../../../test-helper.js';
 import * as learningContent from '../../../../src/steps/learning-content/index.js';
 
-describe('Unit | Steps | learning-content | index.js', () => {
-  describe('#run', () => {
+describe('Unit | Steps | learning-content | index.js', function() {
+  describe('#run', function() {
     let databaseHelper;
     let lcmsClient;
 
-    beforeEach(async() => {
+    beforeEach(async function() {
       const databaseConfig = {};
       const content = {
         areas: [{ id: 'recArea1', competenceIds: ['recCompetence'] }],
@@ -32,11 +32,11 @@ describe('Unit | Steps | learning-content | index.js', () => {
       await learningContent.run(databaseConfig, { lcmsClient: lcmsClient, databaseHelper: databaseHelper });
     });
 
-    it('should fetch learning-content from LCMS', async() => {
+    it('should fetch learning-content from LCMS', async function() {
       expect(lcmsClient.getLearningContent).to.have.been.called;
     });
 
-    it('should drop existing learning-content tables', async() => {
+    it('should drop existing learning-content tables', async function() {
       expect(databaseHelper.dropTable.callCount).to.equal(8);
       expect(databaseHelper.dropTable).to.have.been.calledWith('areas');
       expect(databaseHelper.dropTable).to.have.been.calledWith('attachments');
@@ -48,11 +48,11 @@ describe('Unit | Steps | learning-content | index.js', () => {
       expect(databaseHelper.dropTable).to.have.been.calledWith('tutorials');
     });
 
-    it('should create learning-content tables', async() => {
+    it('should create learning-content tables', async function() {
       expect(databaseHelper.createTable.callCount).to.equal(8);
     });
 
-    it('should insert learning-content data', async() => {
+    it('should insert learning-content data', async function() {
       expect(databaseHelper.saveLearningContent.callCount).to.equal(8);
     });
   });

@@ -219,16 +219,19 @@ async function main() {
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('\n', error);
+    // eslint-disable-next-line n/no-process-exit
     process.exit(1);
   }
 }
 
 if (require.main === module) {
   main().then(
+    // eslint-disable-next-line n/no-process-exit
     () => process.exit(0),
     (err) => {
       // eslint-disable-next-line no-console
       console.error(err);
+      // eslint-disable-next-line n/no-process-exit
       process.exit(1);
     },
   );

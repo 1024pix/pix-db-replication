@@ -2,7 +2,7 @@ import { expect } from '../../../test-helper.js';
 
 import * as learningContentHelper from '../../../../src/steps/learning-content/learning-content-helper.js';
 
-describe('Unit | Steps | learning content | learning-content-helper.js', () => {
+describe('Unit | Steps | learning content | learning-content-helper.js', function() {
 
   describe('#prepareLearningContentValueBeforeInsertion', function() {
 

@@ -2,11 +2,11 @@ import { expect, catchErr, nock } from '../../../test-helper.js';
 
 import * as lcmsClient from '../../../../src/steps/learning-content/lcms-client.js';
 
-describe('Integration | Steps | learning-content | lcms-client.js', () => {
-  describe('#getLatest', () => {
+describe('Integration | Steps | learning-content | lcms-client.js', function() {
+  describe('#getLatest', function() {
     let configuration;
 
-    beforeEach(() => {
+    beforeEach(function() {
       const lcmsApiUrl = 'https://lcms-test.pix.fr/api';
       const lcmsApiKey = 'abcd';
       configuration = {
@@ -16,11 +16,11 @@ describe('Integration | Steps | learning-content | lcms-client.js', () => {
       nock.disableNetConnect();
     });
 
-    afterEach(() => {
+    afterEach(function() {
       nock.cleanAll();
     });
 
-    it('should call LCMS API to get learning content latest release', async () => {
+    it('should call LCMS API to get learning content latest release', async function() {
       // given
       nock('https://lcms-test.pix.fr', {
         reqheaders: {
@@ -37,7 +37,7 @@ describe('Integration | Steps | learning-content | lcms-client.js', () => {
       expect(response).to.deep.equal({});
     });
 
-    it('should throw an error when the response take more than the allowed time', async () => {
+    it('should throw an error when the response take more than the allowed time', async function() {
       // given
       nock('https://lcms-test.pix.fr', {
         reqheaders: {

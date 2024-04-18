@@ -14,29 +14,30 @@ async function getCountFromTable({ targetDatabase, tableName }) {
   return parseInt(await targetDatabase.runSql(`SELECT COUNT(*) FROM ${tableName}`));
 }
 
-describe('Acceptance | fullReplicationAndEnrichment', () => {
+// CircleCI set up environment variables to access DB, so we need to read them here
+// eslint-disable-next-line n/no-process-env
+const SOURCE_DATABASE_URL = process.env.SOURCE_DATABASE_URL || 'postgres://pix@localhost:5432/replication_source';
+// eslint-disable-next-line n/no-process-env
+const TARGET_DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://pix@localhost:5432/replication_target';
 
-  // CircleCI set up environment variables to access DB, so we need to read them here
-  // eslint-disable-next-line no-process-env
-  const SOURCE_DATABASE_URL = process.env.SOURCE_DATABASE_URL || 'postgres://pix@localhost:5432/replication_source';
-  // eslint-disable-next-line no-process-env
-  const TARGET_DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://pix@localhost:5432/replication_target';
+describe('Acceptance | fullReplicationAndEnrichment', function() {
 
+  let configuration;
   let sourceDatabase;
   let targetDatabase;
   let sourceDatabaseConfig;
   let targetDatabaseConfig;
 
-  const configuration = {
-    SOURCE_DATABASE_URL,
-    TARGET_DATABASE_URL,
-    DATABASE_URL: TARGET_DATABASE_URL,
-    BACKUP_MODE: {},
-    PG_RESTORE_JOBS: 1,
-  };
-
   before(async function() {
     this.timeout(5000);
+
+    configuration = {
+      SOURCE_DATABASE_URL,
+      TARGET_DATABASE_URL,
+      DATABASE_URL: TARGET_DATABASE_URL,
+      BACKUP_MODE: {},
+      PG_RESTORE_JOBS: 1,
+    };
 
     const rawSourceDataBaseConfig = pgUrlParser(SOURCE_DATABASE_URL);
 
@@ -69,14 +70,14 @@ describe('Acceptance | fullReplicationAndEnrichment', () => {
     await runBackupRestore(configuration);
   });
 
-  after(async () => {
+  after(async function() {
     await sourceDatabase.dropDatabase();
     await targetDatabase.dropDatabase();
   });
 
-  describe('should import database data', () => {
+  describe('should import database data', function() {
 
-    it('should replicate answers and knowledge-elements and knowledge-element-snapshots', async () => {
+    it('should replicate answers and knowledge-elements and knowledge-element-snapshots', async function() {
       // then
       const restoredRowCount = await getCountFromTable({ targetDatabase, tableName: targetDatabaseConfig.tableName });
 
@@ -98,8 +99,9 @@ describe('Acceptance | fullReplicationAndEnrichment', () => {
     });
   });
 
-  describe('should import learning content', () => {
+  describe('should import learning content', function() {
     let fullLearningContent;
+
     before(async function() {
       fullLearningContent = mockLcmsAirtableData();
       const lcmClientStub = {
@@ -109,50 +111,50 @@ describe('Acceptance | fullReplicationAndEnrichment', () => {
       await runLearningContent(configuration, { lcmsClient: lcmClientStub, databaseHelper: databaseHelper });
     });
 
-    it('should import areas ', async () => {
+    it('should import areas ', async function() {
       // then
       const result = await getCountFromTable({ targetDatabase, tableName: 'areas' });
       expect(result).to.equal(fullLearningContent.areas.length);
     });
 
-    it('should import attachments ', async () => {
+    it('should import attachments ', async function() {
       // then
       const result = await getCountFromTable({ targetDatabase, tableName: 'attachments' });
       expect(result).to.equal(fullLearningContent.attachments.length);
     });
 
-    it('should import competences ', async () => {
+    it('should import competences ', async function() {
       // then
       const result = await getCountFromTable({ targetDatabase, tableName: 'competences' });
       expect(result).to.equal(fullLearningContent.competences.length);
     });
 
-    it('should import tubes ', async () => {
+    it('should import tubes ', async function() {
       // then
       const result = await getCountFromTable({ targetDatabase, tableName: 'tubes' });
       expect(result).to.equal(fullLearningContent.tubes.length);
     });
 
-    it('should import skills ', async () => {
+    it('should import skills ', async function() {
       // then
       const result = await getCountFromTable({ targetDatabase, tableName: 'skills' });
       expect(result).to.equal(fullLearningContent.skills.length);
     });
 
-    it('should import challenges ', async () => {
+    it('should import challenges ', async function() {
       // then
       const result = await getCountFromTable({ targetDatabase, tableName: 'challenges' });
       expect(result).to.equal(fullLearningContent.challenges.length);
     });
 
-    it('should import tutorials ', async () => {
+    it('should import tutorials ', async function() {
       // then
       const result = await getCountFromTable({ targetDatabase, tableName: 'tutorials' });
       expect(result).to.equal(fullLearningContent.tutorials.length);
     });
   });
 
-  describe('should enrich imported data', () => {
+  describe('should enrich imported data', function() {
 
     it('should create indexes', async function() {
       // then

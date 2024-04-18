@@ -8,13 +8,13 @@ import * as databaseHelper from '../../../../src/database-helper.js';
 
 import { run } from '../../../../src/steps/learning-content/index.js';
 
-describe('Integration | Steps | learning-content | index.js', () => {
+describe('Integration | Steps | learning-content | index.js', function() {
   let targetDatabaseConfig;
   let targetDatabase;
 
-  before(async() => {
+  before(async function() {
     // CircleCI set up environment variables to access DB, so we need to read them here
-    // eslint-disable-next-line no-process-env
+    // eslint-disable-next-line n/no-process-env
     const DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://pix@localhost:5432/replication_target';
     const config = pgUrlParser(DATABASE_URL);
 

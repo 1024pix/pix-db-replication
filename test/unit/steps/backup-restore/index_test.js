@@ -1,10 +1,10 @@
 import { expect, sinon } from '../../../test-helper.js';
 import { filterObjectLines } from '../../../../src/steps/backup-restore/index.js';
 
-describe('Unit | steps | Backup restore | index.js', () => {
-  describe('#filterObjectLines', ()=>{
-    context('using default configuration', async () => {
-      it('should only remove comments and FK from file', async () => {
+describe('Unit | steps | Backup restore | index.js', function() {
+  describe('#filterObjectLines', function() {
+    context('using default configuration', function() {
+      it('should only remove comments and FK from file', function() {
       // given
         const objectLines = [
           '4688; 0 0 COMMENT - EXTENSION pgcrypto',
@@ -38,7 +38,7 @@ describe('Unit | steps | Backup restore | index.js', () => {
       });
     });
 
-    it('should only filter specified table', async () => {
+    it('should only filter specified table', function() {
       // given
       const configuration = {
         RESTORE_FK_CONSTRAINTS: 'false',
@@ -68,7 +68,7 @@ describe('Unit | steps | Backup restore | index.js', () => {
       ]);
     });
 
-    it('should keep fk constraints', async () => {
+    it('should keep fk constraints', function() {
       // given
       const configuration = {
         RESTORE_FK_CONSTRAINTS: 'true',
@@ -88,14 +88,14 @@ describe('Unit | steps | Backup restore | index.js', () => {
     });
   });
 
-  describe('#createBackup', () => {
+  describe('#createBackup', function() {
     let execStub;
 
-    beforeEach(() => {
+    beforeEach(function() {
       execStub = sinon.stub();
     });
 
-    it('should use pg_dump to create a full backup', async () => {
+    it('should use pg_dump to create a full backup', async function() {
       // given
       const configuration = {
         SOURCE_DATABASE_URL: 'postgresql://source.url',
@@ -126,8 +126,8 @@ describe('Unit | steps | Backup restore | index.js', () => {
       expect(backupFilename).to.equal('./dump.pgsql');
     });
 
-    context('when answers, knowledge elements and knowledge element snapshots are restored incrementally', () => {
-      it('should not backup answers, knowledge-elements and knowledge-element-snapshots tables', async () => {
+    context('when answers, knowledge elements and knowledge element snapshots are restored incrementally', function() {
+      it('should not backup answers, knowledge-elements and knowledge-element-snapshots tables', async function() {
         // given
         const configuration = {
           SOURCE_DATABASE_URL: 'postgresql://source.url',
@@ -162,8 +162,8 @@ describe('Unit | steps | Backup restore | index.js', () => {
       });
     });
 
-    context('when answers, knowledge elements and knowledge element snapshots are not restored', () => {
-      it('should not backup answers, knowledge-elements and knowledge-element-snapshots tables', async () => {
+    context('when answers, knowledge elements and knowledge element snapshots are not restored', function() {
+      it('should not backup answers, knowledge-elements and knowledge-element-snapshots tables', async function() {
         // given
         const configuration = {
           SOURCE_DATABASE_URL: 'postgresql://source.url',

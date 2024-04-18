@@ -2,11 +2,11 @@ import { expect, axios, sinon, catchErr } from '../../../test-helper.js';
 
 import * as lcmsClient from '../../../../src/steps/learning-content/lcms-client.js';
 
-describe('Unit | Steps | learning content | lcms-client.js', () => {
-  describe('#getLatest', () => {
+describe('Unit | Steps | learning content | lcms-client.js', function() {
+  describe('#getLatest', function() {
     let learningContentGetUrl, configuration, headers;
 
-    beforeEach(() => {
+    beforeEach(function() {
       const lcmsApiUrl = 'https://lcms-test.pix.fr/api';
       const lcmsApiKey = 'abcd';
       learningContentGetUrl = lcmsApiUrl + '/databases/airtable';
@@ -20,7 +20,7 @@ describe('Unit | Steps | learning content | lcms-client.js', () => {
       };
     });
 
-    it('should call LCMS API to get learning content latest release', async () => {
+    it('should call LCMS API to get learning content latest release', async function() {
       // given
       const axiosResponse = {
         data: {},
@@ -35,7 +35,7 @@ describe('Unit | Steps | learning content | lcms-client.js', () => {
       expect(response).to.equal(axiosResponse.data);
     });
 
-    it('should return empty object from the http call when failed', async () => {
+    it('should return empty object from the http call when failed', async function() {
       const axiosError = {
         response: {
           data: Symbol('data'),

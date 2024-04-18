@@ -11,20 +11,20 @@ import { createAndFillDatabase, createBackup } from '../test-helper.js';
 import { restoreBackup } from '../../../src/steps/backup-restore/index.js';
 import { run } from '../../../src/steps/incremental.js';
 
-describe('Integration | Steps | incremental.js', () => {
+// CircleCI set up environment variables to access DB, so we need to read them here
+// eslint-disable-next-line n/no-process-env
+const SOURCE_DATABASE_URL = process.env.SOURCE_DATABASE_URL || 'postgres://pix@localhost:5432/replication_source';
+// eslint-disable-next-line n/no-process-env
+const TARGET_DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://pix@localhost:5432/replication_target';
+
+describe('Integration | Steps | incremental.js', function() {
 
   describe('run', function() {
-
-    // CircleCI set up environment variables to access DB, so we need to read them here
-    // eslint-disable-next-line no-process-env
-    const SOURCE_DATABASE_URL = process.env.SOURCE_DATABASE_URL || 'postgres://pix@localhost:5432/replication_source';
-    // eslint-disable-next-line no-process-env
-    const TARGET_DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://pix@localhost:5432/replication_target';
 
     let sourceDatabaseConfig;
     let targetDatabaseConfig;
 
-    before(async() => {
+    before(async function() {
 
       const rawSourceDataBaseConfig = pgUrlParser(SOURCE_DATABASE_URL);
 
@@ -50,7 +50,7 @@ describe('Integration | Steps | incremental.js', () => {
 
     });
 
-    context('when incremental restore is disabled', () => {
+    context('when incremental restore is disabled', function() {
 
       it('should not copy any values', async function() {
 
@@ -73,8 +73,9 @@ describe('Integration | Steps | incremental.js', () => {
 
     });
 
-    context('when incremental restore is enabled', () => {
+    context('when incremental restore is enabled', function() {
 
+      // eslint-disable-next-line mocha/no-setup-in-describe
       [
         {
           name: 'answers',
