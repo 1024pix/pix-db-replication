@@ -20,7 +20,7 @@ main()
   });
 
 async function main() {
-  initSentry(configuration);
+  await initSentry(configuration);
   await pgclientSetup(configuration);
 
   replicationQueue.process(async function() {
