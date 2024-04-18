@@ -7,8 +7,8 @@ const _getNumber = function(numberAsString, defaultIntNumber) {
   return isNaN(number) ? defaultIntNumber : number;
 };
 
-const initSentry = function(configuration) {
-  const Sentry = require('@sentry/node');
+const initSentry = async function(configuration) {
+  const Sentry = await import('@sentry/node');
 
   Sentry.init({
     enabled: isFeatureEnabled(configuration.SENTRY_ENABLED),
