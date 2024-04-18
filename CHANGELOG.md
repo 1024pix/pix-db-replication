@@ -1,5 +1,12 @@
 # pix-db-replication Changelog
 
+## v2.29.3 (18/04/2024)
+
+
+### :bug: Correction
+- [#239](https://github.com/1024pix/pix-db-replication/pull/239) [BUGFIX] Réparer le démarrage du worker .
+- [#238](https://github.com/1024pix/pix-db-replication/pull/238) [BUGFIX] Réparer le lancement du worker.
+
 ## v2.29.2 (18/04/2024)
 
 
