@@ -6,7 +6,8 @@ const { expect } = chai;
 import sinonChai from 'sinon-chai';
 chai.use(sinonChai);
 
-afterEach(() => {
+// eslint-disable-next-line mocha/no-top-level-hooks
+afterEach(function() {
   sinon.restore();
 });
 
@@ -21,6 +22,7 @@ function catchErr(promiseFn, ctx) {
   };
 }
 
+// eslint-disable-next-line mocha/no-exports
 export {
   axios,
   catchErr,

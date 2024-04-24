@@ -3,7 +3,7 @@ import pgConnectionString from 'pg-connection-string';
 const pgUrlParser = pgConnectionString.parse;
 
 // CircleCI set up environment variables to access DB, so we need to read them here
-// eslint-disable-next-line no-process-env
+// eslint-disable-next-line n/no-process-env
 const DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://pix@localhost:5432/replication_target';
 
 import { createAndFillDatabase } from '../../test-helper.js';
@@ -11,28 +11,33 @@ import { Database } from '../../../utils/database.js';
 
 import { add } from '../../../../src/steps/backup-restore/enrichment.js';
 
-describe('Integration | Steps | Backup restore | enrichment.js', () => {
+describe('Integration | Steps | Backup restore | enrichment.js', function() {
 
-  const config = pgUrlParser(DATABASE_URL);
+  let databaseConfig;
 
-  const databaseConfig = {
-    serverUrl: `postgres://${config.user}@${config.host}:${config.port}`,
-    databaseName: config.database,
-    tableName: 'test_table',
-    tableRowCount: 100000,
-  };
+  before(function() {
+    const config = pgUrlParser(DATABASE_URL);
 
-  databaseConfig.databaseUrl = `${databaseConfig.serverUrl}/${databaseConfig.databaseName}`;
+    databaseConfig = {
+      serverUrl: `postgres://${config.user}@${config.host}:${config.port}`,
+      databaseName: config.database,
+      tableName: 'test_table',
+      tableRowCount: 100000,
+    };
+
+    databaseConfig.databaseUrl = `${databaseConfig.serverUrl}/${databaseConfig.databaseName}`;
+  });
 
   describe('add', function() {
 
-    context('according to environment variables', () => {
+    context('according to environment variables', function() {
       let database;
 
-      after(() => {
+      after(function() {
         database.dropDatabase();
       });
 
+      // eslint-disable-next-line mocha/no-setup-in-describe
       [
         {
           mode: 'none',

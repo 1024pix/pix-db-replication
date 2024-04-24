@@ -1,4 +1,4 @@
-/* eslint no-process-env: "off" */
+/* eslint n/no-process-env: "off" */
 import { logger } from '../logger.js';
 
 const extractConfigurationFromEnvironment = function() {

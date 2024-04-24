@@ -1,11 +1,11 @@
 import { expect } from '../test-helper.js';
 import { PrimaryKeyNotNullConstraintError } from '../../src/errors.js';
 
-describe('Unit | errors.js', () => {
+describe('Unit | errors.js', function() {
 
-  describe('#PrimaryKeyNotNullConstraintError', () => {
+  describe('#PrimaryKeyNotNullConstraintError', function() {
 
-    it('should return a message', async () => {
+    it('should return a message', async function() {
       // given
       // when
       const error = new PrimaryKeyNotNullConstraintError();

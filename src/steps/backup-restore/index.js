@@ -42,7 +42,7 @@ async function restoreBackup({ backupFile, databaseUrl, configuration }) {
   logger.info('Start restore');
 
   try {
-    // eslint-disable-next-line no-process-env
+    // eslint-disable-next-line n/no-process-env
     const verboseOptions = process.env.NODE_ENV === 'test' ? [] : ['--verbose'];
     await writeListFileForReplication({ backupFile, configuration });
     // TODO: pass DATABASE_URL by argument
@@ -72,7 +72,7 @@ async function createBackup(configuration, dependencies = { exec: exec }) {
     excludeOptions = tablesToExcludeFromBackup.reduce((excludeTablesOptions, tableName) => [...excludeTablesOptions, '--exclude-table', tableName], []);
   }
 
-  // eslint-disable-next-line no-process-env
+  // eslint-disable-next-line n/no-process-env
   const verboseOptions = process.env.NODE_ENV === 'test' ? [] : ['--verbose'];
 
   await dependencies.exec('pg_dump', [

@@ -8,20 +8,22 @@ import { Database } from '../../../utils/database.js';
 import { expect } from '../../../test-helper.js';
 import * as steps from '../../../../src/steps/backup-restore/index.js';
 
-describe('Integration | Steps | Backup restore | index.js', () => {
+// CircleCI set up environment variables to access DB, so we need to read them here
+// eslint-disable-next-line n/no-process-env
+const SOURCE_DATABASE_URL = process.env.SOURCE_DATABASE_URL || 'postgres://pix@localhost:5432/replication_source';
+// eslint-disable-next-line n/no-process-env
+const TARGET_DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://pix@localhost:5432/replication_target';
 
-  describe('#backupAndRestore', () => {
-    // CircleCI set up environment variables to access DB, so we need to read them here
-    // eslint-disable-next-line no-process-env
-    const SOURCE_DATABASE_URL = process.env.SOURCE_DATABASE_URL || 'postgres://pix@localhost:5432/replication_source';
-    // eslint-disable-next-line no-process-env
-    const TARGET_DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://pix@localhost:5432/replication_target';
+describe('Integration | Steps | Backup restore | index.js', function() {
+
+  describe('#backupAndRestore', function() {
+
     let sourceDatabase;
     let targetDatabase;
     let sourceDatabaseConfig;
     let targetDatabaseConfig;
 
-    before(async() => {
+    before(async function() {
       const rawSourceDataBaseConfig = pgUrlParser(SOURCE_DATABASE_URL);
 
       sourceDatabaseConfig = {
@@ -51,9 +53,9 @@ describe('Integration | Steps | Backup restore | index.js', () => {
       await targetDatabase.dropDatabase();
     });
 
-    context('when configuration mention tables in incremental backup mode', () => {
+    context('when configuration mention tables in incremental backup mode', function() {
 
-      it('should backup and restore the database without answers, knowledge-elements & knowledge-element-snapshots', async () => {
+      it('should backup and restore the database without answers, knowledge-elements & knowledge-element-snapshots', async function() {
         // given
         const configuration = {
           SOURCE_DATABASE_URL,
@@ -91,9 +93,9 @@ describe('Integration | Steps | Backup restore | index.js', () => {
 
     });
 
-    context('when configuration exclude tables', () => {
+    context('when configuration exclude tables', function() {
 
-      it('should backup and restore the database without answers, knowledge-elements & knowledge-element-snapshots', async () => {
+      it('should backup and restore the database without answers, knowledge-elements & knowledge-element-snapshots', async function() {
         // given
         const configuration = {
           SOURCE_DATABASE_URL,
@@ -131,9 +133,9 @@ describe('Integration | Steps | Backup restore | index.js', () => {
 
     });
 
-    context('When backup config table is not present', () => {
+    context('When backup config table is not present', function() {
 
-      it('should backup and restore the database with answers, knowledge-elements & knowledge-element-snapshots', async () => {
+      it('should backup and restore the database with answers, knowledge-elements & knowledge-element-snapshots', async function() {
         // given
         const configuration = {
           SOURCE_DATABASE_URL,
@@ -169,27 +171,28 @@ describe('Integration | Steps | Backup restore | index.js', () => {
 
   });
 
-  describe('#restoreBackup', () => {
+  describe('#restoreBackup', function() {
 
-    // CircleCI set up environment variables to access DB, so we need to read them here
-    // eslint-disable-next-line no-process-env
-    const DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://postgres@localhost:5432/replication_target';
-    const config = pgUrlParser(DATABASE_URL);
+    let databaseConfig;
 
-    const databaseConfig = {
-      serverUrl: `postgres://${config.user}@${config.host}:${config.port}`,
-      databaseName: config.database,
-      tableName: 'test_table',
-      tableRowCount: 100000,
-    };
+    before(function() {
+      const config = pgUrlParser(TARGET_DATABASE_URL);
 
-    databaseConfig.databaseUrl = `${databaseConfig.serverUrl}/${databaseConfig.databaseName}`;
+      databaseConfig = {
+        serverUrl: `postgres://${config.user}@${config.host}:${config.port}`,
+        databaseName: config.database,
+        tableName: 'test_table',
+        tableRowCount: 100000,
+      };
 
-    context('whatever options are provided', () => {
+      databaseConfig.databaseUrl = `${databaseConfig.serverUrl}/${databaseConfig.databaseName}`;
+    });
+
+    context('whatever options are provided', function() {
 
       let database;
 
-      afterEach(() => {
+      afterEach(function() {
         database.dropDatabase();
       });
 
@@ -214,15 +217,15 @@ describe('Integration | Steps | Backup restore | index.js', () => {
 
     });
 
-    context('according to environment variables', () => {
+    context('according to environment variables', function() {
 
-      context('table restoration', () => {
+      context('table restoration', function() {
 
-        context('with incremental mode', () => {
+        context('with incremental mode', function() {
 
           let database;
 
-          afterEach(() => {
+          afterEach(function() {
             database.dropDatabase();
           });
 
@@ -260,11 +263,11 @@ describe('Integration | Steps | Backup restore | index.js', () => {
 
         });
 
-        context('with none mode', () => {
+        context('with none mode', function() {
 
           let database;
 
-          afterEach(() => {
+          afterEach(function() {
             database.dropDatabase();
           });
 
@@ -302,7 +305,7 @@ describe('Integration | Steps | Backup restore | index.js', () => {
 
         });
 
-        context('with default mode', () => {
+        context('with default mode', function() {
 
           let database;
 
@@ -340,9 +343,9 @@ describe('Integration | Steps | Backup restore | index.js', () => {
         });
       });
 
-      context('foreign key constraints', () => {
+      context('foreign key constraints', function() {
 
-        context('if enabled', () => {
+        context('if enabled', function() {
           let database;
 
           afterEach(async function() {
@@ -366,7 +369,7 @@ describe('Integration | Steps | Backup restore | index.js', () => {
 
         });
 
-        context('if disabled', () => {
+        context('if disabled', function() {
           let database;
 
           afterEach(async function() {
@@ -425,17 +428,13 @@ describe('Integration | Steps | Backup restore | index.js', () => {
     });
   });
 
-  describe('#dropObjectAndRestoreBackup', () => {
+  describe('#dropObjectAndRestoreBackup', function() {
     let sourceDatabase;
     let targetDatabase;
     let sourceDatabaseConfig;
     let targetDatabaseConfig;
 
-    before(async() => {
-
-      // CircleCI set up environment variables to access DB, so we need to read them here
-      // eslint-disable-next-line no-process-env
-      const SOURCE_DATABASE_URL = process.env.SOURCE_DATABASE_URL || 'postgres://pix@localhost:5432/replication_source';
+    before(async function() {
       const rawSourceDataBaseConfig = pgUrlParser(SOURCE_DATABASE_URL);
 
       sourceDatabaseConfig = {
@@ -447,9 +446,6 @@ describe('Integration | Steps | Backup restore | index.js', () => {
 
       sourceDatabaseConfig.databaseUrl = `${sourceDatabaseConfig.serverUrl}/${sourceDatabaseConfig.databaseName}`;
 
-      // CircleCI set up environment variables to access DB, so we need to read them here
-      // eslint-disable-next-line no-process-env
-      const TARGET_DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://pix@localhost:5432/replication_target';
       const rawTargetDataBaseConfig = pgUrlParser(TARGET_DATABASE_URL);
 
       targetDatabaseConfig = {
@@ -463,7 +459,7 @@ describe('Integration | Steps | Backup restore | index.js', () => {
 
     });
 
-    beforeEach(async () => {
+    beforeEach(async function() {
       sourceDatabase = await Database.create(sourceDatabaseConfig);
       targetDatabase = await Database.create(targetDatabaseConfig);
     });
@@ -473,7 +469,7 @@ describe('Integration | Steps | Backup restore | index.js', () => {
       await steps.restoreBackup({ backupFile, databaseUrl: targetDatabaseUrl, configuration });
     }
 
-    context('On specific tables, when restore is done incrementally (and not by backup)', () => {
+    context('On specific tables, when restore is done incrementally (and not by backup)', function() {
 
       it('should preserve data', async function() {
         // given
@@ -643,15 +639,12 @@ describe('Integration | Steps | Backup restore | index.js', () => {
     });
   });
 
-  describe('#createBackup', () => {
-
-    // eslint-disable-next-line no-process-env
-    const SOURCE_DATABASE_URL = process.env.SOURCE_DATABASE_URL || 'postgres://postgres@localhost:5432/replication_source';
+  describe('#createBackup', function() {
 
     let sourceDatabase;
     let sourceDatabaseConfig;
 
-    before(async() => {
+    before(async function() {
       const rawSourceDataBaseConfig = pgUrlParser(SOURCE_DATABASE_URL);
 
       sourceDatabaseConfig = {
@@ -671,7 +664,7 @@ describe('Integration | Steps | Backup restore | index.js', () => {
       await sourceDatabase.dropDatabase();
     });
 
-    it('should create a file', async () => {
+    it('should create a file', async function() {
       // given
       const configuration = {
         BACKUP_MODE: {

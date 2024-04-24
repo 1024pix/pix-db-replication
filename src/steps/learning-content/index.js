@@ -117,7 +117,6 @@ const tables = [{
 }];
 
 async function run(configuration, dependencies = { databaseHelper: databaseHelper, lcmsClient: lcmsClient }) {
-  console.log(dependencies);
   const learningContent = await dependencies.lcmsClient.getLearningContent(configuration);
   if (learningContent) {
     for await (const table of tables) {

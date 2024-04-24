@@ -8,23 +8,24 @@ import { mockLcmsAirtableData } from '../utils/mock-lcms-get-airtable.js';
 import * as databaseHelper from '../../src/database-helper.js';
 import { PrimaryKeyNotNullConstraintError } from '../../src/errors.js';
 
-describe('Integration | db-connection.js', () => {
+// eslint-disable-next-line n/no-process-env
+const DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://pix@localhost:5432/replication_target';
 
-  // eslint-disable-next-line no-process-env
-  const DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://pix@localhost:5432/replication_target';
-  const config = pgUrlParser(DATABASE_URL);
+describe('Integration | db-connection.js', function() {
 
-  const databaseConfig = {
-    serverUrl: `postgres://${config.user}@${config.host}:${config.port}`,
-    databaseName: config.database,
-    tableName: 'test_table',
-    tableRowCount: 100000,
-  };
-  databaseConfig.DATABASE_URL = `${databaseConfig.serverUrl}/${databaseConfig.databaseName}`;
-
+  let databaseConfig;
   let database;
 
   beforeEach(async function() {
+    const config = pgUrlParser(DATABASE_URL);
+
+    databaseConfig = {
+      serverUrl: `postgres://${config.user}@${config.host}:${config.port}`,
+      databaseName: config.database,
+      tableName: 'test_table',
+      tableRowCount: 100000,
+    };
+    databaseConfig.DATABASE_URL = `${databaseConfig.serverUrl}/${databaseConfig.databaseName}`;
     database = await Database.create(databaseConfig);
   });
 
@@ -116,7 +117,7 @@ describe('Integration | db-connection.js', () => {
       expect(skillIdsCount).to.deep.equal(skillCount);
     });
 
-    context('when at least one of the collection item has no property', () => {
+    context('when at least one of the collection item has no property', function() {
       it('should throw a PrimaryKeyNotNullConstraintError', async function() {
         const table = {
           name: 'challenges',

@@ -3,14 +3,14 @@ import pgConnectionString from 'pg-connection-string';
 const pgUrlParser = pgConnectionString.parse;
 
 // CircleCI set up environment variables to access DB, so we need to read them here
-// eslint-disable-next-line no-process-env
+// eslint-disable-next-line n/no-process-env
 const DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://pix@localhost:5432/replication_target';
 
 import { Database } from '../../../utils/database.js';
 
 import { createViewForMissingTables } from '../../../../src/steps/backup-restore/create-views-for-missing-tables.js';
 
-describe('Integration | Steps | Backup restore | createViewsForMissingTables', () => {
+describe('Integration | Steps | Backup restore | createViewsForMissingTables', function() {
   let database;
   let configuration;
 
@@ -32,7 +32,7 @@ describe('Integration | Steps | Backup restore | createViewsForMissingTables', (
     await database.dropDatabase();
   });
 
-  context('when the table \'schooling-registrations\' does not exists', () => {
+  context('when the table \'schooling-registrations\' does not exists', function() {
     it('create a view schooling registrations', async function() {
       await database.runSql('CREATE TABLE "organization-learners" (id integer);');
 
@@ -43,7 +43,7 @@ describe('Integration | Steps | Backup restore | createViewsForMissingTables', (
     });
   });
 
-  context('when the table \'schooling-registrations\' exists', () => {
+  context('when the table \'schooling-registrations\' exists', function() {
     it('does not create a view schooling registrations', async function() {
       await database.runSql('CREATE TABLE "organization-learners" (id integer);');
       await database.runSql('CREATE TABLE "schooling-registrations" (id integer);');

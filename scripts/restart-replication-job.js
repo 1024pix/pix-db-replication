@@ -6,6 +6,7 @@ async function main() {
   const queue = new Queue(QUEUE_NAME, configuration.REDIS_URL);
   await queue.add({}, jobOptions);
 
+  // eslint-disable-next-line n/no-process-exit
   process.exit(0);
 }
 
