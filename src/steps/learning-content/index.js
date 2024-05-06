@@ -96,6 +96,7 @@ const tables = [{
     { name: 'pedagogy', type: 'text' },
     { name: 'shuffled', type: 'boolean', extractor: (record) => !!record['shuffled'] },
     { name: 'contextualizedFields', type: 'text []', isArray: true },
+    { name: 'urlsToConsult', type: 'text []', isArray: true },
   ],
   indexes: ['firstSkillId'],
 }, {
