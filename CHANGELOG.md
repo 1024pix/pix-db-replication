@@ -1,5 +1,20 @@
 # pix-db-replication Changelog
 
+## v2.30.0 (06/05/2024)
+
+
+### :rocket: Amélioration
+- [#245](https://github.com/1024pix/pix-db-replication/pull/245) [FEATURE] Remonter le champ "urlsToConsult" des épreuves dans la base de réplication (PIX-12440).
+
+### :building_construction: Tech
+- [#242](https://github.com/1024pix/pix-db-replication/pull/242) [TECH] Changer la configuration dépréciée auto-minor de renovate.
+
+### :arrow_up: Montée de version
+- [#243](https://github.com/1024pix/pix-db-replication/pull/243) [BUMP] Lock file maintenance (dossier racine).
+- [#240](https://github.com/1024pix/pix-db-replication/pull/240) [BUMP] Lock file maintenance (dossier racine).
+- [#234](https://github.com/1024pix/pix-db-replication/pull/234) [BUMP] Update dependency eslint to v9.
+- [#217](https://github.com/1024pix/pix-db-replication/pull/217) [BUMP] Update dependency chai to v5 (dossier racine).
+
 ## v2.29.3 (18/04/2024)
 
 
