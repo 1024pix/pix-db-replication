@@ -7,8 +7,8 @@ describe('Integration | Steps | notification.js', () => {
     it('should call all notification urls', async function () {
       const configuration = {
         NOTIFICATION_URLS: [
-          'http://example.net/webhook1',
-          'http://example.net/webhook2',
+          { url: 'http://example.net/webhook1' },
+          { url: 'http://example.net/webhook2' },
         ]
       };
 
