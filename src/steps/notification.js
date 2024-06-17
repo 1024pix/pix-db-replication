@@ -16,7 +16,13 @@ async function run(configuration) {
 
 async function notifyUrl(notification) {
   try {
-    const response = await axios.post(notification.url);
+    const isAuthenticated = notification.token !== undefined;
+    const headers = !isAuthenticated ? {} : {
+      Authorization: notification.token,
+    };
+    const response = await axios.post(notification.url, {}, {
+      headers,
+    });
     return response;
   } catch (httpErr) {
     logger.error(`Error on POST request to ${notification.url}`);
