@@ -17,7 +17,7 @@ const loadEnvironmentVariableFromFileIfNotOnPaas = function() {
 
 const extractConfigurationFromEnvironmentVariable = function() {
   let BACKUP_MODE;
-  let NOTIFICATION_URLS;
+  let NOTIFICATIONS;
 
   try {
     BACKUP_MODE = process.env.BACKUP_MODE ? JSON.parse(process.env.BACKUP_MODE) : {};
@@ -26,7 +26,7 @@ const extractConfigurationFromEnvironmentVariable = function() {
     throw e;
   }
   try {
-    NOTIFICATION_URLS = process.env.NOTIFICATION_URLS ? JSON.parse(process.env.NOTIFICATION_URLS) : [];
+    NOTIFICATIONS = process.env.NOTIFICATIONS ? JSON.parse(process.env.NOTIFICATIONS) : [];
   } catch (e) {
     logger.error('NOTIFICATION_URLS should be a JSON value');
     throw e;
@@ -55,7 +55,7 @@ const extractConfigurationFromEnvironmentVariable = function() {
     SENTRY_MAX_VALUE_LENGTH: 1000,
     EXPONENTIAL_RETRY_DELAY: process.env.EXPONENTIAL_RETRY_DELAY || 1000,
     REDIS_URL: process.env.REDIS_URL || 'redis://127.0.0.1:6379',
-    NOTIFICATION_URLS,
+    NOTIFICATIONS,
   };
 };
 

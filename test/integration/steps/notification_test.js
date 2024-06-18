@@ -5,7 +5,7 @@ describe('Integration | Steps | notification.js', function() {
   describe('run', function() {
     it('should call all notification urls and use auth token when provided', async function() {
       const configuration = {
-        NOTIFICATION_URLS: [
+        NOTIFICATIONS: [
           { url: 'http://example.net/webhook1' },
           { url: 'http://example.net/webhook2', token: 'mon-super-token' },
         ],

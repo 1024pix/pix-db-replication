@@ -6,7 +6,7 @@ import { logger } from '../logger.js';
 async function run(configuration) {
   logger.info('Start notification');
 
-  for (const notification of configuration.NOTIFICATION_URLS) {
+  for (const notification of configuration.NOTIFICATIONS) {
     logger.info(`Notify ${notification.url}`);
     await notifyUrl(notification);
   }
