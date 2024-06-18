@@ -1,5 +1,14 @@
 # pix-db-replication Changelog
 
+## v2.31.0 (18/06/2024)
+
+
+### :rocket: Amélioration
+- [#251](https://github.com/1024pix/pix-db-replication/pull/251) [FEATURE] Permettre d'ajouter une en-tête d'authorisation aux notifications (PIX-12873).
+
+### :arrow_up: Montée de version
+- [#244](https://github.com/1024pix/pix-db-replication/pull/244) [BUMP] Lock file maintenance (dossier racine).
+
 ## v2.30.0 (06/05/2024)
 
 
