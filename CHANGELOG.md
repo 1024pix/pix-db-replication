@@ -1,5 +1,15 @@
 # pix-db-replication Changelog
 
+## v2.32.0 (08/08/2024)
+
+
+### :building_construction: Tech
+- [#257](https://github.com/1024pix/pix-db-replication/pull/257) [TECH] Nettoyage des données de l'enquête anti-spoil (PIX-13811).
+
+### :arrow_up: Montée de version
+- [#248](https://github.com/1024pix/pix-db-replication/pull/248) [BUMP] Update dependency postgres to v14.12.
+- [#241](https://github.com/1024pix/pix-db-replication/pull/241) [BUMP] Update dependency redis to v7.2.4.
+
 ## v2.31.0 (18/06/2024)
 
 
