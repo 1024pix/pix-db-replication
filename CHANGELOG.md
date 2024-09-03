@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.33.0 (03/09/2024)
+
+
+### :rocket: Amélioration
+- [#259](https://github.com/1024pix/pix-db-replication/pull/259) [FEATURE] Ajout de l’indice sur la table des acquis (PIX-14131).
+
 ## v2.32.0 (08/08/2024)
 
 
