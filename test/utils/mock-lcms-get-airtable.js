@@ -399,6 +399,9 @@ function mockLcmsAirtableData() {
     'skills': [
       {
         'competenceId': 'recH9MjIzN54zXlwr',
+        'hint_i18n': {
+          'fr': 'indice français',
+        },
         'hintStatus': 'no status',
         'id': 'rec0FDm4GbplWx3HX',
         'learningMoreTutorialIds': [],
@@ -411,6 +414,9 @@ function mockLcmsAirtableData() {
       },
       {
         'competenceId': 'recoVElv3xmVppK5a',
+        'hint_i18n': {
+          'fr': 'indice français',
+        },
         'hintStatus': 'no status',
         'id': 'rec3ikwFFMr5RkSdp',
         'learningMoreTutorialIds': [],
@@ -423,6 +429,9 @@ function mockLcmsAirtableData() {
       },
       {
         'competenceId': 'recH9MjIzN54zXlwr',
+        'hint_i18n': {
+          'fr': 'indice français',
+        },
         'hintStatus': 'no status',
         'id': 'rec98HYctM7sl9Hyq',
         'learningMoreTutorialIds': [
@@ -439,6 +448,9 @@ function mockLcmsAirtableData() {
       },
       {
         'competenceId': 'recZ1Gm4rud4zLhbF',
+        'hint_i18n': {
+          'fr': 'indice français',
+        },
         'hintStatus': 'no status',
         'id': 'recaL3AMSpsLdvwk1',
         'learningMoreTutorialIds': [],
@@ -451,6 +463,9 @@ function mockLcmsAirtableData() {
       },
       {
         'competenceId': 'recoVElv3xmVppK5a',
+        'hint_i18n': {
+          'fr': 'indice français',
+        },
         'hintStatus': 'no status',
         'id': 'recdFsWU9ij5bXZhD',
         'learningMoreTutorialIds': [],
@@ -463,6 +478,9 @@ function mockLcmsAirtableData() {
       },
       {
         'competenceId': 'recZ1Gm4rud4zLhbF',
+        'hint_i18n': {
+          'fr': 'indice français',
+        },
         'hintStatus': 'no status',
         'id': 'rece5OVLmHGjLfAPB',
         'learningMoreTutorialIds': [],
@@ -475,6 +493,9 @@ function mockLcmsAirtableData() {
       },
       {
         'competenceId': 'recZ1Gm4rud4zLhbF',
+        'hint_i18n': {
+          'fr': 'indice français',
+        },
         'hintStatus': 'no status',
         'id': 'recffgcUr12Ocafm6',
         'learningMoreTutorialIds': [],
@@ -487,6 +508,9 @@ function mockLcmsAirtableData() {
       },
       {
         'competenceId': 'recKxnZJh5dyRCQQn',
+        'hint_i18n': {
+          'fr': 'indice français',
+        },
         'hintStatus': 'no status',
         'id': 'rechlK03j6u46McW4',
         'learningMoreTutorialIds': [],
@@ -499,6 +523,9 @@ function mockLcmsAirtableData() {
       },
       {
         'competenceId': 'recxlJqKdbWHHFZMQ',
+        'hint_i18n': {
+          'fr': 'indice français',
+        },
         'hintStatus': 'no status',
         'id': 'recJieHaORILprKhL',
         'learningMoreTutorialIds': [],
@@ -513,6 +540,9 @@ function mockLcmsAirtableData() {
       },
       {
         'competenceId': 'recxf7xB2qNV8g5ZT',
+        'hint_i18n': {
+          'fr': 'indice français',
+        },
         'hintStatus': 'no status',
         'id': 'recJz3fdjBhGBGnrj',
         'learningMoreTutorialIds': [],
@@ -525,6 +555,9 @@ function mockLcmsAirtableData() {
       },
       {
         'competenceId': 'recxf7xB2qNV8g5ZT',
+        'hint_i18n': {
+          'fr': 'indice français',
+        },
         'hintStatus': 'no status',
         'id': 'recKnuSvxV3WvOzgc',
         'learningMoreTutorialIds': [],
@@ -537,6 +570,9 @@ function mockLcmsAirtableData() {
       },
       {
         'competenceId': 'recoVElv3xmVppK5a',
+        'hint_i18n': {
+          'fr': 'indice français',
+        },
         'hintStatus': 'no status',
         'id': 'reckUgdmbWJtjUOcQ',
         'learningMoreTutorialIds': [],
@@ -549,6 +585,9 @@ function mockLcmsAirtableData() {
       },
       {
         'competenceId': 'recxlJqKdbWHHFZMQ',
+        'hint_i18n': {
+          'fr': 'indice français',
+        },
         'hintStatus': 'no status',
         'id': 'reclazvbevKgSNLRq',
         'learningMoreTutorialIds': [],
@@ -561,6 +600,9 @@ function mockLcmsAirtableData() {
       },
       {
         'competenceId': 'recxlJqKdbWHHFZMQ',
+        'hint_i18n': {
+          'fr': 'indice français',
+        },
         'hintStatus': 'no status',
         'id': 'recLsQng435HgiXY2',
         'learningMoreTutorialIds': [],
@@ -573,6 +615,9 @@ function mockLcmsAirtableData() {
       },
       {
         'competenceId': 'recKxnZJh5dyRCQQn',
+        'hint_i18n': {
+          'fr': 'indice français',
+        },
         'hintStatus': 'no status',
         'id': 'recrtA98cABIlBjCY',
         'learningMoreTutorialIds': [],
@@ -585,6 +630,9 @@ function mockLcmsAirtableData() {
       },
       {
         'competenceId': 'recKxnZJh5dyRCQQn',
+        'hint_i18n': {
+          'fr': 'indice français',
+        },
         'hintStatus': 'no status',
         'id': 'recWAozQQmkLzs15C',
         'learningMoreTutorialIds': [],
@@ -597,6 +645,9 @@ function mockLcmsAirtableData() {
       },
       {
         'competenceId': 'recH9MjIzN54zXlwr',
+        'hint_i18n': {
+          'fr': 'indice français',
+        },
         'hintStatus': 'no status',
         'id': 'recxpiQQionAnay9A',
         'learningMoreTutorialIds': [],
@@ -609,6 +660,9 @@ function mockLcmsAirtableData() {
       },
       {
         'competenceId': 'recKxnZJh5dyRCQQn',
+        'hint_i18n': {
+          'fr': 'indice français',
+        },
         'hintStatus': 'no status',
         'id': 'recykZlIZckeSq4xI',
         'learningMoreTutorialIds': [],
