@@ -45,6 +45,7 @@ const tables = [{
     { name: 'tubeId', type: 'text', isArray: false },
     { name: 'status', type: 'text' },
     { name: 'pixValue', type: 'numeric(6,5)' },
+    { name: 'hint', type: 'text', extractor: (record) => record.hint_i18n.fr },
     { name: 'hintStatus', type: 'text' },
     { name: 'tutorialIds', type: 'text []', isArray: true },
     { name: 'learningMoreTutorialIds', type: 'text []', isArray: true },
