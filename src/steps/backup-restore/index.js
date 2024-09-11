@@ -76,13 +76,10 @@ async function createBackup(configuration, dependencies = { exec: exec }) {
   const verboseOptions = process.env.NODE_ENV === 'test' ? [] : ['--verbose'];
 
   await dependencies.exec('pg_dump', [
-    '--clean',
-    '--if-exists',
     '--format', 'c',
     '--dbname', configuration.SOURCE_DATABASE_URL,
     '--no-owner',
     '--no-privileges',
-    '--no-comments',
     '--exclude-schema',
     'information_schema',
     '--exclude-schema', '\'^pg_*\'',
@@ -138,7 +135,7 @@ async function fullReplicationAndEnrichment(configuration) {
 }
 
 function filterObjectLines(objectLines, configuration) {
-  const patternsToFilter = ['COMMENT'];
+  const patternsToFilter = [''];
 
   const restoreFkConstraints = configuration.RESTORE_FK_CONSTRAINTS === 'true';
 
