@@ -80,7 +80,6 @@ async function createBackup(configuration, dependencies = { exec: exec }) {
     '--dbname', configuration.SOURCE_DATABASE_URL,
     '--no-owner',
     '--no-privileges',
-    '--no-comments',
     '--exclude-schema',
     'information_schema',
     '--exclude-schema', '\'^pg_*\'',
