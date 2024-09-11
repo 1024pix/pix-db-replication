@@ -135,7 +135,7 @@ async function fullReplicationAndEnrichment(configuration) {
 }
 
 function filterObjectLines(objectLines, configuration) {
-  const patternsToFilter = ['COMMENT'];
+  const patternsToFilter = [''];
 
   const restoreFkConstraints = configuration.RESTORE_FK_CONSTRAINTS === 'true';
 

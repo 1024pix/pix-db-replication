@@ -188,35 +188,6 @@ describe('Integration | Steps | Backup restore | index.js', function() {
       databaseConfig.databaseUrl = `${databaseConfig.serverUrl}/${databaseConfig.databaseName}`;
     });
 
-    context('whatever options are provided', function() {
-
-      let database;
-
-      afterEach(function() {
-        database.dropDatabase();
-      });
-
-      it('does not restore comments', async function() {
-        // given
-        database = await Database.create(databaseConfig);
-        const backupFile = await createBackupAndCreateEmptyDatabase(database, databaseConfig, {});
-        const configuration = { RESTORE_FK_CONSTRAINTS: 'false', PG_RESTORE_JOBS: 4 };
-
-        // when
-        await steps.restoreBackup({ backupFile, databaseUrl: databaseConfig.databaseUrl, configuration });
-
-        // then
-        const countOfTable = await database.runSql(`SELECT COUNT(*) FROM ${databaseConfig.tableName}`);
-        const restoredRowCount = parseInt(countOfTable);
-        expect(restoredRowCount).to.equal(databaseConfig.tableRowCount);
-
-        // then
-        const restoredComment = await database.runSql(`SELECT obj_description('${databaseConfig.tableName}'::regclass, 'pg_class')`);
-        expect(restoredComment).to.be.empty;
-      });
-
-    });
-
     context('according to environment variables', function() {
 
       context('table restoration', function() {

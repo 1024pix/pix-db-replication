@@ -4,7 +4,7 @@ import { filterObjectLines } from '../../../../src/steps/backup-restore/index.js
 describe('Unit | steps | Backup restore | index.js', function() {
   describe('#filterObjectLines', function() {
     context('using default configuration', function() {
-      it('should only remove comments and FK from file', function() {
+      it('should only remove FK from file', function() {
       // given
         const objectLines = [
           '4688; 0 0 COMMENT - EXTENSION pgcrypto',
@@ -25,6 +25,7 @@ describe('Unit | steps | Backup restore | index.js', function() {
 
         // then
         expect(result).to.deep.equal([
+          '4688; 0 0 COMMENT - EXTENSION pgcrypto',
           '2; 3079 38970 EXTENSION - pgcrypto',
           '4344; 2606 38649 SEQUENCE SET public answers postgres',
           '4344; 2606 38649 SEQUENCE SET public element-answers postgres',
