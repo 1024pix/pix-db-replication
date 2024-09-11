@@ -64,6 +64,8 @@ export class Database {
     const path = await tmp.tmpName();
     await execa('pg_dump', [
       '--format=c',
+      '--no-owner',
+      '--no-privileges',
       `--file=${path}`,
       this._superUserDatabaseUrl,
     ], { stdio: 'inherit' });
