@@ -110,8 +110,6 @@ describe('Unit | steps | Backup restore | index.js', function() {
       expect(execStub).to.have.been.calledWith(
         'pg_dump',
         [
-          '--clean',
-          '--if-exists',
           '--format', 'c',
           '--dbname', 'postgresql://source.url',
           '--no-owner',
@@ -142,8 +140,6 @@ describe('Unit | steps | Backup restore | index.js', function() {
         expect(execStub).to.have.been.calledWith(
           'pg_dump',
           [
-            '--clean',
-            '--if-exists',
             '--format', 'c',
             '--dbname', 'postgresql://source.url',
             '--no-owner',
@@ -178,8 +174,6 @@ describe('Unit | steps | Backup restore | index.js', function() {
         expect(execStub).to.have.been.calledWith(
           'pg_dump',
           [
-            '--clean',
-            '--if-exists',
             '--format', 'c',
             '--dbname', 'postgresql://source.url',
             '--no-owner',

@@ -76,8 +76,6 @@ async function createBackup(configuration, dependencies = { exec: exec }) {
   const verboseOptions = process.env.NODE_ENV === 'test' ? [] : ['--verbose'];
 
   await dependencies.exec('pg_dump', [
-    '--clean',
-    '--if-exists',
     '--format', 'c',
     '--dbname', configuration.SOURCE_DATABASE_URL,
     '--no-owner',
