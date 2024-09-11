@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.34.0 (11/09/2024)
+
+
+### :rocket: Amélioration
+- [#260](https://github.com/1024pix/pix-db-replication/pull/260) [FEATURE] Répliquer les commentaires présents dans la base.
+
 ## v2.33.0 (03/09/2024)
 
 
