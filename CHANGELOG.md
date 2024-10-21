@@ -1,5 +1,15 @@
 # pix-db-replication Changelog
 
+## v2.35.0 (21/10/2024)
+
+
+### :rocket: Amélioration
+- [#261](https://github.com/1024pix/pix-db-replication/pull/261) [FEATURE] Ajout de 5 nouveaux champs sur l'entité "challenge".
+
+### :arrow_up: Montée de version
+- [#250](https://github.com/1024pix/pix-db-replication/pull/250) [BUMP] Update dependency sinon to v18 (dossier racine).
+- [#258](https://github.com/1024pix/pix-db-replication/pull/258) [BUMP] Update dependency axios to v1.7.4 [SECURITY].
+
 ## v2.34.0 (11/09/2024)
 
 
