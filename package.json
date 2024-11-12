@@ -46,7 +46,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.1.1",
-    "@stylistic/eslint-plugin-js": "^1.7.2",
+    "@stylistic/eslint-plugin-js": "^2.0.0",
     "chai": "^5.0.0",
     "chai-as-promised": "^7.1.1",
     "eslint": "^9.0.0",
