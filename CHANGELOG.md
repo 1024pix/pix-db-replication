@@ -1,5 +1,20 @@
 # pix-db-replication Changelog
 
+## v2.36.0 (14/11/2024)
+
+
+### :arrow_up: Montée de version
+- [#247](https://github.com/1024pix/pix-db-replication/pull/247) [BUMP] Update dependency execa to v9 (dossier racine).
+- [#269](https://github.com/1024pix/pix-db-replication/pull/269) [BUMP] Lock file maintenance (dossier racine).
+- [#268](https://github.com/1024pix/pix-db-replication/pull/268) [BUMP] Update node to v22 (major).
+- [#267](https://github.com/1024pix/pix-db-replication/pull/267) [BUMP] Update dependency sinon-chai to v4 (dossier racine).
+- [#266](https://github.com/1024pix/pix-db-replication/pull/266) [BUMP] Update dependency sinon to v19 (dossier racine).
+- [#263](https://github.com/1024pix/pix-db-replication/pull/263) [BUMP] Update dependency postgres to v14.13.
+- [#262](https://github.com/1024pix/pix-db-replication/pull/262) [BUMP] Update dependency chai-as-promised to v8 (dossier racine).
+- [#252](https://github.com/1024pix/pix-db-replication/pull/252) [BUMP] Update dependency redis to v7.2.5.
+- [#249](https://github.com/1024pix/pix-db-replication/pull/249) [BUMP] Update dependency @sentry/node to v8 (dossier racine).
+- [#246](https://github.com/1024pix/pix-db-replication/pull/246) [BUMP] Update dependency @stylistic/eslint-plugin-js to v2 (dossier racine).
+
 ## v2.35.0 (21/10/2024)
 
 
