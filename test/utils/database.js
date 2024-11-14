@@ -24,18 +24,14 @@ export class Database {
   }
 
   async runSql(...sqlCommands) {
-    const { stdout } = await execa('psql', [
-      this._databaseUrl, '--tuples-only', '--no-align',
-      ...sqlCommands.map((sqlCommand) => `--command=${sqlCommand}`),
-    ]);
+    const commands = sqlCommands.map((sqlCommand) => `--command=${sqlCommand}`);
+    const { stdout } = await execa `psql ${this._databaseUrl} --tuples-only --no-align ${commands}`;
     return stdout;
   }
 
   async runSqlAsSuperUser(...sqlCommands) {
-    const { stdout } = await execa('psql', [
-      this._superUserDatabaseUrl, '--tuples-only', '--no-align',
-      ...sqlCommands.map((sqlCommand) => `--command=${sqlCommand}`),
-    ]);
+    const commands = sqlCommands.map((sqlCommand) => `--command=${sqlCommand}`);
+    const { stdout } = await execa `psql ${this._superUserDatabaseUrl} --tuples-only --no-align ${commands}`;
     return stdout;
   }
 
@@ -49,26 +45,18 @@ export class Database {
   }
 
   async createDatabase() {
-    await execa('psql', [ this._superUserServerUrl,
-      '--echo-all', '--set', 'ON_ERROR_STOP=on', '--command', `CREATE DATABASE "${this._databaseName}"`,
-    ]);
+    const command = `CREATE DATABASE ${this._databaseName}`;
+    await execa `psql ${this._superUserServerUrl} --echo-all --set ON_ERROR_STOP=on --command ${command}`;
   }
 
   async dropDatabase() {
-    await execa('psql', [ this._superUserServerUrl,
-      '--echo-all', '--set', 'ON_ERROR_STOP=on', '--command', `DROP DATABASE IF EXISTS "${this._databaseName}"`,
-    ]);
+    const command = `DROP DATABASE IF EXISTS ${this._databaseName}`;
+    await execa `psql ${this._superUserServerUrl} --echo-all --set ON_ERROR_STOP=on --command ${command}`;
   }
 
   async createBackup() {
     const path = await tmp.tmpName();
-    await execa('pg_dump', [
-      '--format=c',
-      '--no-owner',
-      '--no-privileges',
-      `--file=${path}`,
-      this._superUserDatabaseUrl,
-    ], { stdio: 'inherit' });
+    await execa({ stdio: 'inherit' }) `pg_dump --format=c --no-owner --no-privileges --file=${path} ${this._superUserDatabaseUrl}`;
     return path;
   }
 

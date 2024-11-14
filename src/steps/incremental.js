@@ -60,18 +60,11 @@ async function run(configuration) {
       '--command',
       `\\copy ${escapeSQLIdentifier(table.name)} from stdin`,
     ];
-    const copyToStdOutProcess = execa('psql', copyToStdOutArgs, {
-      stdin: 'ignore', stdout: 'pipe', stderr: 'inherit',
-      buffer: false, // disable execa's buffering otherwise it interferes with the transfer
-    });
-    const copyFromStdInProcess = execa('psql', copyFromStdInArgs, {
-      stdin: copyToStdOutProcess.stdout,
-      all: true, // join stdout and stderr
-    });
 
-    const [ , copyFromStdInResult ] = await Promise.all([ copyToStdOutProcess, copyFromStdInProcess ]);
+    const { stdout: copyStdout } = await execa `psql ${copyToStdOutArgs}`
+      .pipe `psql ${copyFromStdInArgs}`;
 
-    logger.info(`${table.name} table copy returned: ` + copyFromStdInResult.all);
+    logger.info(`${table.name} table copy returned: ` + copyStdout);
 
     const maxIdStrAfterReplication = await execStdOut('psql', [
       configuration.TARGET_DATABASE_URL,
