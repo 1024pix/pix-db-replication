@@ -61,8 +61,14 @@ async function run(configuration) {
       `\\copy ${escapeSQLIdentifier(table.name)} from stdin`,
     ];
 
-    const { stdout: copyStdout } = await execa `psql ${copyToStdOutArgs}`
-      .pipe `psql ${copyFromStdInArgs}`;
+    const subprocess = execa({
+      all: true, // join stdout and stderr
+    }) `psql ${copyFromStdInArgs}`;
+    const { stdout: copyStdout } = await execa({
+      stdin: 'ignore', stdout: 'pipe', stderr: 'inherit',
+      buffer: false, // disable execa's buffering otherwise it interferes with the transfer
+    }) `psql ${copyToStdOutArgs}`
+      .pipe(subprocess);
 
     logger.info(`${table.name} table copy returned: ` + copyStdout);
 
