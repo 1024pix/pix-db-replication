@@ -109,7 +109,8 @@ async function dropObjectAndRestoreBackup(backupFile, configuration) {
 async function addEnrichment(configuration) {
   try {
     logger.info('enrichment.add - Started');
-    await enrichment.add(configuration);
+    await enrichment.createIndexes(configuration);
+    await enrichment.updateData(configuration);
     logger.info('enrichment.add - Ended');
   } catch (error) {
     logger.error(error);

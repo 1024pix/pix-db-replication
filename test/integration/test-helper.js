@@ -72,6 +72,9 @@ async function createTablesThatMayNotBeRestored(database) {
     );`);
   await database.runSql('INSERT INTO "knowledge-element-snapshots"  (id, "userId", "snappedAt", "snapshot") VALUES (1, 2, CURRENT_TIMESTAMP, \'{"id": "3"}\'::jsonb)');
   await database.runSql('CREATE INDEX "knowledge_elements_userid_index" ON "knowledge-elements" ("userId")');
+  await database.runSql('CREATE TABLE "authentication-methods" (id int NOT NULL PRIMARY KEY, "identityProvider" varchar(255) not null, "authenticationComplement" jsonb not null)');
+  await database.runSql('INSERT INTO "authentication-methods" (id, "identityProvider", "authenticationComplement") VALUES (1, \'PIX\', \'{"password":"$2a$05$hHah7.eUI87YP7NrkuZ9YO0/inHOD.JxJoFvaGiZKfffBIdH12345"}\'::jsonb)');
+  await database.runSql('INSERT INTO "authentication-methods" (id, "identityProvider", "authenticationComplement") VALUES (2, \'PIX\', \'{"password":"$2a$05$hHah7.eUI87YP7NrkuZ9YO0/inHOD.JxJoFvaGiZKfffBIdH56789"}\'::jsonb)');
 }
 
 async function createTableWithForeignKey(database, databaseConfig) {
