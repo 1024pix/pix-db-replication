@@ -9,7 +9,7 @@ const DATABASE_URL = process.env.TARGET_DATABASE_URL || 'postgres://pix@localhos
 import { createAndFillDatabase } from '../../test-helper.js';
 import { Database } from '../../../utils/database.js';
 
-import { add } from '../../../../src/steps/backup-restore/enrichment.js';
+import { createIndexes, updateData } from '../../../../src/steps/backup-restore/enrichment.js';
 
 describe('Integration | Steps | Backup restore | enrichment.js', function() {
 
@@ -28,7 +28,7 @@ describe('Integration | Steps | Backup restore | enrichment.js', function() {
     databaseConfig.databaseUrl = `${databaseConfig.serverUrl}/${databaseConfig.databaseName}`;
   });
 
-  describe('add', function() {
+  describe('createIndexes', function() {
 
     context('according to environment variables', function() {
       let database;
@@ -67,7 +67,7 @@ describe('Integration | Steps | Backup restore | enrichment.js', function() {
           const BACKUP_MODE = tables.reduce((tablesObject, tableName) =>
             ({ ...tablesObject, [tableName]: mode }), {});
           const configuration = { BACKUP_MODE, DATABASE_URL: databaseConfig.databaseUrl };
-          await add(configuration);
+          await createIndexes(configuration);
 
           // then
           const KEIndexCount = parseInt(await database.runSql('SELECT COUNT(1) FROM pg_indexes ndx WHERE ndx.indexname = \'knowledge-elements_createdAt_idx\''));
@@ -87,4 +87,75 @@ describe('Integration | Steps | Backup restore | enrichment.js', function() {
     });
   });
 
+  describe('updateData', function() {
+    describe('when table is not backup/restored', function() {
+      let database;
+
+      after(function() {
+        database.dropDatabase();
+      });
+
+      it('should not update the table', async function() {
+        // given
+        database = await Database.create(databaseConfig);
+        await createAndFillDatabase(database, databaseConfig, { createTablesNotToBeImported: true });
+        const BACKUP_MODE = { 'authentication-methods': 'none' };
+        const configuration = { BACKUP_MODE, DATABASE_URL: databaseConfig.databaseUrl };
+
+        // when
+        await updateData(configuration);
+
+        // then
+        const passwordsString = await database.runSql('SELECT "authenticationComplement" -> \'password\' FROM "authentication-methods"');
+        expect(passwordsString.match(/\$.*\$.*\$x+/g)).to.be.null;
+      });
+    });
+
+    describe('when the provider is not PIX', function() {
+      let database;
+
+      after(function() {
+        database.dropDatabase();
+      });
+
+      it('should not update the password', async function() {
+        // given
+        database = await Database.create(databaseConfig);
+        await createAndFillDatabase(database, databaseConfig, { createTablesNotToBeImported: true });
+        const otherProviderPassword = '$2a$12$R9h/cIPz0gi.URNNX3kh2OPST9/PgBkqquzi.Ss7KIUgO2t0jWMUW';
+        await database.runSql(`INSERT INTO "authentication-methods"(id, "identityProvider", "authenticationComplement") VALUES (3, 'OTHER',  '{"password":"${otherProviderPassword}"}'::jsonb)`);
+        const configuration = { BACKUP_MODE: {}, DATABASE_URL: databaseConfig.databaseUrl };
+
+        // when
+        await updateData(configuration);
+
+        // then
+        const passwordsString = await database.runSql('SELECT "authenticationComplement" -> \'password\' FROM "authentication-methods" WHERE "identityProvider" = \'OTHER\'');
+        expect(passwordsString).to.equal(`"${otherProviderPassword}"`);
+      });
+    });
+
+    describe('when table is backup/restored', function() {
+      let database;
+
+      after(function() {
+        database.dropDatabase();
+      });
+
+      it('should update the passwords', async function() {
+        // given
+        database = await Database.create(databaseConfig);
+        await createAndFillDatabase(database, databaseConfig, { createTablesNotToBeImported: true });
+        const configuration = { BACKUP_MODE: {}, DATABASE_URL: databaseConfig.databaseUrl };
+
+        // when
+        await updateData(configuration);
+
+        // then
+        const passwordsString = await database.runSql('SELECT "authenticationComplement" -> \'password\' FROM "authentication-methods"');
+        expect(passwordsString.match(/\$.*\$.*\$x+/g).length).to.equal(2);
+      });
+    });
+
+  });
 });

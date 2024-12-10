@@ -5,7 +5,7 @@ import toPairs from 'lodash/toPairs.js';
 import { runDBOperation } from '../../database-helper.js';
 import { logger } from '../../logger.js';
 
-async function add(configuration) {
+async function createIndexes(configuration) {
   await runDBOperation(async (client) => {
     const tablesToNotBeEnriched = _getTablesToNotBeEnriched(configuration);
     if (!tablesToNotBeEnriched.includes('knowledge-elements')) {
@@ -25,11 +25,22 @@ async function add(configuration) {
       await client.query('CREATE INDEX "answers_challengeId_idx" on "answers" ("challengeId")');
       logger.info('CREATE INDEX "answers_challengeId_idx" - Ended');
     }
-
     if (!tablesToNotBeEnriched.includes('users')) {
       logger.info('CREATE INDEX "users_createdAt_idx" - Started');
       await client.query('CREATE INDEX "users_createdAt_idx" on "users" (cast("createdAt" AT TIME ZONE \'UTC+1\' as date) DESC)');
       logger.info('CREATE INDEX "users_createdAt_idx" - Ended');
+    }
+  }, configuration);
+}
+
+async function updateData(configuration) {
+  await runDBOperation(async (client) => {
+    const tablesToNotBeEnriched = _getTablesToNotBeEnriched(configuration);
+
+    if (!tablesToNotBeEnriched.includes('authentication-methods')) {
+      logger.info('UPDATE "authentication-methods" - Started');
+      await client.query('UPDATE "authentication-methods" SET "authenticationComplement" = jsonb_set("authenticationComplement", \'{password}\', to_jsonb(rpad(left(("authenticationComplement" -> \'password\')::text, 8), 60, \'x\'))) WHERE "identityProvider"=\'PIX\'');
+      logger.info('UPDATE "authentication-methods" - Ended');
     }
   }, configuration);
 }
@@ -42,5 +53,6 @@ function _getTablesToNotBeEnriched(configuration) {
 }
 
 export {
-  add,
+  createIndexes,
+  updateData,
 };
