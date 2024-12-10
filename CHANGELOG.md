@@ -1,5 +1,14 @@
 # pix-db-replication Changelog
 
+## v2.37.0 (10/12/2024)
+
+
+### :rocket: Amélioration
+- [#275](https://github.com/1024pix/pix-db-replication/pull/275) [FEATURE] Modifier la valeur des mots de passe suite à la restauration.
+
+### :bug: Correction
+- [#270](https://github.com/1024pix/pix-db-replication/pull/270) [BUGFIX] Remettre les options d'execa pour la réplication incrémentale.
+
 ## v2.36.0 (14/11/2024)
 
 
