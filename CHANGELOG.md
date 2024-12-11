@@ -1,5 +1,17 @@
 # pix-db-replication Changelog
 
+## v2.37.1 (11/12/2024)
+
+
+### :bug: Correction
+- [#276](https://github.com/1024pix/pix-db-replication/pull/276) [BUGFIX] Supprimer le guillemet en trop lors de la mise à jour du mot de passe dans la table authentication-methods.
+
+### :arrow_up: Montée de version
+- [#277](https://github.com/1024pix/pix-db-replication/pull/277) [BUMP] Update Node.js to v22.12.0.
+- [#273](https://github.com/1024pix/pix-db-replication/pull/273) [BUMP] Update dependency mocha to v11 (dossier racine).
+- [#271](https://github.com/1024pix/pix-db-replication/pull/271) [BUMP] Lock file maintenance (dossier racine).
+- [#272](https://github.com/1024pix/pix-db-replication/pull/272) [BUMP] Update dependency postgres to v14.15.
+
 ## v2.37.0 (10/12/2024)
 
 
