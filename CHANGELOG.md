@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.37.2 (19/12/2024)
+
+
+### :building_construction: Tech
+- [#279](https://github.com/1024pix/pix-db-replication/pull/279) [TECH] Améliorer les performances de la réplication.
+
 ## v2.37.1 (11/12/2024)
 
 
