@@ -107,7 +107,7 @@ describe('Integration | Steps | Backup restore | enrichment.js', function() {
 
         // then
         const passwordsString = await database.runSql('SELECT "authenticationComplement" -> \'password\' FROM "authentication-methods"');
-        expect(passwordsString.match(/\$.*\$.*\$x+/g)).to.be.null;
+        expect(passwordsString.length).to.greaterThan(19);
       });
     });
 
@@ -153,7 +153,7 @@ describe('Integration | Steps | Backup restore | enrichment.js', function() {
 
         // then
         const passwordsString = await database.runSql('SELECT "authenticationComplement" -> \'password\' FROM "authentication-methods"');
-        expect(passwordsString.match(/\$.*\$.*\$x+/g).length).to.equal(2);
+        expect(passwordsString.length).to.equal(19);
       });
     });
 

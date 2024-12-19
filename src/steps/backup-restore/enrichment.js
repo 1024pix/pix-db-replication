@@ -39,7 +39,7 @@ async function updateData(configuration) {
 
     if (!tablesToNotBeEnriched.includes('authentication-methods')) {
       logger.info('UPDATE "authentication-methods" - Started');
-      await client.query('UPDATE "authentication-methods" SET "authenticationComplement" = jsonb_set("authenticationComplement", \'{password}\', to_jsonb(rpad(substring(("authenticationComplement" -> \'password\')::text, 2, 7), 60, \'x\'))) WHERE "identityProvider"=\'PIX\'');
+      await client.query('UPDATE "authentication-methods" SET "authenticationComplement" = jsonb_set("authenticationComplement", \'{password}\', to_jsonb(substring(("authenticationComplement" -> \'password\')::text, 2, 7))) WHERE "identityProvider"=\'PIX\'');
       logger.info('UPDATE "authentication-methods" - Ended');
     }
   }, configuration);
