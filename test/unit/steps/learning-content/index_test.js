@@ -37,23 +37,26 @@ describe('Unit | Steps | learning-content | index.js', function() {
     });
 
     it('should drop existing learning-content tables', async function() {
-      expect(databaseHelper.dropTable.callCount).to.equal(8);
+      expect(databaseHelper.dropTable.callCount).to.equal(11);
+      expect(databaseHelper.dropTable).to.have.been.calledWith('frameworks');
       expect(databaseHelper.dropTable).to.have.been.calledWith('areas');
       expect(databaseHelper.dropTable).to.have.been.calledWith('attachments');
       expect(databaseHelper.dropTable).to.have.been.calledWith('competences');
+      expect(databaseHelper.dropTable).to.have.been.calledWith('thematics');
       expect(databaseHelper.dropTable).to.have.been.calledWith('tubes');
       expect(databaseHelper.dropTable).to.have.been.calledWith('skills');
       expect(databaseHelper.dropTable).to.have.been.calledWith('challenges');
       expect(databaseHelper.dropTable).to.have.been.calledWith('courses');
       expect(databaseHelper.dropTable).to.have.been.calledWith('tutorials');
+      expect(databaseHelper.dropTable).to.have.been.calledWith('missions');
     });
 
     it('should create learning-content tables', async function() {
-      expect(databaseHelper.createTable.callCount).to.equal(8);
+      expect(databaseHelper.createTable.callCount).to.equal(11);
     });
 
     it('should insert learning-content data', async function() {
-      expect(databaseHelper.saveLearningContent.callCount).to.equal(8);
+      expect(databaseHelper.saveLearningContent.callCount).to.equal(11);
     });
   });
 });

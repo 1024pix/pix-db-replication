@@ -2,6 +2,12 @@ import * as lcmsClient from './lcms-client.js';
 import * as databaseHelper from '../../database-helper.js';
 
 const tables = [{
+  name: 'frameworks',
+  fields: [
+    { name: 'name', type: 'text' },
+  ],
+  indexes: [],
+}, {
   name: 'areas',
   fields: [
     { name: 'name', type: 'text' },
@@ -27,6 +33,15 @@ const tables = [{
     { name: 'areaId', type: 'text', isArray: false },
   ],
   indexes: ['areaId'],
+}, {
+  name: 'thematics',
+  fields: [
+    { name: 'name', type: 'text' },
+    { name: 'index', type: 'smallint' },
+    { name: 'competenceId', type: 'text', isArray: false },
+    { name: 'tubeIds', type: 'text', isArray: true },
+  ],
+  indexes: [],
 }, {
   name: 'tubes',
   fields: [
@@ -117,6 +132,23 @@ const tables = [{
     { name: 'locale', type: 'text' },
   ],
   indexes: ['title'],
+}, {
+  name: 'missions',
+  fields: [
+    { name: 'name', type: 'text', extractor: (record) => record.name_i18n.fr },
+    { name: 'cardImageUrl', type: 'text' },
+    { name: 'competenceId', type: 'text', isArray: false },
+    { name: 'thematicIds', type: 'text', isArray: true },
+    { name: 'learningObjectives', type: 'text', extractor: (record) => record.learningObjectives_i18n.fr },
+    { name: 'validatedObjectives', type: 'text', extractor: (record) => record.validatedObjectives_i18n.fr },
+    { name: 'introductionMediaUrl', type: 'text' },
+    { name: 'introductionMediaType', type: 'text' },
+    { name: 'introductionMediaAlt', type: 'text', extractor: (record) => record.introductionMediaAlt_i18n.fr },
+    { name: 'status', type: 'text' },
+    { name: 'documentationUrl', type: 'text' },
+    { name: 'content', type: 'jsonb', extractor: (record) => JSON.stringify(record.content) },
+  ],
+  indexes: [],
 }];
 
 async function run(configuration, dependencies = { databaseHelper: databaseHelper, lcmsClient: lcmsClient }) {
