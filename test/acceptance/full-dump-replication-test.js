@@ -111,6 +111,12 @@ describe('Acceptance | fullReplicationAndEnrichment', function() {
       await runLearningContent(configuration, { lcmsClient: lcmClientStub, databaseHelper: databaseHelper });
     });
 
+    it('should import frameworks ', async function() {
+      // then
+      const result = await getCountFromTable({ targetDatabase, tableName: 'frameworks' });
+      expect(result).to.equal(fullLearningContent.frameworks.length);
+    });
+
     it('should import areas ', async function() {
       // then
       const result = await getCountFromTable({ targetDatabase, tableName: 'areas' });
@@ -127,6 +133,12 @@ describe('Acceptance | fullReplicationAndEnrichment', function() {
       // then
       const result = await getCountFromTable({ targetDatabase, tableName: 'competences' });
       expect(result).to.equal(fullLearningContent.competences.length);
+    });
+
+    it('should import thematics ', async function() {
+      // then
+      const result = await getCountFromTable({ targetDatabase, tableName: 'thematics' });
+      expect(result).to.equal(fullLearningContent.thematics.length);
     });
 
     it('should import tubes ', async function() {
@@ -151,6 +163,12 @@ describe('Acceptance | fullReplicationAndEnrichment', function() {
       // then
       const result = await getCountFromTable({ targetDatabase, tableName: 'tutorials' });
       expect(result).to.equal(fullLearningContent.tutorials.length);
+    });
+
+    it('should import missions ', async function() {
+      // then
+      const result = await getCountFromTable({ targetDatabase, tableName: 'missions' });
+      expect(result).to.equal(fullLearningContent.missions.length);
     });
   });
 
