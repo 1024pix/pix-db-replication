@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.38.0 (06/01/2025)
+
+
+### :rocket: Amélioration
+- [#280](https://github.com/1024pix/pix-db-replication/pull/280) [FEATURE] Ajouter les tables frameworks, thematics et missions dans la réplication (PIX-15883).
+
 ## v2.37.2 (19/12/2024)
 
 
