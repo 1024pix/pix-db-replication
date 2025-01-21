@@ -1,5 +1,6 @@
 import * as lcmsClient from './lcms-client.js';
 import * as databaseHelper from '../../database-helper.js';
+import { logger } from './../../logger.js';
 
 const tables = [{
   name: 'frameworks',
@@ -152,6 +153,7 @@ const tables = [{
 }];
 
 async function run(configuration, dependencies = { databaseHelper: databaseHelper, lcmsClient: lcmsClient }) {
+  logger.info(`Learning content replication : tables ${tables.map((table) => table.name).join([', '])}`);
   const learningContent = await dependencies.lcmsClient.getLearningContent(configuration);
   if (learningContent) {
     for await (const table of tables) {
