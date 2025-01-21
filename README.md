@@ -39,7 +39,7 @@ Connectez-vous à `bull`
 
 ```bash
 scalingo --region osc-secnum-fr1 --app pix-datawarehouse-production run bull-repl
-connect "Replication queue"
+connect --uri #valeur de REDIS_URL# "Replication queue"
 #connect "Incremental replication queue"
 #connect "Learning Content replication queue"
 failed
