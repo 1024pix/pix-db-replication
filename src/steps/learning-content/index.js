@@ -1,5 +1,6 @@
 import * as lcmsClient from './lcms-client.js';
 import * as databaseHelper from '../../database-helper.js';
+import { NoLearningContentError } from './../../errors.js';
 import { logger } from './../../logger.js';
 
 const tables = [{
@@ -161,6 +162,9 @@ async function run(configuration, dependencies = { databaseHelper: databaseHelpe
       await dependencies.databaseHelper.createTable(table, configuration);
       await dependencies.databaseHelper.saveLearningContent(table, learningContent[table.name], configuration);
     }
+  }
+  else {
+    throw new NoLearningContentError();
   }
 }
 
