@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.40.0 (21/01/2025)
+
+
+### :coffee: Autre
+- [#283](https://github.com/1024pix/pix-db-replication/pull/283) [Fix] thematics table schema and add learning content replication logs.
+
 ## v2.39.0 (21/01/2025)
 
 
