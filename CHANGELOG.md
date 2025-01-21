@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.39.0 (21/01/2025)
+
+
+### :building_construction: Tech
+- [#282](https://github.com/1024pix/pix-db-replication/pull/282) [TECH] Mise à jour de bull-repl.
+
 ## v2.38.0 (06/01/2025)
 
 
