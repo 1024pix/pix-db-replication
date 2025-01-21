@@ -5,6 +5,7 @@ import _ from 'lodash';
 
 import { PrimaryKeyNotNullConstraintError } from './errors.js';
 import * as learningContentHelper from './steps/learning-content/learning-content-helper.js';
+import { logger } from './logger.js';
 
 const LCMS_CHUNK = 2000;
 
@@ -23,12 +24,14 @@ async function runDBOperation(callback, configuration) {
 async function dropTable(tableName, configuration) {
   return runDBOperation(async (client) => {
     const dropQuery = `DROP TABLE IF EXISTS ${format.ident(tableName)} CASCADE`;
+    logger.info(`${dropQuery}`);
     await client.query(dropQuery);
   }, configuration);
 }
 
 async function createTable(tableStructure, configuration) {
   await runDBOperation(async (client) => {
+    logger.info(`CREATE TABLE ${tableStructure.name}`);
     const fieldsText = ['"id" text PRIMARY KEY'].concat(tableStructure.fields.map((field) => {
       return format('\t%I\t%s', field.name, field.type + (field.type === 'boolean' ? ' NOT NULL' : ''));
     })).join(',\n');
@@ -44,6 +47,7 @@ async function createTable(tableStructure, configuration) {
 async function saveLearningContent(table, learningContent, configuration) {
   if (learningContent.length) {
     await runDBOperation(async (client) => {
+      logger.info(`Saving learning content in table ${table.name}`);
       const fieldNames = ['id'].concat(table.fields.map((field) => field.name));
       for await (const learningContentChunk of _.chunk(learningContent, LCMS_CHUNK)) {
         const values = _computeValuesToInsert(table, learningContentChunk);

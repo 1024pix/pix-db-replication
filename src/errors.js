@@ -5,6 +5,14 @@ class PrimaryKeyNotNullConstraintError extends Error {
   }
 }
 
+class NoLearningContentError extends Error {
+  constructor() {
+    const message = 'No learning content retrieved';
+    super(message);
+  }
+}
+
 export {
   PrimaryKeyNotNullConstraintError,
+  NoLearningContentError,
 };

@@ -1,5 +1,7 @@
 import * as lcmsClient from './lcms-client.js';
 import * as databaseHelper from '../../database-helper.js';
+import { NoLearningContentError } from './../../errors.js';
+import { logger } from './../../logger.js';
 
 const tables = [{
   name: 'frameworks',
@@ -36,12 +38,12 @@ const tables = [{
 }, {
   name: 'thematics',
   fields: [
-    { name: 'name', type: 'text' },
-    { name: 'index', type: 'smallint' },
+    { name: 'name', type: 'text', extractor: (record) => record['name_i18n']['fr'] },
+    { name: 'index', type: 'text', extractor: (record) => record['id'] },
     { name: 'competenceId', type: 'text', isArray: false },
     { name: 'tubeIds', type: 'text', isArray: true },
   ],
-  indexes: [],
+  indexes: ['index'],
 }, {
   name: 'tubes',
   fields: [
@@ -152,6 +154,7 @@ const tables = [{
 }];
 
 async function run(configuration, dependencies = { databaseHelper: databaseHelper, lcmsClient: lcmsClient }) {
+  logger.info(`Learning content replication : tables ${tables.map((table) => table.name).join([', '])}`);
   const learningContent = await dependencies.lcmsClient.getLearningContent(configuration);
   if (learningContent) {
     for await (const table of tables) {
@@ -159,6 +162,9 @@ async function run(configuration, dependencies = { databaseHelper: databaseHelpe
       await dependencies.databaseHelper.createTable(table, configuration);
       await dependencies.databaseHelper.saveLearningContent(table, learningContent[table.name], configuration);
     }
+  }
+  else {
+    throw new NoLearningContentError();
   }
 }
 
