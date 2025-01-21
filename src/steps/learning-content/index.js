@@ -36,12 +36,12 @@ const tables = [{
 }, {
   name: 'thematics',
   fields: [
-    { name: 'name', type: 'text' },
-    { name: 'index', type: 'smallint' },
+    { name: 'name', type: 'text', extractor: (record) => record['name_i18n']['fr'] },
+    { name: 'index', type: 'text', extractor: (record) => record['id'] },
     { name: 'competenceId', type: 'text', isArray: false },
     { name: 'tubeIds', type: 'text', isArray: true },
   ],
-  indexes: [],
+  indexes: ['index'],
 }, {
   name: 'tubes',
   fields: [
