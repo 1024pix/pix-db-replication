@@ -35,6 +35,7 @@ async function writeListFileForReplication({ backupFile, configuration }) {
   const backupObjectList = await execStdOut('pg_restore', [ backupFile, '-l' ]);
   const backupObjectLines = backupObjectList.split('\n');
   const filteredObjectLines = filterObjectLines(backupObjectLines, configuration);
+  logger.info(`Writing list file for replication ${filteredObjectLines}`);
   fs.writeFileSync(RESTORE_LIST_FILENAME, filteredObjectLines.join('\n'));
 }
 
@@ -45,7 +46,6 @@ async function restoreBackup({ backupFile, databaseUrl, configuration }) {
     // eslint-disable-next-line n/no-process-env
     const verboseOptions = process.env.NODE_ENV === 'test' ? [] : ['--verbose'];
     await writeListFileForReplication({ backupFile, configuration });
-    // TODO: pass DATABASE_URL by argument
     await exec('pg_restore', [
       ...verboseOptions,
       '--jobs', configuration.PG_RESTORE_JOBS,
@@ -75,7 +75,7 @@ async function createBackup(configuration, dependencies = { exec: exec }) {
   // eslint-disable-next-line n/no-process-env
   const verboseOptions = process.env.NODE_ENV === 'test' ? [] : ['--verbose'];
 
-  await dependencies.exec('pg_dump', [
+  const dumpOptions = [
     '--format', 'c',
     '--dbname', configuration.SOURCE_DATABASE_URL,
     '--no-owner',
@@ -86,7 +86,10 @@ async function createBackup(configuration, dependencies = { exec: exec }) {
     '--file', backupFilename,
     ...verboseOptions,
     ...excludeOptions,
-  ]);
+  ];
+  logger.info(`Backup will be created with command "pg_dump" ${dumpOptions.join(' ')}`);
+
+  await dependencies.exec('pg_dump', dumpOptions);
   logger.info('End create Backup');
   return backupFilename;
 }
