@@ -1,5 +1,16 @@
 # pix-db-replication Changelog
 
+## v2.41.0 (27/01/2025)
+
+
+### :building_construction: Tech
+- [#285](https://github.com/1024pix/pix-db-replication/pull/285) [TECH] Mise à jour du script de parsing des logs.
+- [#286](https://github.com/1024pix/pix-db-replication/pull/286) [TECH] Ajout de log lors des opérations de backup / restore.
+
+### :arrow_up: Montée de version
+- [#278](https://github.com/1024pix/pix-db-replication/pull/278) [BUMP] Lock file maintenance (dossier racine).
+- [#284](https://github.com/1024pix/pix-db-replication/pull/284) [BUMP] Update dependency redis to v7.2.7.
+
 ## v2.40.0 (21/01/2025)
 
 
