@@ -16,25 +16,26 @@ async function dropCurrentObjects(configuration) {
   if (tablesToKeep.length > 0) {
     return dropCurrentObjectsExceptTables(configuration.DATABASE_URL, tablesToKeep);
   }
-  else return exec('psql', [ configuration.DATABASE_URL, ' --echo-all', '--set', 'ON_ERROR_STOP=on', '--command', 'DROP OWNED BY CURRENT_USER CASCADE' ]);
+  else return exec('psql', [configuration.DATABASE_URL, ' --echo-all', '--set', 'ON_ERROR_STOP=on', '--command', 'DROP OWNED BY CURRENT_USER CASCADE']);
 }
 
 async function dropCurrentObjectsExceptTables(databaseUrl, tableNames) {
   const tableNamesForQuery = tableNames.map((tableName) => `'${tableName}'`).join(',');
-  const dropTableQuery = await execStdOut('psql', [ databaseUrl, '--tuples-only', '--command', `select string_agg('drop table "' || tablename || '" CASCADE', '; ') from pg_tables where schemaname = 'public' and tablename not in (${tableNamesForQuery});` ]);
-  await exec('psql', [ databaseUrl, '--set', 'ON_ERROR_STOP=on', '--echo-all', '--command', dropTableQuery ]);
-  const dropEnumQuery = await execStdOut('psql', [ databaseUrl, '--tuples-only', '--command', 'select string_agg(\'drop type "\' || typname || \'"\', \'; \') from (select distinct t.typname from pg_type t join pg_enum e on t.oid = e.enumtypid join pg_namespace as n on t.typnamespace = n.oid where n.nspname = \'public\') as typenames;' ]);
-  await exec('psql', [ databaseUrl, '--set', 'ON_ERROR_STOP=on', '--echo-all', '--command', dropEnumQuery ]);
-  const dropViews = await execStdOut('psql', [ databaseUrl, '--tuples-only', '--command', 'select string_agg(\'drop view "\' || viewname || \'"\', \'; \') FROM pg_views where viewowner=current_user']);
-  await exec('psql', [ databaseUrl, '--set', 'ON_ERROR_STOP=on', '--echo-all', '--command', dropViews ]);
-  const dropFunction = await execStdOut('psql', [ databaseUrl, '--tuples-only', '--command', 'select string_agg(\'drop function "\' || proname || \'"\', \'; \') FROM pg_proc pp INNER JOIN pg_roles pr ON pp.proowner = pr.oid WHERE pr.rolname = current_user ' ]);
-  return exec('psql', [ databaseUrl, '--set', 'ON_ERROR_STOP=on', '--echo-all', '--command', dropFunction ]);
+  const dropTableQuery = await execStdOut('psql', [databaseUrl, '--tuples-only', '--command', `select string_agg('drop table "' || tablename || '" CASCADE', '; ') from pg_tables where schemaname = 'public' and tablename not in (${tableNamesForQuery});`]);
+  await exec('psql', [databaseUrl, '--set', 'ON_ERROR_STOP=on', '--echo-all', '--command', dropTableQuery]);
+  const dropEnumQuery = await execStdOut('psql', [databaseUrl, '--tuples-only', '--command', 'select string_agg(\'drop type "\' || typname || \'"\', \'; \') from (select distinct t.typname from pg_type t join pg_enum e on t.oid = e.enumtypid join pg_namespace as n on t.typnamespace = n.oid where n.nspname = \'public\') as typenames;']);
+  await exec('psql', [databaseUrl, '--set', 'ON_ERROR_STOP=on', '--echo-all', '--command', dropEnumQuery]);
+  const dropViews = await execStdOut('psql', [databaseUrl, '--tuples-only', '--command', 'select string_agg(\'drop view "\' || viewname || \'"\', \'; \') FROM pg_views where viewowner=current_user']);
+  await exec('psql', [databaseUrl, '--set', 'ON_ERROR_STOP=on', '--echo-all', '--command', dropViews]);
+  const dropFunction = await execStdOut('psql', [databaseUrl, '--tuples-only', '--command', 'select string_agg(\'drop function "\' || proname || \'"\', \'; \') FROM pg_proc pp INNER JOIN pg_roles pr ON pp.proowner = pr.oid WHERE pr.rolname = current_user ']);
+  return exec('psql', [databaseUrl, '--set', 'ON_ERROR_STOP=on', '--echo-all', '--command', dropFunction]);
 }
 
 async function writeListFileForReplication({ backupFile, configuration }) {
-  const backupObjectList = await execStdOut('pg_restore', [ backupFile, '-l' ]);
+  const backupObjectList = await execStdOut('pg_restore', [backupFile, '-l']);
   const backupObjectLines = backupObjectList.split('\n');
   const filteredObjectLines = filterObjectLines(backupObjectLines, configuration);
+  logger.info(`Writing list file for replication ${filteredObjectLines}`);
   fs.writeFileSync(RESTORE_LIST_FILENAME, filteredObjectLines.join('\n'));
 }
 
@@ -45,7 +46,6 @@ async function restoreBackup({ backupFile, databaseUrl, configuration }) {
     // eslint-disable-next-line n/no-process-env
     const verboseOptions = process.env.NODE_ENV === 'test' ? [] : ['--verbose'];
     await writeListFileForReplication({ backupFile, configuration });
-    // TODO: pass DATABASE_URL by argument
     await exec('pg_restore', [
       ...verboseOptions,
       '--jobs', configuration.PG_RESTORE_JOBS,
@@ -75,7 +75,7 @@ async function createBackup(configuration, dependencies = { exec: exec }) {
   // eslint-disable-next-line n/no-process-env
   const verboseOptions = process.env.NODE_ENV === 'test' ? [] : ['--verbose'];
 
-  await dependencies.exec('pg_dump', [
+  const dumpOptions = [
     '--format', 'c',
     '--dbname', configuration.SOURCE_DATABASE_URL,
     '--no-owner',
@@ -86,7 +86,10 @@ async function createBackup(configuration, dependencies = { exec: exec }) {
     '--file', backupFilename,
     ...verboseOptions,
     ...excludeOptions,
-  ]);
+  ];
+  logger.info(`Backup will be created with command "pg_dump" ${dumpOptions.join(' ')}`);
+
+  await dependencies.exec('pg_dump', dumpOptions);
   logger.info('End create Backup');
   return backupFilename;
 }
@@ -154,7 +157,7 @@ function filterObjectLines(objectLines, configuration) {
     patternsToFilter.push(...tableNamesForRegex);
   }
 
-  const patternToRegexMatcher = (pattern)=> ` ${pattern} | ${pattern}_.*_seq | ${pattern}_.*_index `;
+  const patternToRegexMatcher = (pattern) => ` ${pattern} | ${pattern}_.*_seq | ${pattern}_.*_index `;
   const regexp = patternsToFilter.map(patternToRegexMatcher).join('|');
   return objectLines.filter((line) => !new RegExp(regexp).test(line));
 }
