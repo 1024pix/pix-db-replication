@@ -132,7 +132,7 @@ const tables = [{
     { name: 'format', type: 'text' },
     { name: 'link', type: 'text' },
     { name: 'source', type: 'text' },
-    { name: 'title', type: 'text' },        
+    { name: 'title', type: 'text' },
     { name: 'tutorialForSkills', type: 'text []', isArray: true },
     { name: 'furtherInformation', type: 'text []', isArray: true },
     { name: 'locale', type: 'text' },
