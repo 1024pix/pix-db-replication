@@ -128,9 +128,10 @@ const tables = [{
   name: 'tutorials',
   fields: [
     { name: 'title', type: 'text' },
+    { name: 'duration', type: 'text' },
+    { name: 'format', type: 'text' },
     { name: 'link', type: 'text' },
-    { name: 'tutorialForSkills', type: 'text []', isArray: true },
-    { name: 'furtherInformation', type: 'text []', isArray: true },
+    { name: 'source', type: 'text' },
     { name: 'locale', type: 'text' },
   ],
   indexes: ['title'],
