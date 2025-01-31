@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.42.0 (31/01/2025)
+
+
+### :rocket: Amélioration
+- [#287](https://github.com/1024pix/pix-db-replication/pull/287) [FEATURE] Ajout des informations manquantes pour la table tutorials, source - format - duration.
+
 ## v2.41.0 (27/01/2025)
 
 
