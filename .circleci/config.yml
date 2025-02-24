@@ -31,7 +31,7 @@ jobs:
   test:
     docker:
       - image: cimg/node:22.12.0
-      - image: postgres:14.15-alpine
+      - image: postgres:15.10-alpine
         environment:
           POSTGRES_USER: postgres
           POSTGRES_HOST_AUTH_METHOD: trust
