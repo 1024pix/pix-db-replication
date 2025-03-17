@@ -544,6 +544,37 @@ describe('Integration | Steps | Backup restore | index.js', function() {
       });
     });
 
+    context('When tables are excluded from a pattern', function() {
+      it('should not drop the tables', async function() {
+        // given
+        await targetDatabase.runSql('CREATE TABLE "data_test_1" (id int NOT NULL PRIMARY KEY, metric int not null)');
+        await targetDatabase.runSql('INSERT INTO "data_test_1" (id, metric) VALUES (1, 123)');
+        await targetDatabase.runSql('CREATE TABLE "data_test_2" (id int NOT NULL PRIMARY KEY, metric int not null)');
+        await targetDatabase.runSql('INSERT INTO "data_test_2" (id, metric) VALUES (1, 456)');
+
+        // when
+        const backupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true });
+        const configuration = {
+          BACKUP_MODE: {
+            'knowledge-elements': 'incremental',
+            'knowledge-element-snapshots': 'incremental',
+            'answers': 'incremental',
+            'data_*': 'none',
+          },
+          DATABASE_URL: targetDatabase._databaseUrl,
+          PG_RESTORE_JOBS: 4,
+        };
+        await steps.dropObjectAndRestoreBackup(backupFile, configuration);
+
+        // then
+        const dataTest1Count = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM "data_test_1"'));
+        expect(dataTest1Count).to.equal(1);
+
+        const dataTest2Count = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM "data_test_2"'));
+        expect(dataTest2Count).to.equal(1);
+      });
+    });
+
     it('should not fail when database contains plpgsql source (pg functions)', async function() {
       // given
 
