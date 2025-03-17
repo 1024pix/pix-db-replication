@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.43.0 (17/03/2025)
+
+
+### :rocket: Amélioration
+- [#290](https://github.com/1024pix/pix-db-replication/pull/290) [FEATURE] Empêcher la suppression de table à partir d'un pattern (PIX-17035).
+
 ## v2.42.0 (31/01/2025)
 
 
