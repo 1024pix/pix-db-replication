@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.43.1 (18/03/2025)
+
+
+### :bug: Correction
+- [#292](https://github.com/1024pix/pix-db-replication/pull/292) [BUGFIX] Supprimer les tables element-answers et activity-answers.
+
 ## v2.43.0 (17/03/2025)
 
 
