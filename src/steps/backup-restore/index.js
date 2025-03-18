@@ -21,7 +21,7 @@ async function dropCurrentObjects(configuration) {
 
 async function dropCurrentObjectsExceptTables(databaseUrl, tableNames) {
   const tableNamesForQuery = tableNames.map((tableName) => tableName.includes('*') ? `(${tableName.replace('*', '.*')})` : `(${tableName})`).join('|');
-  const dropTableQuery = await execStdOut('psql', [databaseUrl, '--tuples-only', '--command', `select string_agg('drop table "' || tablename || '" CASCADE', '; ') from pg_tables where schemaname = 'public' and tablename !~ '${tableNamesForQuery}';`]);
+  const dropTableQuery = await execStdOut('psql', [databaseUrl, '--tuples-only', '--command', `select string_agg('drop table "' || tablename || '" CASCADE', '; ') from pg_tables where schemaname = 'public' and tablename !~ '^(${tableNamesForQuery})$';`]);
   await exec('psql', [databaseUrl, '--set', 'ON_ERROR_STOP=on', '--echo-all', '--command', dropTableQuery]);
   const dropEnumQuery = await execStdOut('psql', [databaseUrl, '--tuples-only', '--command', 'select string_agg(\'drop type "\' || typname || \'"\', \'; \') from (select distinct t.typname from pg_type t join pg_enum e on t.oid = e.enumtypid join pg_namespace as n on t.typnamespace = n.oid where n.nspname = \'public\') as typenames;']);
   await exec('psql', [databaseUrl, '--set', 'ON_ERROR_STOP=on', '--echo-all', '--command', dropEnumQuery]);

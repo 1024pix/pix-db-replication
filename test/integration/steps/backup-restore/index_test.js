@@ -551,6 +551,10 @@ describe('Integration | Steps | Backup restore | index.js', function() {
         await targetDatabase.runSql('INSERT INTO "data_test_1" (id, metric) VALUES (1, 123)');
         await targetDatabase.runSql('CREATE TABLE "data_test_2" (id int NOT NULL PRIMARY KEY, metric int not null)');
         await targetDatabase.runSql('INSERT INTO "data_test_2" (id, metric) VALUES (1, 456)');
+        await targetDatabase.runSql('CREATE TABLE "table_with_data_inside" (id int NOT NULL PRIMARY KEY, metric int not null)');
+        await targetDatabase.runSql('INSERT INTO "table_with_data_inside" (id, metric) VALUES (1, 456)');
+        await targetDatabase.runSql('CREATE TABLE "table_with_answers_inside" (id int NOT NULL PRIMARY KEY)');
+        await targetDatabase.runSql('INSERT INTO "table_with_answers_inside" (id) VALUES (1)');
 
         // when
         const backupFile = await createBackup(sourceDatabase, sourceDatabaseConfig, { createTablesNotToBeImported: true });
@@ -572,6 +576,12 @@ describe('Integration | Steps | Backup restore | index.js', function() {
 
         const dataTest2Count = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM "data_test_2"'));
         expect(dataTest2Count).to.equal(1);
+
+        const tableWithDataInsideCount = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'table_with_data_inside\''));
+        expect(tableWithDataInsideCount).to.equal(0);
+
+        const tableWithAnswersInsideCount = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM information_schema.tables t WHERE t.table_name = \'table_with_answers_inside\''));
+        expect(tableWithAnswersInsideCount).to.equal(0);
       });
     });
 
