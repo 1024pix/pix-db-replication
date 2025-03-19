@@ -19,7 +19,7 @@
 # - for data that is specific to a build (commit), like the source code downloaded from github,
 #   we use Circle CI's workspace feature to transport it between jobs.
 
-version: 2.0
+version: 2.1
 
 workflows:
   version: 2
@@ -27,8 +27,8 @@ workflows:
     jobs:
       - test
 
-jobs:
-  test:
+executors:
+  node-postgres:
     docker:
       - image: cimg/node:22.12.0
       - image: postgres:15.10-alpine
@@ -36,6 +36,10 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_HOST_AUTH_METHOD: trust
     resource_class: small
+
+jobs:
+  test:
+    executor: node-postgres
     working_directory: ~/pix/api
     steps:
       - checkout
@@ -63,7 +67,7 @@ jobs:
       - run :
           name : Install PostgreSQL client package
           command: |
-            sudo apt install postgresql-client-14
+            sudo apt install postgresql-client-15
       - run :
           name : Checking pg_dump version
           command: |
