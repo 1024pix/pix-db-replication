@@ -1,6 +1,7 @@
 import { execa } from 'execa';
 import * as tmp from 'tmp-promise';
 import pgConnectionString from 'pg-connection-string';
+
 const pgUrlParser = pgConnectionString.parse;
 
 export class Database {
@@ -19,7 +20,6 @@ export class Database {
     const database = new Database(serverUrl, databaseName);
     await database.dropDatabase();
     await database.createDatabase();
-    await database.createUser();
     return database;
   }
 
@@ -35,18 +35,14 @@ export class Database {
     return stdout;
   }
 
-  async createUser() {
-    await this.runSqlAsSuperUser(
-      `CREATE USER ${this._user}`,
-      `GRANT CONNECT ON DATABASE ${this._databaseName} TO ${this._user}`,
-      `GRANT USAGE ON SCHEMA public TO ${this._user}`,
-      `GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO ${this._user}`,
-    );
-  }
-
   async createDatabase() {
     const command = `CREATE DATABASE ${this._databaseName}`;
     await execa `psql ${this._superUserServerUrl} --echo-all --set ON_ERROR_STOP=on --command ${command}`;
+
+    await this.runSqlAsSuperUser(
+      `CREATE USER ${this._user}`,
+      `ALTER DATABASE ${this._databaseName} OWNER TO ${(this._user)}`,
+    );
   }
 
   async dropDatabase() {
@@ -68,5 +64,4 @@ export class Database {
 
     return tableExists === 't';
   }
-
 }
