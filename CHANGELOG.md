@@ -1,5 +1,19 @@
 # pix-db-replication Changelog
 
+## v2.44.0 (03/04/2025)
+
+
+### :rocket: Amélioration
+- [#298](https://github.com/1024pix/pix-db-replication/pull/298) [FEATURE] Rendre disponible les traductions du learning content (PIX-17312). .
+
+### :arrow_up: Montée de version
+- [#289](https://github.com/1024pix/pix-db-replication/pull/289) [BUMP] Update dependency nock to v14 (dossier racine).
+- [#281](https://github.com/1024pix/pix-db-replication/pull/281) [BUMP] Update node.
+- [#288](https://github.com/1024pix/pix-db-replication/pull/288) [BUMP] Update dependency @sentry/node to v8.49.0 [SECURITY].
+- [#291](https://github.com/1024pix/pix-db-replication/pull/291) [BUMP] Update dependency axios to v1.8.2 [SECURITY].
+- [#274](https://github.com/1024pix/pix-db-replication/pull/274) [BUMP] Update dependency postgres to v16.
+- [#264](https://github.com/1024pix/pix-db-replication/pull/264) [BUMP] Update dependency postgres to v15.
+
 ## v2.43.1 (18/03/2025)
 
 
