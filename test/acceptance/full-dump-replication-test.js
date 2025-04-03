@@ -11,7 +11,7 @@ import { run as runLearningContent } from '../../src/steps/learning-content/inde
 import * as databaseHelper from '../../src/database-helper.js';
 
 async function getCountFromTable({ targetDatabase, tableName }) {
-  return parseInt(await targetDatabase.runSql(`SELECT COUNT(*) FROM ${tableName}`));
+  return parseInt(await targetDatabase.runSql(`SELECT COUNT(*) FROM "${tableName}"`));
 }
 
 // CircleCI set up environment variables to access DB, so we need to read them here
@@ -169,6 +169,12 @@ describe('Acceptance | fullReplicationAndEnrichment', function() {
       // then
       const result = await getCountFromTable({ targetDatabase, tableName: 'missions' });
       expect(result).to.equal(fullLearningContent.missions.length);
+    });
+
+    it('should import translations ', async function() {
+      // then
+      const result = await getCountFromTable({ targetDatabase, tableName: 'learning-content-translations' });
+      expect(result).to.equal(fullLearningContent.translations.length);
     });
   });
 
