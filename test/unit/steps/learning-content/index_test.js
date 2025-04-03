@@ -49,7 +49,7 @@ describe('Unit | Steps | learning-content | index.js', function() {
       expect(databaseHelper.dropTable).to.have.been.calledWith('courses');
       expect(databaseHelper.dropTable).to.have.been.calledWith('tutorials');
       expect(databaseHelper.dropTable).to.have.been.calledWith('missions');
-      expect(databaseHelper.dropTable).to.have.been.calledWith('translations');
+      expect(databaseHelper.dropTable).to.have.been.calledWith('learning-content-translations');
     });
 
     it('should create learning-content tables', async function() {

@@ -154,7 +154,8 @@ const tables = [{
   indexes: [],
 },
 {
-  name: 'translations',
+  name: 'learning-content-translations',
+  sourceName: 'translations',
   fields: [
     { name: 'key', type: 'text', extractor: extractTranslationsKey },
     { name: 'locale', type: 'text' },
@@ -174,7 +175,8 @@ async function run(configuration, dependencies = { databaseHelper: databaseHelpe
     for await (const table of tables) {
       await dependencies.databaseHelper.dropTable(table.name, configuration);
       await dependencies.databaseHelper.createTable(table, configuration);
-      await dependencies.databaseHelper.saveLearningContent(table, learningContent[table.name], configuration);
+      const keyInLCMSPayload = table.sourceName ?? table.name;
+      await dependencies.databaseHelper.saveLearningContent(table, learningContent[keyInLCMSPayload], configuration);
     }
   }
   else {
