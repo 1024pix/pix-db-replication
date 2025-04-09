@@ -152,21 +152,7 @@ const tables = [{
     { name: 'content', type: 'jsonb', extractor: (record) => JSON.stringify(record.content) },
   ],
   indexes: [],
-},
-{
-  name: 'learning-content-translations',
-  sourceName: 'translations',
-  fields: [
-    { name: 'key', type: 'text', extractor: extractTranslationsKey },
-    { name: 'locale', type: 'text' },
-    { name: 'value', type: 'text' },
-    { name: 'model', type: 'text' },
-    { name: 'entityId', type: 'text' },
-    { name: 'sourceEntityId', type: 'text' },
-  ],
-  indexes: [],
-},
-];
+}];
 
 async function run(configuration, dependencies = { databaseHelper: databaseHelper, lcmsClient: lcmsClient }) {
   logger.info(`Learning content replication : tables ${tables.map((table) => table.name).join([', '])}`);
@@ -175,8 +161,7 @@ async function run(configuration, dependencies = { databaseHelper: databaseHelpe
     for await (const table of tables) {
       await dependencies.databaseHelper.dropTable(table.name, configuration);
       await dependencies.databaseHelper.createTable(table, configuration);
-      const keyInLCMSPayload = table.sourceName ?? table.name;
-      await dependencies.databaseHelper.saveLearningContent(table, learningContent[keyInLCMSPayload], configuration);
+      await dependencies.databaseHelper.saveLearningContent(table, learningContent[table.name], configuration);
     }
   }
   else {
@@ -184,16 +169,6 @@ async function run(configuration, dependencies = { databaseHelper: databaseHelpe
   }
 }
 
-function extractTranslationsKey(record) {
-  const [model, id, field] = record.key.split('.');
-
-  if (model !== 'challenge' || field !== 'solutionToDisplay') {
-    return record.key;
-  }
-  return `${model}.${id}.explicativeResponse`;
-}
-
 export {
   run,
-  extractTranslationsKey,
 };
