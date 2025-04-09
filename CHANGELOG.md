@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.44.2 (09/04/2025)
+
+
+### :building_construction: Tech
+- [#299](https://github.com/1024pix/pix-db-replication/pull/299) [TECH] Revert "Rendre disponible les traductions du learning content (PIX-17312)".
+
 ## v2.44.0 (03/04/2025)
 
 
