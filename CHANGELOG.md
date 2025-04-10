@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.45.0 (10/04/2025)
+
+
+### :rocket: Amélioration
+- [#300](https://github.com/1024pix/pix-db-replication/pull/300) [FEATURE] Ajouter le numéro de version de l'acquis dans la table "skills" (PIX-17443).
+
 ## v2.44.2 (09/04/2025)
 
 
