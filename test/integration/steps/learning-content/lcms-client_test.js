@@ -27,7 +27,7 @@ describe('Integration | Steps | learning-content | lcms-client.js', function() {
           authorization: 'Bearer abcd',
           client: 'pix-db-replication',
         } })
-        .get('/api/databases/airtable')
+        .get('/api/replication-data')
         .reply(200, '{}');
 
       // when
@@ -44,7 +44,7 @@ describe('Integration | Steps | learning-content | lcms-client.js', function() {
           authorization: 'Bearer abcd',
           client: 'pix-db-replication',
         } })
-        .get('/api/databases/airtable')
+        .get('/api/replication-data')
         .delay(100)
         .reply(200, '{}');
 

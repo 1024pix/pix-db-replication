@@ -4,7 +4,7 @@ import { logger } from '../../logger.js';
 const timeout = 60 * 1000 * 3;
 
 async function getLearningContent(configuration) {
-  const url = configuration.LCMS_API_URL + '/databases/airtable';
+  const url = configuration.LCMS_API_URL + '/replication-data';
   // eslint-disable-next-line n/no-process-env
   const application = process.env.APP || 'pix-db-replication';
   const headers = {
