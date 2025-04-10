@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.46.0 (10/04/2025)
+
+
+### :building_construction: Tech
+- [#301](https://github.com/1024pix/pix-db-replication/pull/301) [TECH] Utiliser l'autre endpoint auprès de LCMS pour récupérer les données de réplication.
+
 ## v2.45.0 (10/04/2025)
 
 
