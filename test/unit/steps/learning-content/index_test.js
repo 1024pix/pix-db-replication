@@ -37,7 +37,7 @@ describe('Unit | Steps | learning-content | index.js', function() {
     });
 
     it('should drop existing learning-content tables', async function() {
-      expect(databaseHelper.dropTable.callCount).to.equal(11);
+      expect(databaseHelper.dropTable.callCount).to.equal(12);
       expect(databaseHelper.dropTable).to.have.been.calledWith('frameworks');
       expect(databaseHelper.dropTable).to.have.been.calledWith('areas');
       expect(databaseHelper.dropTable).to.have.been.calledWith('attachments');
@@ -49,14 +49,28 @@ describe('Unit | Steps | learning-content | index.js', function() {
       expect(databaseHelper.dropTable).to.have.been.calledWith('courses');
       expect(databaseHelper.dropTable).to.have.been.calledWith('tutorials');
       expect(databaseHelper.dropTable).to.have.been.calledWith('missions');
+      expect(databaseHelper.dropTable).to.have.been.calledWith('translations');
     });
 
     it('should create learning-content tables', async function() {
-      expect(databaseHelper.createTable.callCount).to.equal(11);
+      expect(databaseHelper.createTable.callCount).to.equal(12);
     });
 
     it('should insert learning-content data', async function() {
-      expect(databaseHelper.saveLearningContent.callCount).to.equal(11);
+      expect(databaseHelper.saveLearningContent.callCount).to.equal(12);
+    });
+  });
+
+  describe('#extractTranslationsKey', function() {
+    it('should extract solutionToDisplay translation key into explicativeResponse', function() {
+      // given
+      const record = { key: 'challenge.id.solutionToDisplay', locale: 'fr', value: 'la solution à afficher', model: 'challenge', entityId: 'id', sourceEntityId: 'id' };
+
+      // when
+      const result = learningContent.extractTranslationsKey(record);
+
+      // then
+      expect(result).to.equal('challenge.id.explicativeResponse');
     });
   });
 });
