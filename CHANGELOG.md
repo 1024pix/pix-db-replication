@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.46.2 (16/04/2025)
+
+
+### :building_construction: Tech
+- [#303](https://github.com/1024pix/pix-db-replication/pull/303) [TECH] Revert du "Exposer les traductions dans la réplication".
+
 ## v2.46.1 (16/04/2025)
 
 
