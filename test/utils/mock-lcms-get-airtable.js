@@ -945,17 +945,6 @@ function mockLcmsAirtableData() {
         content: { dareChallenges: [], steps: [] },
       },
     ],
-    'translations': [
-      {
-        id: 'challenge.id.solutionToDisplay',
-        key: 'challenge.id.solutionToDisplay',
-        locale: 'fr',
-        value: 'la solution à afficher',
-        model: 'challenge',
-        entityId: 'id',
-        sourceEntityId: 'id',
-      },
-    ],
   };
 }
 
