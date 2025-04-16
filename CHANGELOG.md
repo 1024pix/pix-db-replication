@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.46.1 (16/04/2025)
+
+
+### :building_construction: Tech
+- [#302](https://github.com/1024pix/pix-db-replication/pull/302) [TECH] Remettre les traductions dans la réplication.
+
 ## v2.46.0 (10/04/2025)
 
 
