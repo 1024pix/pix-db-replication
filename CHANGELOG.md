@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.47.0 (17/04/2025)
+
+
+### :building_construction: Tech
+- [#304](https://github.com/1024pix/pix-db-replication/pull/304) [TECH] Remettre à nouveau les translations dans la réplication récupérées depuis LCMS.
+
 ## v2.46.2 (16/04/2025)
 
 
