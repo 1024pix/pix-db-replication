@@ -3,11 +3,12 @@ import { run } from '../../../src/steps/notification.js';
 
 describe('Integration | Steps | notification.js', function() {
   describe('run', function() {
-    it('should call all notification urls and use auth token when provided', async function() {
+    it('should call all notification urls and use auth token or user-password when provided', async function() {
       const configuration = {
         NOTIFICATIONS: [
           { url: 'http://example.net/webhook1' },
           { url: 'http://example.net/webhook2', token: 'mon-super-token' },
+          { url: 'http://example.net/webhook2', username: 'username', password: 'password' },
         ],
       };
 
@@ -20,10 +21,16 @@ describe('Integration | Steps | notification.js', function() {
         .matchHeader('Authorization', 'mon-super-token')
         .reply(200, {});
 
+      const scopeWebhook3 = nock('http://example.net')
+        .post('/webhook2')
+        .matchHeader('Authorization', 'Basic dXNlcm5hbWU6cGFzc3dvcmQ=')
+        .reply(200, {});
+
       await run(configuration);
 
       expect(scopeWebhook1.isDone()).to.be.true;
       expect(scopeWebhook2.isDone()).to.be.true;
+      expect(scopeWebhook3.isDone()).to.be.true;
     });
   });
 });

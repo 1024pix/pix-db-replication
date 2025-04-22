@@ -16,10 +16,13 @@ async function run(configuration) {
 
 async function notifyUrl(notification) {
   try {
-    const isAuthenticated = notification.token !== undefined;
-    const headers = !isAuthenticated ? {} : {
-      Authorization: notification.token,
-    };
+    const headers = {};
+    if (notification.token !== undefined) {
+      headers.Authorization = notification.token;
+    } else if (notification.username !== undefined && notification.password !== undefined) {
+      headers.Authorization = `Basic ${btoa(`${notification.username}:${notification.password}`)}`;
+    }
+
     const response = await axios.post(notification.url, {}, {
       headers,
     });
