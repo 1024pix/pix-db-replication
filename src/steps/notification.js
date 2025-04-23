@@ -20,7 +20,7 @@ async function notifyUrl(notification) {
     const headers = !isAuthenticated ? {} : {
       Authorization: notification.token,
     };
-    const response = await axios.post(notification.url, {}, {
+    const response = await axios.post(notification.url, notification.body, {
       headers,
     });
     return response;
