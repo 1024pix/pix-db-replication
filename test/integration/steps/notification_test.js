@@ -8,6 +8,7 @@ describe('Integration | Steps | notification.js', function() {
         NOTIFICATIONS: [
           { url: 'http://example.net/webhook1' },
           { url: 'http://example.net/webhook2', token: 'mon-super-token' },
+          { url: 'http://example.net/webhook3', token: 'mon-super-token', body: { 'key': 'value' } },
         ],
       };
 
@@ -20,10 +21,16 @@ describe('Integration | Steps | notification.js', function() {
         .matchHeader('Authorization', 'mon-super-token')
         .reply(200, {});
 
+      const scopeWebhook3 = nock('http://example.net')
+        .post('/webhook3', { key: 'value' })
+        .matchHeader('Authorization', 'mon-super-token')
+        .reply(200, {});
+
       await run(configuration);
 
       expect(scopeWebhook1.isDone()).to.be.true;
       expect(scopeWebhook2.isDone()).to.be.true;
+      expect(scopeWebhook3.isDone()).to.be.true;
     });
   });
 });
