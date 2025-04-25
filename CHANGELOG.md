@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.48.0 (25/04/2025)
+
+
+### :rocket: Amélioration
+- [#307](https://github.com/1024pix/pix-db-replication/pull/307) [FEATURE] Permettre de passer un body à l'appel d'une notification.
+
 ## v2.47.0 (17/04/2025)
 
 
