@@ -86,6 +86,7 @@ const tables = [{
     { name: 'thirdSkillId', type: 'text', extractor: (_) => undefined },
     { name: 'languages', type: 'text []', isArray: true, extractor: (record) => record['locales'] },
     { name: 'embedUrl', type: 'text' },
+    { name: 'embedTitle', type: 'text' },
     { name: 'hasEmbedUrl', type: 'boolean', extractor: (record) => !!record['embedUrl'] },
     { name: 'alternativeInstruction', type: 'text' },
     { name: 'hasAlternativeInstruction', type: 'boolean', extractor: (record) => !!record['alternativeInstruction'] },
