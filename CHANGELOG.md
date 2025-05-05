@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.49.0 (05/05/2025)
+
+
+### :rocket: Amélioration
+- [#308](https://github.com/1024pix/pix-db-replication/pull/308) [FEATURE] Ajout de `embedTitle` sur `challenges` (PIX-17743).
+
 ## v2.48.0 (25/04/2025)
 
 
