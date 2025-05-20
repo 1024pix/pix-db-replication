@@ -7,6 +7,7 @@ import { pgclientSetup } from './setup.js';
 import * as steps from './steps/index.js';
 import { configuration, jobOptions, repeatableJobOptions } from './config/index.js';
 
+const modulixLearningContentReplicationQueue = _createQueue('Modulix Learning Content replication queue');
 const replicationQueue = _createQueue('Replication queue');
 const learningContentReplicationQueue = _createQueue('Learning Content replication queue');
 const incrementalReplicationQueue = _createQueue('Incremental replication queue');
@@ -22,6 +23,15 @@ main()
 async function main() {
   await initSentry(configuration);
   await pgclientSetup(configuration);
+
+  modulixLearningContentReplicationQueue.process(async () => {
+    logger.info('modulixLearningContent.run - Started');
+    await steps.modulixLearningContent(configuration);
+    logger.info('modulixLearningContent.run - Ended');
+    notificationQueue.add({}, { ...jobOptions, attempts: 1 });
+  });
+
+  modulixLearningContentReplicationQueue.add({}, jobOptions);
 
   replicationQueue.process(async function() {
     await steps.backupRestore(configuration);
@@ -51,7 +61,7 @@ async function main() {
 }
 
 async function _setInterruptedJobsAsFailed() {
-  const promises = [replicationQueue, learningContentReplicationQueue, incrementalReplicationQueue, notificationQueue].map(async (queue) => {
+  const promises = [modulixLearningContentReplicationQueue, replicationQueue, learningContentReplicationQueue, incrementalReplicationQueue, notificationQueue].map(async (queue) => {
     const activeJobs = await queue.getActive();
 
     for (const job of activeJobs) {
