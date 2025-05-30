@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.50.0 (30/05/2025)
+
+
+### :building_construction: Tech
+- [#310](https://github.com/1024pix/pix-db-replication/pull/310) [TECH] Ajout du champ "filename" dans la table "attachments".
+
 ## v2.49.0 (05/05/2025)
 
 
