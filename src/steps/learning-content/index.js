@@ -22,6 +22,7 @@ const tables = [{
     { name: 'challengeId', type: 'text' },
     { name: 'alt', type: 'text' },
     { name: 'url', type: 'text' },
+    { name: 'filename', type: 'text' },
     { name: 'size', type: 'numeric' },
   ],
   indexes: [],
