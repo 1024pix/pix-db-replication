@@ -54,6 +54,12 @@ KEYS *
 GET <KEY>
 ```
 
+En local,
+
+```bash
+docker exec -it pix-db-replication-redis-1 redis-cli
+```
+
 #### Relance
 
 Une fois que la cause du problème a été corrigée:
@@ -207,7 +213,13 @@ redis-cli
 keys bull:*
 ```
 
-Connectez-vous au CLI Bull pour suivre l'avancement.
+Connectez-vous au CLI Bull pour suivre l'avancement (`bull-repl`).
+
+En local :
+
+```bash
+npx bull-repl
+```
 
 Pour se connecter via Scalingo, utiliser le connect avec les 4 options ci-dessous.
 
