@@ -1,5 +1,25 @@
 # pix-db-replication Changelog
 
+## v2.51.0 (12/06/2025)
+
+
+### :rocket: Amélioration
+- [#309](https://github.com/1024pix/pix-db-replication/pull/309) [FEATURE] Inclure les métadonnées de modules dans pix-datawarehouse-production (PIX-17912).
+
+### :bug: Correction
+- [#312](https://github.com/1024pix/pix-db-replication/pull/312) [BUGFIX] Corriger le setup local des BDD.
+
+### :arrow_up: Montée de version
+- [#315](https://github.com/1024pix/pix-db-replication/pull/315) [BUMP] Update node.
+- [#296](https://github.com/1024pix/pix-db-replication/pull/296) [BUMP] Lock file maintenance (dossier racine).
+- [#314](https://github.com/1024pix/pix-db-replication/pull/314) [BUMP] Update dependency postgres to v16.9.
+- [#313](https://github.com/1024pix/pix-db-replication/pull/313) [BUMP] Update dependency redis to v7.2.9.
+- [#294](https://github.com/1024pix/pix-db-replication/pull/294) [BUMP] Update dependency @stylistic/eslint-plugin-js to v4 (dossier racine).
+- [#297](https://github.com/1024pix/pix-db-replication/pull/297) [BUMP] Update dependency sinon to v20 (dossier racine).
+
+### :coffee: Autre
+- [#311](https://github.com/1024pix/pix-db-replication/pull/311) [DOCS] Ajoute 2 infos dans le readme pour dev sur l'env local.
+
 ## v2.50.0 (30/05/2025)
 
 
