@@ -31,7 +31,7 @@ executors:
   node-postgres:
     docker:
       - image: cimg/node:22.14.0
-      - image: postgres:16.6-alpine
+      - image: postgres:16.9-alpine
         environment:
           POSTGRES_USER: postgres
           POSTGRES_HOST_AUTH_METHOD: trust
