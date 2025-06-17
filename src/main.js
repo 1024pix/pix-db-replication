@@ -31,8 +31,6 @@ async function main() {
     notificationQueue.add({}, { ...jobOptions, attempts: 1 });
   });
 
-  modulixLearningContentReplicationQueue.add({}, jobOptions);
-
   replicationQueue.process(async function() {
     await steps.backupRestore(configuration);
     incrementalReplicationQueue.add({}, jobOptions);
@@ -47,7 +45,7 @@ async function main() {
     logger.info('learningContent.run - Started');
     await steps.learningContent(configuration);
     logger.info('learningContent.run - Ended');
-    notificationQueue.add({}, { ...jobOptions, attempts: 1 });
+    modulixLearningContentReplicationQueue.add({}, jobOptions);
   });
 
   notificationQueue.process(async function() {
