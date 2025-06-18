@@ -1,5 +1,14 @@
 # pix-db-replication Changelog
 
+## v2.52.0 (18/06/2025)
+
+
+### :bug: Correction
+- [#317](https://github.com/1024pix/pix-db-replication/pull/317) [BUGFIX] Répliquer les données des modules périodiquement.
+
+### :arrow_up: Montée de version
+- [#295](https://github.com/1024pix/pix-db-replication/pull/295) [BUMP] Update dependency @sentry/node to v9 (dossier racine).
+
 ## v2.51.0 (12/06/2025)
 
 
