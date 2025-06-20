@@ -1,5 +1,14 @@
 # pix-db-replication Changelog
 
+## v2.53.0 (20/06/2025)
+
+
+### :building_construction: Tech
+- [#318](https://github.com/1024pix/pix-db-replication/pull/318) [TECH] Ajout des horodatages de changement de statut pour les acquis.
+
+### :arrow_up: Montée de version
+- [#319](https://github.com/1024pix/pix-db-replication/pull/319) [BUMP] Update dependency sinon to v21 (dossier racine).
+
 ## v2.52.0 (18/06/2025)
 
 
