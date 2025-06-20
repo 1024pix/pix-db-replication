@@ -69,6 +69,10 @@ const tables = [{
     { name: 'learningMoreTutorialIds', type: 'text []', isArray: true },
     { name: 'internationalisation', type: 'text' },
     { name: 'version', type: 'smallint' },
+    { name: 'createdAt', type: 'timestamptz' },
+    { name: 'activatedAt', type: 'timestamptz' },
+    { name: 'archivedAt', type: 'timestamptz' },
+    { name: 'obsoletedAt', type: 'timestamptz' },
   ],
   indexes: ['tubeId'],
 }, {
