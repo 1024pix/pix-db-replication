@@ -11,7 +11,7 @@ describe('Unit | errors.js', function() {
       const error = new PrimaryKeyNotNullConstraintError();
 
       // then
-      expect(error.message).to.equal('At least one item to insert in table undefined has no property at all');
+      expect(error.message).to.equal('At least one item to insert in table undefined has no primary key');
     });
 
   });
