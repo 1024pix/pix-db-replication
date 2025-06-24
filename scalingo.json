@@ -6,6 +6,20 @@
       "value": "true"
     }
   },
+  "addons": [
+    {
+      "plan": "postgresql:postgresql-sandbox",
+      "options": {
+        "version": "16.6"
+      }
+    },
+    {
+      "plan": "redis:redis-sandbox",
+      "options": {
+        "version": "7.2.5"
+      }
+    }
+  ],
   "formation": {
     "web": {
       "amount": 0,
