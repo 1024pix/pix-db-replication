@@ -5,6 +5,8 @@ if [ "${DB_SCHEMA_EXPORTER_ENABLED-x}" = "true" ]
 then
     jq --null-input --compact-output '{level: "info", event: "db-schema-exporter", message: "Data Catalog enrichment starting"}'
 
+    dbclient-fetcher postgresql "$PG_CLIENT_VERSION"
+
     pg_dump "$DATABASE_URL" --schema-only --no-owner --no-privileges --clean --if-exists > schema.sql
 
     psql       \
