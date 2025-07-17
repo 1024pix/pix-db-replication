@@ -123,6 +123,7 @@ const tables = [{
     { name: 'shuffled', type: 'boolean', extractor: (record) => !!record['shuffled'] },
     { name: 'contextualizedFields', type: 'text []', isArray: true },
     { name: 'urlsToConsult', type: 'text []', isArray: true },
+    { name: 'validatedAt', type: 'timestamptz' },
   ],
   indexes: ['firstSkillId'],
 }, {
