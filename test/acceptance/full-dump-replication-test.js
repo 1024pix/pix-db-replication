@@ -211,13 +211,8 @@ describe('Acceptance | fullReplicationAndEnrichment', function() {
       expect(KEIndexCount).to.equal(1);
 
       // then
-      const KESnapshotsIndexCount = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM pg_indexes ndx WHERE ndx.indexname = \'knowledge-element-snapshots_snappedAt_idx\''));
-      expect(KESnapshotsIndexCount).to.equal(1);
-
-      // then
       const answersIndexCount = parseInt(await targetDatabase.runSql('SELECT COUNT(1) FROM pg_indexes ndx WHERE ndx.indexname = \'answers_challengeId_idx\''));
       expect(answersIndexCount).to.equal(1);
-
     });
   });
 

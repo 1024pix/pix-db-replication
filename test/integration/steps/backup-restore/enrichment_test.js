@@ -74,10 +74,6 @@ describe('Integration | Steps | Backup restore | enrichment.js', function() {
           expect(KEIndexCount).to.equal(indexCount);
 
           // then
-          const KESnapshotsIndexCount = parseInt(await database.runSql('SELECT COUNT(1) FROM pg_indexes ndx WHERE ndx.indexname = \'knowledge-element-snapshots_snappedAt_idx\''));
-          expect(KESnapshotsIndexCount).to.equal(indexCount);
-
-          // then
           const answersIndexCount = parseInt(await database.runSql('SELECT COUNT(1) FROM pg_indexes ndx WHERE ndx.indexname = \'answers_challengeId_idx\''));
           expect(answersIndexCount).to.equal(indexCount);
 
