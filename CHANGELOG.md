@@ -1,5 +1,20 @@
 # pix-db-replication Changelog
 
+## v2.54.0 (25/08/2025)
+
+
+### :building_construction: Tech
+- [#329](https://github.com/1024pix/pix-db-replication/pull/329) [TECH] Supprimer la création d'index sur la colonne `snappedAt` de la table `knowledge-element-snapshots`.
+- [#324](https://github.com/1024pix/pix-db-replication/pull/324) [TECH] Utiliser la variable d'env $PG_CLIENT_VERSION dans db-schema-exporter.sh.
+- [#320](https://github.com/1024pix/pix-db-replication/pull/320) [TECH] Message d'erreur plus explicite lorsqu'un des objets de la réplication n'a pas de clé primaire.
+- [#321](https://github.com/1024pix/pix-db-replication/pull/321) [TECH] Ajouter les addons pour les RA.
+
+### :arrow_up: Montée de version
+- [#327](https://github.com/1024pix/pix-db-replication/pull/327) [BUMP] Lock file maintenance (dossier racine).
+- [#325](https://github.com/1024pix/pix-db-replication/pull/325) [BUMP] Update node.
+- [#330](https://github.com/1024pix/pix-db-replication/pull/330) [BUMP] Update dependency @sentry/node to v10 (dossier racine).
+- [#326](https://github.com/1024pix/pix-db-replication/pull/326) [BUMP] Update dependency dotenv to v17 (dossier racine).
+
 ## v2.53.0 (20/06/2025)
 
 
