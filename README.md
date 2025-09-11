@@ -88,6 +88,12 @@ Si la réplication de LCMS a échoué :
 npm run restart:learning-content-replication
 ```
 
+Si la réplication de LCMS Modulix a échoué :
+
+```bash
+npm run restart:modulix-learning-content-replication
+```
+
 Si les notifications de fin ont échoué :
 
 ``` bash
