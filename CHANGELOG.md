@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.55.0 (11/09/2025)
+
+
+### :rocket: Amélioration
+- [#335](https://github.com/1024pix/pix-db-replication/pull/335) [FEATURE] Permettre de redémarrer la réplication du LCMS Modulix.
+
 ## v2.54.0 (25/08/2025)
 
 
