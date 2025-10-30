@@ -1,5 +1,12 @@
 # pix-db-replication Changelog
 
+## v2.56.0 (30/10/2025)
+
+
+### :rocket: Amélioration
+- [#339](https://github.com/1024pix/pix-db-replication/pull/339) [FEATURE] Réplication du champ `format` sur la table `challenges` (PIX-19795).
+- [#337](https://github.com/1024pix/pix-db-replication/pull/337) [FEATURE] Mettre à jour la liste des modules côté réplication (PIX-19952).
+
 ## v2.55.0 (11/09/2025)
 
 
