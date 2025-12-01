@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.57.0 (01/12/2025)
+
+
+### :rocket: Amélioration
+- [#341](https://github.com/1024pix/pix-db-replication/pull/341) [FEATURE] Faire apparaître les shortId dans les données des modules à répliquer en BDD (PIX-20468).
+
 ## v2.56.0 (30/10/2025)
 
 
