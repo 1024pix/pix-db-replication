@@ -7,6 +7,7 @@ const table = {
   name: 'modules',
   fields: [
     { name: 'uuid', type: 'text', extractor: (record) => record['id'] },
+    { name: 'shortId', type: 'text' },
     { name: 'slug', type: 'text' },
     { name: 'title', type: 'text' },
   ],
