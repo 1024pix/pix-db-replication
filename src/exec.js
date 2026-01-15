@@ -15,7 +15,7 @@ function sanitizeCredentials(text) {
 
 async function execStdOut(cmd, args) {
   try {
-    const { stdout } = await execa({ stdout: transform, stderr: 'inherit' })`${cmd} ${args}`;
+    const { stdout } = await execa({ stdout: [transform], stderr: 'inherit' })`${cmd} ${args}`;
     return stdout;
   } catch (error) {
     throw new Error(sanitizeCredentials(error.shortMessage));
@@ -44,4 +44,5 @@ export {
   execStdOut,
   execShell,
   exec,
+  transform,
 };
