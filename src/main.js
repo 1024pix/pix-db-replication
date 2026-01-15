@@ -113,8 +113,8 @@ function _addQueueEventsListeners(queue) {
     .on('completed', function(job) {
       logger.info(`Completed job in ${queue.name}: ${job.id}`);
     })
-    .on('failed', function(job) {
-      logger.error(`Failed job in ${queue.name}: ${job.id} (Number of attempts: ${job.attemptsMade}/${job.opts.attempts})`);
+    .on('failed', function(job, err) {
+      logger.error(`Failed job in ${queue.name}: ${job.id} ${err} (Number of attempts: ${job.attemptsMade}/${job.opts.attempts})`);
     });
 }
 
