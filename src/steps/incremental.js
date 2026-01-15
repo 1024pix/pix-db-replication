@@ -1,7 +1,7 @@
 'use strict';
 
 import { execa } from 'execa';
-import { execStdOut } from '../exec.js';
+import { execStdOut, transform } from '../exec.js';
 import { getTablesWithReplicationModes, REPLICATION_MODE } from '../config/index.js';
 
 import { logger } from '../logger.js';
@@ -65,7 +65,7 @@ async function run(configuration) {
       all: true, // join stdout and stderr
     }) `psql ${copyFromStdInArgs}`;
     const { stdout: copyStdout } = await execa({
-      stdin: 'ignore', stdout: 'pipe', stderr: 'inherit',
+      stdin: 'ignore', stdout: [transform], stderr: 'inherit',
       buffer: false, // disable execa's buffering otherwise it interferes with the transfer
     }) `psql ${copyToStdOutArgs}`
       .pipe(subprocess);
