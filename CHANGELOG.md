@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.57.1 (15/01/2026)
+
+
+### :building_construction: Tech
+- [#342](https://github.com/1024pix/pix-db-replication/pull/342) [TECH] Ajouter la colonne shortId dans la table Modules (PIX-21107).
+
 ## v2.57.0 (01/12/2025)
 
 
