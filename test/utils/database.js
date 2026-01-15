@@ -25,13 +25,13 @@ export class Database {
 
   async runSql(...sqlCommands) {
     const commands = sqlCommands.map((sqlCommand) => `--command=${sqlCommand}`);
-    const { stdout } = await execStdOut('psql', [this._databaseUrl, '--tuples-only', '--no-align', ...commands]);
+    const stdout = await execStdOut('psql', [this._databaseUrl, '--tuples-only', '--no-align', ...commands]);
     return stdout;
   }
 
   async runSqlAsSuperUser(...sqlCommands) {
     const commands = sqlCommands.map((sqlCommand) => `--command=${sqlCommand}`);
-    const { stdout } = await execStdOut('psql', [this._superUserDatabaseUrl, '--tuples-only', '--no-align', ...commands]);
+    const stdout = await exec('psql', [this._superUserDatabaseUrl, '--tuples-only', '--no-align', ...commands]);
     return stdout;
   }
 
