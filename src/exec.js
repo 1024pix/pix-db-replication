@@ -9,7 +9,7 @@ const transform = function * (line) {
 };
 
 function sanitizeCredentials(text) {
-  const db_credentials_regex = /postgres:\/\/([\w]+:[\w]+)/gi;
+  const db_credentials_regex = /postgres:\/\/([\w-]*:{0,1}[\w-]*)/gi;
   return text.replace(db_credentials_regex, 'postgres://*:*');
 }
 
