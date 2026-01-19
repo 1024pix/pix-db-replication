@@ -87,7 +87,7 @@ async function createBackup(configuration, dependencies = { exec: exec }) {
     ...verboseOptions,
     ...excludeOptions,
   ];
-  logger.info(`Backup will be created with command "pg_dump" ${dumpOptions.join(' ')}`);
+  logger.info('Backup will be created');
 
   await dependencies.exec('pg_dump', dumpOptions);
   logger.info('End create Backup');

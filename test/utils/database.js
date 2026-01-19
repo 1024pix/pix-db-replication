@@ -1,4 +1,4 @@
-import { execa } from 'execa';
+import { execStdOut, exec } from '../../src/exec.js';
 import * as tmp from 'tmp-promise';
 import pgConnectionString from 'pg-connection-string';
 
@@ -25,19 +25,19 @@ export class Database {
 
   async runSql(...sqlCommands) {
     const commands = sqlCommands.map((sqlCommand) => `--command=${sqlCommand}`);
-    const { stdout } = await execa `psql ${this._databaseUrl} --tuples-only --no-align ${commands}`;
+    const stdout = await execStdOut('psql', [this._databaseUrl, '--tuples-only', '--no-align', ...commands]);
     return stdout;
   }
 
   async runSqlAsSuperUser(...sqlCommands) {
     const commands = sqlCommands.map((sqlCommand) => `--command=${sqlCommand}`);
-    const { stdout } = await execa `psql ${this._superUserDatabaseUrl} --tuples-only --no-align ${commands}`;
+    const stdout = await exec('psql', [this._superUserDatabaseUrl, '--tuples-only', '--no-align', ...commands]);
     return stdout;
   }
 
   async createDatabase() {
     const command = `CREATE DATABASE ${this._databaseName}`;
-    await execa `psql ${this._superUserServerUrl} --echo-all --set ON_ERROR_STOP=on --command ${command}`;
+    await exec('psql', [this._superUserServerUrl, '--echo-all', '--set', 'ON_ERROR_STOP=on', '--command', command]);
 
     await this.runSqlAsSuperUser(
       `CREATE USER ${this._user}`,
@@ -47,12 +47,12 @@ export class Database {
 
   async dropDatabase() {
     const command = `DROP DATABASE IF EXISTS ${this._databaseName}`;
-    await execa `psql ${this._superUserServerUrl} --echo-all --set ON_ERROR_STOP=on --command ${command}`;
+    await exec('psql', [this._superUserServerUrl, '--echo-all', '--set', 'ON_ERROR_STOP=on', '--command', command]);
   }
 
   async createBackup() {
     const path = await tmp.tmpName();
-    await execa({ stdio: 'inherit' }) `pg_dump --format=c --no-owner --no-privileges --file=${path} ${this._superUserDatabaseUrl}`;
+    await exec('pg_dump', ['--format=c', '--no-owner', '--no-privileges', `--file=${path}`, this._superUserDatabaseUrl]);
     return path;
   }
 
