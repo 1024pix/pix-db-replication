@@ -1,5 +1,15 @@
 # pix-db-replication Changelog
 
+## v2.58.0 (21/01/2026)
+
+
+### :arrow_up: Montée de version
+- [#333](https://github.com/1024pix/pix-db-replication/pull/333) [BUMP] Update dependency chai to v6 (dossier racine).
+- [#332](https://github.com/1024pix/pix-db-replication/pull/332) [BUMP] Update dependency sinon-chai to v4.0.1 (dossier racine).
+
+### :coffee: Autre
+- [#343](https://github.com/1024pix/pix-db-replication/pull/343) Sanitize execa output.
+
 ## v2.57.1 (15/01/2026)
 
 
