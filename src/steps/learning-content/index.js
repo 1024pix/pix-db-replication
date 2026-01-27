@@ -113,6 +113,7 @@ const tables = [{
     { name: 'isIncompatibleIpadCertif', type: 'boolean' },
     { name: 'toRephrase', type: 'boolean' },
     { name: 'isAwarenessChallenge', type: 'boolean' },
+    { name: 'isQualityOk', type: 'boolean' },
     { name: 'genealogy', type: 'text' },
     { name: 'version', type: 'smallint' },
     { name: 'alternativeVersion', type: 'smallint' },

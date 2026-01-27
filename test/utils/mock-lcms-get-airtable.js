@@ -645,6 +645,7 @@ function mockLcmsAirtableData() {
         'isIncompatibleIpadCertif': true,
         'toRephrase': true,
         'isAwarenessChallenge': true,
+        'isQualityOk': true,
       },
       {
         'airtableId': 'rec2ZkgH8IDwAoeA6',
@@ -679,6 +680,7 @@ function mockLcmsAirtableData() {
         'isIncompatibleIpadCertif': false,
         'toRephrase': false,
         'isAwarenessChallenge': false,
+        'isQualityOk': false,
       },
       {
         'airtableId': 'rec4RHc2v3am5VJvY',
@@ -715,6 +717,7 @@ function mockLcmsAirtableData() {
         'isIncompatibleIpadCertif': false,
         'toRephrase': true,
         'isAwarenessChallenge': false,
+        'isQualityOk': true,
       },
       {
         'airtableId': 'recc3QU4nKAk4byGv',
@@ -749,6 +752,7 @@ function mockLcmsAirtableData() {
         'isIncompatibleIpadCertif': true,
         'toRephrase': false,
         'isAwarenessChallenge': true,
+        'isQualityOk': false,
       },
       {
         'airtableId': 'recc5bnzo6lvwyIgD',
@@ -784,6 +788,7 @@ function mockLcmsAirtableData() {
         'isIncompatibleIpadCertif': true,
         'toRephrase': false,
         'isAwarenessChallenge': true,
+        'isQualityOk': false,
       },
       {
         'airtableId': 'receffAhZMTJDx5Zv',
@@ -818,6 +823,7 @@ function mockLcmsAirtableData() {
         'isIncompatibleIpadCertif': false,
         'toRephrase': false,
         'isAwarenessChallenge': false,
+        'isQualityOk': false,
       },
       {
         'airtableId': 'receWJAbh7Tib2uHb',
@@ -852,6 +858,7 @@ function mockLcmsAirtableData() {
         'isIncompatibleIpadCertif': false,
         'toRephrase': false,
         'isAwarenessChallenge': false,
+        'isQualityOk': false,
       },
     ],
     'attachments': [
@@ -960,4 +967,3 @@ function mockLcmsAirtableData() {
 }
 
 export { mockLcmsAirtableData };
-
