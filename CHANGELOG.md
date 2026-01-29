@@ -1,5 +1,14 @@
 # pix-db-replication Changelog
 
+## v2.59.0 (29/01/2026)
+
+
+### :rocket: Amélioration
+- [#345](https://github.com/1024pix/pix-db-replication/pull/345) [FEATURE] Ajouter le nouveau champ isQualityOk dans les propriétés des challenges (PIX-21195).
+
+### :building_construction: Tech
+- [#347](https://github.com/1024pix/pix-db-replication/pull/347) [TECH] Mise à jour manuelle de la liste de modules (PIX-21281).
+
 ## v2.58.0 (21/01/2026)
 
 
