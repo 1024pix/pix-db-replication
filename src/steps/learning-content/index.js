@@ -98,8 +98,6 @@ const tables = [{
     { name: 'area', type: 'text' },
     { name: 'focus', type: 'boolean', extractor: (record) => !!record['focusable'] },
     { name: 'explicativeResponse', type: 'text', extractor: (record) => record['solutionToDisplay'] },
-    { name: 'delta', type: 'numeric' },
-    { name: 'alpha', type: 'numeric' },
     { name: 'createdAt', type: 'timestamptz' },
     { name: 'validatedAt', type: 'timestamptz' },
     { name: 'archivedAt', type: 'timestamptz' },
