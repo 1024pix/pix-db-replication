@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.60.0 (02/02/2026)
+
+
+### :building_construction: Tech
+- [#348](https://github.com/1024pix/pix-db-replication/pull/348) [TECH] Supprimer les champs alpha et delta (PIX-21229).
+
 ## v2.59.0 (29/01/2026)
 
 
