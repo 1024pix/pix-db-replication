@@ -41,6 +41,7 @@ const extractConfigurationFromEnvironmentVariable = function() {
     MAX_RETRY_COUNT: extractInteger(process.env.MAX_RETRY_COUNT) || 10,
     MIN_TIMEOUT: extractInteger(process.env.MIN_TIMEOUT) || 900000, // 15 min
     MAX_TIMEOUT: extractInteger(process.env.MAX_TIMEOUT) || 900000, // 15 min
+    DROP_TIMEOUT_MS: extractInteger(process.env.DROP_TIMEOUT_MS) || 5 * 60 * 1000, // timeout for drop commands - 5min by default
     PG_RESTORE_JOBS: extractInteger(process.env.PG_RESTORE_JOBS) || 4,
     RESTORE_FK_CONSTRAINTS: process.env.RESTORE_FK_CONSTRAINTS || 'true',
     BACKUP_MODE,

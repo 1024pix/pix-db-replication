@@ -31,11 +31,14 @@ async function execShell(cmdline) {
   }
 }
 
-async function exec(cmd, args) {
+async function exec(cmd, args, timeout) {
   try {
-    const { stdout } = await execa({ stdout: [transform] }) `${cmd} ${args}`;
+    const { stdout } = await execa({ stdout: [transform], timeout }) `${cmd} ${args}`;
     return stdout;
   } catch (error) {
+    if (error.timedOut) {
+      throw new Error(sanitizeCredentials(`Command timed out after ${timeout / 1000}s: ${cmd} ${args}`));
+    }
     throw new Error(sanitizeCredentials(error.shortMessage));
   }
 }
