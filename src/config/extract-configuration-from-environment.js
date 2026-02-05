@@ -34,13 +34,10 @@ const extractConfigurationFromEnvironmentVariable = function() {
 
   return {
     PG_CLIENT_VERSION: process.env.PG_CLIENT_VERSION || 16,
-    RETRIES_TIMEOUT_MINUTES: extractInteger(process.env.RETRIES_TIMEOUT_MINUTES) || 180,
     LCMS_API_KEY: process.env.LCMS_API_KEY || '',
     LCMS_API_URL: process.env.LCMS_API_URL || '',
     SCHEDULE: process.env.SCHEDULE || '10 5 * * *',
     MAX_ATTEMPT_NB: extractInteger(process.env.MAX_ATTEMPT_NB) || 10,
-    MIN_TIMEOUT: extractInteger(process.env.MIN_TIMEOUT) || 900000, // 15 min
-    MAX_TIMEOUT: extractInteger(process.env.MAX_TIMEOUT) || 900000, // 15 min
     DROP_TIMEOUT_MS: extractInteger(process.env.DROP_TIMEOUT_MS) || 5 * 60 * 1000, // timeout for drop commands - 5min by default
     PG_RESTORE_JOBS: extractInteger(process.env.PG_RESTORE_JOBS) || 4,
     RESTORE_FK_CONSTRAINTS: process.env.RESTORE_FK_CONSTRAINTS || 'true',
