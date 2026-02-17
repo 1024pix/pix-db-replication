@@ -5,7 +5,7 @@ const configuration = extractConfigurationFromEnvironment();
 const parisTimezone = 'Europe/Paris';
 
 const jobOptions = {
-  attempts: configuration.MAX_RETRY_COUNT,
+  attempts: configuration.MAX_ATTEMPT_NB,
   backoff: { type: 'exponential', delay: configuration.EXPONENTIAL_RETRY_DELAY },
 };
 
