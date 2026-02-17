@@ -299,16 +299,12 @@ node -e "require('./src/steps/learning-content').run(require ('./src/config/extr
 
 #### RA Scalingo
 
-- Faire un backup des données d'une application Scalingo hors `osc-secnum-fr1`
-pour éviter les considérations de sécurité des données
-
-- Vérifier les données présentes dans la BDD à exporter (exemple pour les données d'une review app)
-
-``` bash
-scalingo -a pix-api-review-prxxx pgsql-console
-```
-
-- Lancer un backup (ou ne rien faire, le dernier est utilisé par défaut)
+- Par défaut :
+  - la review app réplique les données de la base de données de l'environnement d'intégration
+  Pix. Vous pouvez changer la source de données en modifiant la variable d'environnement `SOURCE_DATABASE_URL`
+  - aucune table n'est configurée en incremental (la base destination étant vide au départ). Après une 1ère réplication
+  complète, il est possible d'ajouter une configuration incrémentale sur certaines tables en modifiant la variable 
+  d'environnement `BACKUP_MODE` (ex : `"answers":"incremental"` et `"knowledge-elements":"incremental"`)
 
 - Déterminer le nom de l'application de RA Scalingo de db-replication
 
@@ -316,7 +312,7 @@ scalingo -a pix-api-review-prxxx pgsql-console
 NOM_APPLICATION=pix-datawarehouse-pr<NUMERO-PR>
 ```
 
-- Lancer le process de création et d'import du backup sur cette RA
+- Lancer le process de réplication sur la RA
 
 ``` bash
 scalingo run --region osc-fr1 --app $NOM_APPLICATION npm run restart:full-replication
