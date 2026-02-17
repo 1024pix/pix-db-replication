@@ -1,5 +1,19 @@
 # pix-db-replication Changelog
 
+## v2.61.0 (17/02/2026)
+
+
+### :rocket: Amélioration
+- [#354](https://github.com/1024pix/pix-db-replication/pull/354) [FEATURE] Ajout d'un timeout sur les opérations drop (PIX-21346).
+
+### :arrow_up: Montée de version
+- [#350](https://github.com/1024pix/pix-db-replication/pull/350) [BUMP] Update dependency eslint-plugin-yml to v3 (dossier racine).
+- [#331](https://github.com/1024pix/pix-db-replication/pull/331) [BUMP] Lock file maintenance (dossier racine).
+- [#346](https://github.com/1024pix/pix-db-replication/pull/346) [BUMP] Update dependency eslint-plugin-yml to v2 (dossier racine).
+- [#349](https://github.com/1024pix/pix-db-replication/pull/349) [BUMP] Update node.
+- [#344](https://github.com/1024pix/pix-db-replication/pull/344) [BUMP] Update dependency lodash to v4.17.23 [SECURITY].
+- [#334](https://github.com/1024pix/pix-db-replication/pull/334) [BUMP] Update Node.js to v22.19.0.
+
 ## v2.60.0 (02/02/2026)
 
 
