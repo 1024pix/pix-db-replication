@@ -45,5 +45,11 @@ describe('Integration | Steps | modulix-learning-content | index.js', function()
     // then
     const moduleRowCount = Number.parseInt(await targetDatabase.runSql('SELECT COUNT(*) FROM modules'));
     expect(moduleRowCount).to.equal(3);
+
+    const columnNames = await targetDatabase.runSql('SELECT column_name FROM information_schema.columns where table_schema= \'public\' AND table_name = \'modules\'');
+    expect(columnNames).to.include('id');
+    expect(columnNames).to.include('shortId');
+    expect(columnNames).to.include('slug');
+    expect(columnNames).to.include('title');
   });
 });
