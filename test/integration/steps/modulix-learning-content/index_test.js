@@ -51,5 +51,11 @@ describe('Integration | Steps | modulix-learning-content | index.js', function()
     expect(columnNames).to.include('shortId');
     expect(columnNames).to.include('slug');
     expect(columnNames).to.include('title');
+    expect(columnNames).to.include('filename');
+    expect(columnNames).to.include('level');
+    expect(columnNames).to.include('duration');
+    expect(columnNames).to.include('objectives');
+    expect(columnNames).to.include('isBeta');
+    expect(columnNames).to.include('visibility');
   });
 });
