@@ -10,6 +10,12 @@ const table = {
     { name: 'shortId', type: 'text' },
     { name: 'slug', type: 'text' },
     { name: 'title', type: 'text' },
+    { name: 'filename', type: 'text' },
+    { name: 'level', type: 'text' },
+    { name: 'duration', type: 'varchar(10)' },
+    { name: 'objectives', type: 'text' },
+    { name: 'isBeta', type: 'bool' },
+    { name: 'visibility', type: 'text' },
   ],
   indexes: [],
 };
