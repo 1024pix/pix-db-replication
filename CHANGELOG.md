@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.62.0 (23/02/2026)
+
+
+### :rocket: Amélioration
+- [#356](https://github.com/1024pix/pix-db-replication/pull/356) [FEATURE] Mettre à jour pix-db-replication avec les infos modules supplémentaires (PIX-21623).
+
 ## v2.61.0 (17/02/2026)
 
 
