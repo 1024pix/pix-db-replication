@@ -111,7 +111,8 @@ function _addQueueEventsListeners(queue) {
       logger.error(`Stalled job in ${queue.name}: ${job.id}`);
     })
     .on('completed', function(job) {
-      logger.info(`Completed job in ${queue.name}: ${job.id}`);
+      const duration = job.finishedOn - job.processedOn;
+      logger.info(`Completed job in ${queue.name}: ${job.id}. Duration:${duration}`);
     })
     .on('failed', function(job, err) {
       logger.error(`Failed job in ${queue.name}: ${job.id} ${err} (Number of attempts: ${job.attemptsMade}/${job.opts.attempts})`);
