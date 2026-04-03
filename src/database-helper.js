@@ -1,13 +1,10 @@
 import pg from 'pg';
 const { Client } = pg;
 import format from 'pg-format';
-import _ from 'lodash';
 
 import { PrimaryKeyNotNullConstraintError } from './errors.js';
 import * as learningContentHelper from './steps/learning-content/learning-content-helper.js';
 import { logger } from './logger.js';
-
-const LCMS_CHUNK = 2000;
 
 async function runDBOperation(callback, configuration) {
   const client = new Client({
@@ -49,14 +46,11 @@ async function saveLearningContent(table, learningContent, configuration) {
     await runDBOperation(async (client) => {
       logger.info(`Saving learning content in table ${table.name}`);
       const fieldNames = ['id'].concat(table.fields.map((field) => field.name));
-      for await (const learningContentChunk of _.chunk(learningContent, LCMS_CHUNK)) {
-        const values = _computeValuesToInsert(table, learningContentChunk);
-        if (_allValuesHavePrimaryKey(values)) {
-          await _insertValues(table.name, fieldNames, values, client);
-        }
-        else {
-          throw new PrimaryKeyNotNullConstraintError(table.name);
-        }
+      const values = _computeValuesToInsert(table, learningContent);
+      if (_allValuesHavePrimaryKey(values)) {
+        await _insertValues(table.name, fieldNames, values, client);
+      } else {
+        throw new PrimaryKeyNotNullConstraintError(table.name);
       }
     }, configuration);
   }

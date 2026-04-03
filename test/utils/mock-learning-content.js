@@ -1,4 +1,4 @@
-function mockLcmsAirtableData() {
+export function mockLearningContentData() {
   return {
     'frameworks': [
       {
@@ -952,4 +952,10 @@ function mockLcmsAirtableData() {
   };
 }
 
-export { mockLcmsAirtableData };
+export async function* mockLearningContentStream() {
+  for (const [type, values] of Object.entries(mockLearningContentData())) {
+    for (const value of values) {
+      yield { type, value };
+    }
+  }
+}

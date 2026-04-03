@@ -6,9 +6,9 @@ class PrimaryKeyNotNullConstraintError extends Error {
 }
 
 class NoLearningContentError extends Error {
-  constructor() {
+  constructor({ cause } = {}) {
     const message = 'No learning content retrieved';
-    super(message);
+    super(message, { cause });
   }
 }
 

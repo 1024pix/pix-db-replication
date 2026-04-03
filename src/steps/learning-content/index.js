@@ -3,6 +3,8 @@ import * as databaseHelper from '../../database-helper.js';
 import { NoLearningContentError } from './../../errors.js';
 import { logger } from './../../logger.js';
 
+const LCMS_CHUNK_SIZE = 2000;
+
 const tables = [{
   name: 'frameworks',
   fields: [
@@ -95,7 +97,7 @@ const tables = [{
     { name: 'hasEmbedUrl', type: 'boolean', extractor: (record) => !!record['embedUrl'] },
     { name: 'alternativeInstruction', type: 'text' },
     { name: 'hasAlternativeInstruction', type: 'boolean', extractor: (record) => !!record['alternativeInstruction'] },
-    { name: 'area', type: 'text' },
+    { name: 'area', type: 'text', extractor: (record) => record.geography },
     { name: 'focus', type: 'boolean', extractor: (record) => !!record['focusable'] },
     { name: 'explicativeResponse', type: 'text', extractor: (record) => record['solutionToDisplay'] },
     { name: 'createdAt', type: 'timestamptz' },
@@ -175,23 +177,67 @@ const tables = [{
 },
 ];
 
-async function run(configuration, dependencies = { databaseHelper: databaseHelper, lcmsClient: lcmsClient }) {
+export async function run(configuration, dependencies = { databaseHelper: databaseHelper, lcmsClient: lcmsClient }) {
   logger.info(`Learning content replication : tables ${tables.map((table) => table.name).join([', '])}`);
-  const learningContent = await dependencies.lcmsClient.getLearningContent(configuration);
-  if (learningContent) {
-    for await (const table of tables) {
+
+  try {
+    for (const table of tables) {
       await dependencies.databaseHelper.dropTable(table.name, configuration);
       await dependencies.databaseHelper.createTable(table, configuration);
-      const keyInLCMSPayload = table.sourceName ?? table.name;
-      await dependencies.databaseHelper.saveLearningContent(table, learningContent[keyInLCMSPayload], configuration);
     }
-  }
-  else {
-    throw new NoLearningContentError();
+
+    const learningContentStream = dependencies.lcmsClient.streamLearningContent(configuration);
+
+    for await (const { type, values } of getLearningContentChunks(learningContentStream)) {
+      const table = getTableForType(type);
+      if (table === undefined) continue;
+
+      await dependencies.databaseHelper.saveLearningContent(table, values, configuration);
+    }
+  } catch (err) {
+    logger.error({ err }, 'Error in learning content replication');
+    throw new NoLearningContentError({ cause: err });
   }
 }
 
-function extractTranslationsKey(record) {
+export async function* getLearningContentChunks(learningContentStream, chunkSize = LCMS_CHUNK_SIZE) {
+  let values;
+  let currentType;
+
+  for await (const { type, value } of learningContentStream) {
+    if (values !== undefined && values.length < chunkSize && type === currentType) {
+      values.push(value);
+      continue;
+    }
+
+    if (values !== undefined) {
+      yield {
+        type: currentType,
+        values,
+      };
+    }
+
+    currentType = type;
+    values = [value];
+  }
+
+  if (values !== undefined && values.length > 0) {
+    yield {
+      type: currentType,
+      values,
+    };
+  }
+}
+
+function getTableForType(type) {
+  const table = tables.find(({ name, sourceName }) => (sourceName ?? name) === type);
+  if (table === undefined) {
+    logger.warn({ type }, 'unknown learning content type, values will be discarded');
+  }
+  return table;
+}
+
+export function extractTranslationsKey(record) {
   const [model, id, field] = record.key.split('.');
 
   if (model !== 'challenge' || field !== 'solutionToDisplay') {
@@ -199,8 +245,3 @@ function extractTranslationsKey(record) {
   }
   return `${model}.${id}.explicativeResponse`;
 }
-
-export {
-  run,
-  extractTranslationsKey,
-};
