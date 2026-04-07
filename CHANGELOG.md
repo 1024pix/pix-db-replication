@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.63.0 (07/04/2026)
+
+
+### :rocket: Amélioration
+- [#357](https://github.com/1024pix/pix-db-replication/pull/357) [FEATURE] Streaming du learning content (PIX-22221).
+
 ## v2.62.0 (23/02/2026)
 
 
