@@ -4,7 +4,7 @@ const pgUrlParser = pgConnectionString.parse;
 import _ from 'lodash';
 import { expect, catchErr } from '../test-helper.js';
 import { Database } from '../utils/database.js';
-import { mockLcmsAirtableData } from '../utils/mock-lcms-get-airtable.js';
+import { mockLearningContentData } from '../utils/mock-learning-content.js';
 import * as databaseHelper from '../../src/database-helper.js';
 import { PrimaryKeyNotNullConstraintError } from '../../src/errors.js';
 
@@ -105,7 +105,7 @@ describe('Integration | db-connection.js', function() {
         ],
         indexes: ['firstSkillId'],
       };
-      const fullLearningContent = mockLcmsAirtableData();
+      const fullLearningContent = mockLearningContentData();
       const learningContent = fullLearningContent[table.name];
 
       await databaseHelper.saveLearningContent(table, learningContent, databaseConfig);

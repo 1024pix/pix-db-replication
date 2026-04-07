@@ -1,30 +1,27 @@
-import axios from 'axios';
+import { parseJsonStream, streamToIterable } from 'json-stream-es';
+
 import { logger } from '../../logger.js';
 
-const timeout = 60 * 1000 * 3;
-
-async function getLearningContent(configuration) {
-  const url = configuration.LCMS_API_URL + '/replication-data';
-  // eslint-disable-next-line n/no-process-env
-  const application = process.env.APP || 'pix-db-replication';
-  const headers = {
-    'Authorization': `Bearer ${configuration.LCMS_API_KEY}`,
-    'client': application,
-  };
-  const requestConfig = {
-    headers,
-    signal: AbortSignal.timeout(configuration.timeout || timeout),
-  };
+export async function* streamLearningContent(configuration) {
+  const url = configuration.LCMS_API_URL + '/replication-stream';
 
   try {
-    const response = await axios.get(url, requestConfig);
-    return response.data;
-  } catch (httpErr) {
-    logger.error(`Error on GET request to ${url}`);
-    throw httpErr;
+    const response = await fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${configuration.LCMS_API_KEY}`,
+        'client': process.env.APP ?? 'pix-db-replication', // eslint-disable-line n/no-process-env
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Invalid response status ${response.status} ${response.statusText}`);
+    }
+
+    yield* streamToIterable(response.body
+      .pipeThrough(new TextDecoderStream()) // eslint-disable-line n/no-unsupported-features/node-builtins
+      .pipeThrough(parseJsonStream(undefined, { multi: true })));
+  } catch (err) {
+    logger.error({ err, url }, 'Error while fetching learning content');
+    throw err;
   }
 }
-
-export {
-  getLearningContent,
-};

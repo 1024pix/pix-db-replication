@@ -8,15 +8,10 @@ describe('Unit | Steps | learning-content | index.js', function() {
 
     beforeEach(async function() {
       const databaseConfig = {};
-      const content = {
-        areas: [{ id: 'recArea1', competenceIds: ['recCompetence'] }],
-        competences: [{
-          id: 'recCompetence',
-          areaId: 'recArea1',
-          skillIds: ['recSkill1'],
-          origin: 'Pix',
-        }],
-      };
+      async function* mockContent() {
+        yield { type: 'areas', value: { id: 'recArea1', competenceIds: ['recCompetence'] } };
+        yield { type: 'competences', value: { id: 'recCompetence', areaId: 'recArea1', skillIds: ['recSkill1'], origin: 'Pix' } };
+      }
       databaseHelper = {
         dropTable: sinon.stub(),
         createTable: sinon.stub(),
@@ -26,14 +21,14 @@ describe('Unit | Steps | learning-content | index.js', function() {
       databaseHelper.createTable.resolves();
       databaseHelper.saveLearningContent.resolves();
       lcmsClient = {
-        getLearningContent: sinon.stub().resolves(content),
+        streamLearningContent: sinon.stub().returns(mockContent()),
       };
 
       await learningContent.run(databaseConfig, { lcmsClient: lcmsClient, databaseHelper: databaseHelper });
     });
 
     it('should fetch learning-content from LCMS', async function() {
-      expect(lcmsClient.getLearningContent).to.have.been.called;
+      expect(lcmsClient.streamLearningContent).to.have.been.called;
     });
 
     it('should drop existing learning-content tables', async function() {
@@ -57,7 +52,7 @@ describe('Unit | Steps | learning-content | index.js', function() {
     });
 
     it('should insert learning-content data', async function() {
-      expect(databaseHelper.saveLearningContent.callCount).to.equal(12);
+      expect(databaseHelper.saveLearningContent.callCount).to.equal(2);
     });
   });
 
@@ -71,6 +66,58 @@ describe('Unit | Steps | learning-content | index.js', function() {
 
       // then
       expect(result).to.equal('challenge.id.explicativeResponse');
+    });
+  });
+
+  describe('#getLearningContentChunks', function() {
+    it('returns chunks of values of same type', async function() {
+      // given
+      const chunkSize = 2;
+      const allValues = async function* () {
+        // smaller than chunk size
+        yield { type: 'type1', value: 1 };
+
+        // exact chunk size
+        yield { type: 'type2', value: 2 };
+        yield { type: 'type2', value: 3 };
+
+        // more than one chunk
+        yield { type: 'type3', value: 4 };
+        yield { type: 'type3', value: 5 };
+        yield { type: 'type3', value: 6 };
+
+        // exactly two chunks
+        yield { type: 'type4', value: 7 };
+        yield { type: 'type4', value: 8 };
+        yield { type: 'type4', value: 9 };
+        yield { type: 'type4', value: 10 };
+
+        // more than two chunks
+        yield { type: 'type5', value: 11 };
+        yield { type: 'type5', value: 12 };
+        yield { type: 'type5', value: 13 };
+        yield { type: 'type5', value: 14 };
+        yield { type: 'type5', value: 15 };
+      }();
+
+      // when
+      const chunks = [];
+      for await (const chunk of learningContent.getLearningContentChunks(allValues, chunkSize)) {
+        chunks.push(chunk);
+      }
+
+      // then
+      expect(chunks).to.deep.equal([
+        { type: 'type1', values: [1] },
+        { type: 'type2', values: [2, 3] },
+        { type: 'type3', values: [4, 5] },
+        { type: 'type3', values: [6] },
+        { type: 'type4', values: [7, 8] },
+        { type: 'type4', values: [9, 10] },
+        { type: 'type5', values: [11, 12] },
+        { type: 'type5', values: [13, 14] },
+        { type: 'type5', values: [15] },
+      ]);
     });
   });
 });

@@ -1,4 +1,4 @@
-import { expect, catchErr, nock } from '../../../test-helper.js';
+import { expect, nock } from '../../../test-helper.js';
 
 import * as lcmsClient from '../../../../src/steps/learning-content/lcms-client.js';
 
@@ -27,34 +27,17 @@ describe('Integration | Steps | learning-content | lcms-client.js', function() {
           authorization: 'Bearer abcd',
           client: 'pix-db-replication',
         } })
-        .get('/api/replication-data')
-        .reply(200, '{}');
+        .get('/api/replication-stream')
+        .reply(200, '{"foo":1}\n{"bar":2}');
 
       // when
-      const response = await lcmsClient.getLearningContent(configuration);
+      const result = [];
+      for await (const value of lcmsClient.streamLearningContent(configuration)) {
+        result.push(value);
+      }
 
       // then
-      expect(response).to.deep.equal({});
-    });
-
-    it('should throw an error when the response take more than the allowed time', async function() {
-      // given
-      nock('https://lcms-test.pix.fr', {
-        reqheaders: {
-          authorization: 'Bearer abcd',
-          client: 'pix-db-replication',
-        } })
-        .get('/api/replication-data')
-        .delay(100)
-        .reply(200, '{}');
-
-      configuration.timeout = 50;
-
-      // when
-      const err = await catchErr(lcmsClient.getLearningContent)(configuration);
-
-      // then
-      expect(err.name).to.equal('CanceledError');
+      expect(result).to.deep.equal([{ foo: 1 }, { bar: 2 }]);
     });
   });
 });

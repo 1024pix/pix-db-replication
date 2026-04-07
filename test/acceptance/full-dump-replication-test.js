@@ -5,7 +5,7 @@ const pgUrlParser = pgConnectionString.parse;
 
 import { Database } from '../utils/database.js';
 import { expect, sinon } from '../test-helper.js';
-import { mockLcmsAirtableData } from '../utils/mock-lcms-get-airtable.js';
+import { mockLearningContentData, mockLearningContentStream } from '../utils/mock-learning-content.js';
 import { mockModulixLcmsContent } from '../utils/mock-modulix-lcms-content.js';
 import { run as runBackupRestore } from '../../src/steps/backup-restore/index.js';
 import { run as runLearningContent } from '../../src/steps/learning-content/index.js';
@@ -105,9 +105,9 @@ describe('Acceptance | fullReplicationAndEnrichment', function() {
     let fullLearningContent;
 
     before(async function() {
-      fullLearningContent = mockLcmsAirtableData();
+      fullLearningContent = mockLearningContentData();
       const lcmClientStub = {
-        getLearningContent: sinon.stub().resolves(fullLearningContent),
+        streamLearningContent: sinon.stub().returns(mockLearningContentStream()),
       };
 
       await runLearningContent(configuration, { lcmsClient: lcmClientStub, databaseHelper: databaseHelper });

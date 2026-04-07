@@ -3,7 +3,7 @@ const pgUrlParser = pgConnectionString.parse;
 
 import { Database } from '../../../utils/database.js';
 import { expect, sinon } from '../../../test-helper.js';
-import { mockLcmsAirtableData } from '../../../utils/mock-lcms-get-airtable.js';
+import { mockLearningContentStream } from '../../../utils/mock-learning-content.js';
 import * as databaseHelper from '../../../../src/database-helper.js';
 
 import { run } from '../../../../src/steps/learning-content/index.js';
@@ -33,11 +33,10 @@ describe('Integration | Steps | learning-content | index.js', function() {
     const configuration = {
       DATABASE_URL: `${targetDatabaseConfig.serverUrl}/${targetDatabaseConfig.databaseName}`,
     };
-    const fullLearningContent = mockLcmsAirtableData();
     const lcmsClient = {
-      getLearningContent: sinon.stub(),
+      streamLearningContent: sinon.stub(),
     };
-    lcmsClient.getLearningContent.resolves(fullLearningContent);
+    lcmsClient.streamLearningContent.returns(mockLearningContentStream());
 
     // when
     await run(configuration, { lcmsClient, databaseHelper });
