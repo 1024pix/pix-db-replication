@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.65.0 (17/04/2026)
+
+
+### :rocket: Amélioration
+- [#359](https://github.com/1024pix/pix-db-replication/pull/359) [FEATURE] Suppression de la colonne "champ contextualisé" (PIX-22421).
+
 ## v2.63.0 (07/04/2026)
 
 
