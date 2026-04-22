@@ -124,6 +124,8 @@ const tables = [{
     { name: 'shuffled', type: 'boolean', extractor: (record) => !!record['shuffled'] },
     { name: 'urlsToConsult', type: 'text []', isArray: true },
     { name: 'format', type: 'text' },
+    { name: 'assessmentMaintenanceTags', type: 'text []', isArray: true },
+    { name: 'translationMaintenanceTags', type: 'text []', isArray: true },
   ],
   indexes: ['firstSkillId'],
 }, {
