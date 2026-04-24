@@ -644,6 +644,8 @@ export function mockLearningContentData() {
         'toRephrase': true,
         'isAwarenessChallenge': true,
         'isQualityOk': true,
+        'assessmentMaintenanceTags': ['Fichier simple à traduire'],
+        'translationMaintenanceTags': ['question outil'],
       },
       {
         'airtableId': 'rec2ZkgH8IDwAoeA6',
@@ -677,6 +679,8 @@ export function mockLearningContentData() {
         'toRephrase': false,
         'isAwarenessChallenge': false,
         'isQualityOk': false,
+        'assessmentMaintenanceTags': ['Fichier simple à traduire'],
+        'translationMaintenanceTags': ['question outil'],
       },
       {
         'airtableId': 'rec4RHc2v3am5VJvY',
@@ -712,6 +716,8 @@ export function mockLearningContentData() {
         'toRephrase': true,
         'isAwarenessChallenge': false,
         'isQualityOk': true,
+        'assessmentMaintenanceTags': ['Fichier simple à traduire'],
+        'translationMaintenanceTags': ['question outil'],
       },
       {
         'airtableId': 'recc3QU4nKAk4byGv',
@@ -745,6 +751,8 @@ export function mockLearningContentData() {
         'toRephrase': false,
         'isAwarenessChallenge': true,
         'isQualityOk': false,
+        'assessmentMaintenanceTags': ['Fichier simple à traduire'],
+        'translationMaintenanceTags': ['question outil'],
       },
       {
         'airtableId': 'recc5bnzo6lvwyIgD',
@@ -779,6 +787,8 @@ export function mockLearningContentData() {
         'toRephrase': false,
         'isAwarenessChallenge': true,
         'isQualityOk': false,
+        'assessmentMaintenanceTags': [],
+        'translationMaintenanceTags': [],
       },
       {
         'airtableId': 'receffAhZMTJDx5Zv',
@@ -812,6 +822,8 @@ export function mockLearningContentData() {
         'toRephrase': false,
         'isAwarenessChallenge': false,
         'isQualityOk': false,
+        'assessmentMaintenanceTags': ['Fichier simple à traduire'],
+        'translationMaintenanceTags': ['question outil'],
       },
       {
         'airtableId': 'receWJAbh7Tib2uHb',
@@ -845,6 +857,8 @@ export function mockLearningContentData() {
         'toRephrase': false,
         'isAwarenessChallenge': false,
         'isQualityOk': false,
+        'assessmentMaintenanceTags': ['Fichier simple à traduire'],
+        'translationMaintenanceTags': ['question outil'],
       },
     ],
     'attachments': [
