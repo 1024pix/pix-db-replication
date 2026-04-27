@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.66.0 (27/04/2026)
+
+
+### :rocket: Amélioration
+- [#360](https://github.com/1024pix/pix-db-replication/pull/360) [FEATURE] Ajout de deux champs au niveau des épreuves. (PIX-22424).
+
 ## v2.65.0 (17/04/2026)
 
 
