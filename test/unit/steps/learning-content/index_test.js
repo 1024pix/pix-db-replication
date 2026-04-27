@@ -32,7 +32,7 @@ describe('Unit | Steps | learning-content | index.js', function() {
     });
 
     it('should drop existing learning-content tables', async function() {
-      expect(databaseHelper.dropTable.callCount).to.equal(12);
+      expect(databaseHelper.dropTable.callCount).to.equal(13);
       expect(databaseHelper.dropTable).to.have.been.calledWith('frameworks');
       expect(databaseHelper.dropTable).to.have.been.calledWith('areas');
       expect(databaseHelper.dropTable).to.have.been.calledWith('attachments');
@@ -45,10 +45,11 @@ describe('Unit | Steps | learning-content | index.js', function() {
       expect(databaseHelper.dropTable).to.have.been.calledWith('tutorials');
       expect(databaseHelper.dropTable).to.have.been.calledWith('missions');
       expect(databaseHelper.dropTable).to.have.been.calledWith('learning-content-translations');
+      expect(databaseHelper.dropTable).to.have.been.calledWith('modules');
     });
 
     it('should create learning-content tables', async function() {
-      expect(databaseHelper.createTable.callCount).to.equal(12);
+      expect(databaseHelper.createTable.callCount).to.equal(13);
     });
 
     it('should insert learning-content data', async function() {

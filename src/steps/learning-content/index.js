@@ -176,6 +176,21 @@ const tables = [{
   ],
   indexes: [],
 },
+{
+  name: 'modules',
+  fields: [
+    { name: 'uuid', type: 'text', extractor: (record) => record['id'] },
+    { name: 'shortId', type: 'text' },
+    { name: 'slug', type: 'text' },
+    { name: 'title', type: 'text' },
+    { name: 'level', type: 'text' },
+    { name: 'duration', type: 'varchar(10)' },
+    { name: 'objectives', type: 'text []', isArray: true },
+    { name: 'isBeta', type: 'bool' },
+    { name: 'visibility', type: 'text' },
+  ],
+  indexes: [],
+},
 ];
 
 export async function run(configuration, dependencies = { databaseHelper: databaseHelper, lcmsClient: lcmsClient }) {
