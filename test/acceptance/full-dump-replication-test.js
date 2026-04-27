@@ -6,10 +6,8 @@ const pgUrlParser = pgConnectionString.parse;
 import { Database } from '../utils/database.js';
 import { expect, sinon } from '../test-helper.js';
 import { mockLearningContentData, mockLearningContentStream } from '../utils/mock-learning-content.js';
-import { mockModulixLcmsContent } from '../utils/mock-modulix-lcms-content.js';
 import { run as runBackupRestore } from '../../src/steps/backup-restore/index.js';
 import { run as runLearningContent } from '../../src/steps/learning-content/index.js';
-import { run as runModulixLearningContent } from '../../src/steps/modulix-learning-content/index.js';
 import * as databaseHelper from '../../src/database-helper.js';
 
 async function getCountFromTable({ targetDatabase, tableName }) {
@@ -177,25 +175,6 @@ describe('Acceptance | fullReplicationAndEnrichment', function() {
       // then
       const result = await getCountFromTable({ targetDatabase, tableName: 'learning-content-translations' });
       expect(result).to.equal(fullLearningContent.translations.length);
-    });
-  });
-
-  describe('should import modulix learning content', function() {
-    let fullLearningContent;
-
-    before(async function() {
-      fullLearningContent = mockModulixLcmsContent();
-      const modulixLcmsClient = {
-        getLearningContent: sinon.stub().resolves(fullLearningContent),
-      };
-
-      await runModulixLearningContent(configuration, { modulixLcmsClient: modulixLcmsClient, databaseHelper: databaseHelper });
-    });
-
-    it('should import modules', async function() {
-      // then
-      const result = await getCountFromTable({ targetDatabase, tableName: 'modules' });
-      expect(result).to.equal(fullLearningContent.length);
     });
   });
 
