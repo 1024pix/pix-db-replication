@@ -1,5 +1,14 @@
 # pix-db-replication Changelog
 
+## v2.67.0 (27/04/2026)
+
+
+### :rocket: Amélioration
+- [#361](https://github.com/1024pix/pix-db-replication/pull/361) [FEATURE] Ingérer les données des modules dans la répli LCMS (PIX-22541).
+
+### :coffee: Autre
+- [#362](https://github.com/1024pix/pix-db-replication/pull/362) fix: change plan for both db.
+
 ## v2.66.0 (27/04/2026)
 
 
