@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.68.0 (09/06/2026)
+
+
+### :rocket: Amélioration
+- [#363](https://github.com/1024pix/pix-db-replication/pull/363) [FEATURE] Utilisation de la configuration MAX_ATTEMPT_NB pour l'étape de notification.
+
 ## v2.67.0 (27/04/2026)
 
 
