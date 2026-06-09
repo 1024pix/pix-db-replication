@@ -37,7 +37,7 @@ async function main() {
     logger.info('learningContent.run - Started');
     await steps.learningContent(configuration);
     logger.info('learningContent.run - Ended');
-    notificationQueue.add({}, { ...jobOptions, attempts: 1 });
+    notificationQueue.add({}, jobOptions);
   });
 
   notificationQueue.process(async function() {
