@@ -36,6 +36,7 @@ const extractConfigurationFromEnvironmentVariable = function() {
     PG_CLIENT_VERSION: process.env.PG_CLIENT_VERSION || 16,
     LCMS_API_KEY: process.env.LCMS_API_KEY || '',
     LCMS_API_URL: process.env.LCMS_API_URL || '',
+    LCMS_OAUTH2_PROXY_BASIC_TOKEN: process.env.LCMS_OAUTH2_PROXY_BASIC_TOKEN || '',
     SCHEDULE: process.env.SCHEDULE || '10 5 * * *',
     MAX_ATTEMPT_NB: extractInteger(process.env.MAX_ATTEMPT_NB) || 10,
     DROP_TIMEOUT_MS: extractInteger(process.env.DROP_TIMEOUT_MS) || 5 * 60 * 1000, // timeout for drop commands - 5min by default

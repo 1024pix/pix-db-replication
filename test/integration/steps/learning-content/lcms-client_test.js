@@ -9,9 +9,11 @@ describe('Integration | Steps | learning-content | lcms-client.js', function() {
     beforeEach(function() {
       const lcmsApiUrl = 'https://lcms-test.pix.fr/api';
       const lcmsApiKey = 'abcd';
+      const lcmsOauth2ProxyBasicToken = 'abcd=';
       configuration = {
         LCMS_API_URL: lcmsApiUrl,
         LCMS_API_KEY: lcmsApiKey,
+        LCMS_OAUTH2_PROXY_BASIC_TOKEN: lcmsOauth2ProxyBasicToken,
       };
       nock.disableNetConnect();
     });
@@ -25,6 +27,7 @@ describe('Integration | Steps | learning-content | lcms-client.js', function() {
       nock('https://lcms-test.pix.fr', {
         reqheaders: {
           'X-Api-Key': 'abcd',
+          'Authorization': 'Basic abcd=',
           client: 'pix-db-replication',
         } })
         .get('/api/replication-stream')
