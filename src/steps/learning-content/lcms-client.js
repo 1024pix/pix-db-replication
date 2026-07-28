@@ -8,7 +8,7 @@ export async function* streamLearningContent(configuration) {
   try {
     const response = await fetch(url, {
       headers: {
-        'Authorization': `Bearer ${configuration.LCMS_API_KEY}`,
+        'X-API-Key': configuration.LCMS_API_KEY,
         'client': process.env.APP ?? 'pix-db-replication', // eslint-disable-line n/no-process-env
       },
     });
