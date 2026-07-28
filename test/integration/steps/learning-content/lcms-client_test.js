@@ -24,7 +24,7 @@ describe('Integration | Steps | learning-content | lcms-client.js', function() {
       // given
       nock('https://lcms-test.pix.fr', {
         reqheaders: {
-          'X-Api-Key': 'abcd',
+          authorization: 'Bearer abcd',
           client: 'pix-db-replication',
         } })
         .get('/api/replication-stream')
