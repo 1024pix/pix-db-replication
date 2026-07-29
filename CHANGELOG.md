@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.69.0 (29/07/2026)
+
+
+### :building_construction: Tech
+- [#364](https://github.com/1024pix/pix-db-replication/pull/364) [TECH] Utiliser la nouvelle authentification de Pix Editor (PIX-23703).
+
 ## v2.68.0 (09/06/2026)
 
 
