@@ -61,7 +61,7 @@ describe('Unit | Steps | learning content | learning-content-helper.js', functio
       const value = learningContentHelper.prepareLearningContentValueBeforeInsertion(learningContentItem, fieldStructure);
 
       // then
-      expect(value).to.deep.equal('{recH9MjIzN54zXlwr,recxlJqKdbWHHFZMQ,recKxnZJh5dyRCQQn,recZ1Gm4rud4zLhbF}');
+      expect(value).to.deep.equal('{"recH9MjIzN54zXlwr","recxlJqKdbWHHFZMQ","recKxnZJh5dyRCQQn","recZ1Gm4rud4zLhbF"}');
     });
 
     it('should return formatted array from extractor', function() {
@@ -72,7 +72,7 @@ describe('Unit | Steps | learning content | learning-content-helper.js', functio
       const value = learningContentHelper.prepareLearningContentValueBeforeInsertion(learningContentItem, fieldStructure);
 
       // then
-      expect(value).to.deep.equal('{recH9MjIzN54zXlwr,recxlJqKdbWHHFZMQ,recKxnZJh5dyRCQQn,recZ1Gm4rud4zLhbF}');
+      expect(value).to.deep.equal('{"recH9MjIzN54zXlwr","recxlJqKdbWHHFZMQ","recKxnZJh5dyRCQQn","recZ1Gm4rud4zLhbF"}');
     });
   });
 

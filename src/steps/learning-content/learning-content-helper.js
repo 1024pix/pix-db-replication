@@ -4,7 +4,12 @@ function prepareLearningContentValueBeforeInsertion(learningContentItem, fieldSt
   if (!Array.isArray(value)) {
     return value;
   }
-  return fieldStructure.isArray ? `{${value.join(',')}}` : value[0];
+  return fieldStructure.isArray ? `{${value.map(escapeSpecialCharacters).join(',')}}` : value[0];
+}
+
+function escapeSpecialCharacters(value) {
+  if (!value) return value;
+  return '"' + value.replaceAll('\\', '\\\\').replaceAll('"', '\\"') + '"';
 }
 
 export {
