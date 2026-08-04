@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.70.0 (04/08/2026)
+
+
+### :bug: Correction
+- [#365](https://github.com/1024pix/pix-db-replication/pull/365) [BUGFIX] Échapper les caractères spéciaux lors de l'insertion de listes lors de la réplication du LCMS (PIX-23678).
+
 ## v2.69.0 (29/07/2026)
 
 
