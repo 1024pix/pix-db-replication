@@ -966,8 +966,8 @@ export function mockLearningContentData() {
   };
 }
 
-export async function* mockLearningContentStream() {
-  for (const [type, values] of Object.entries(mockLearningContentData())) {
+export async function* mockLearningContentStream(mockLearningContentDataFunc = mockLearningContentData) {
+  for (const [type, values] of Object.entries(mockLearningContentDataFunc())) {
     for (const value of values) {
       yield { type, value };
     }
