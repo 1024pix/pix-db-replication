@@ -188,6 +188,7 @@ const tables = [{
     { name: 'objectives', type: 'text []', isArray: true },
     { name: 'isBeta', type: 'bool' },
     { name: 'visibility', type: 'text' },
+    { name: 'version', type: 'text' },
   ],
   indexes: [],
 },
