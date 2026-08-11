@@ -8,9 +8,10 @@ function mockModulixLcmsContent() {
       'filename': 'bac-a-sable.json',
       'level': 'novice',
       'duration': 5,
-      'objectives': 'Non régression fonctionnelle',
+      'objectives': ['Non régression fonctionnelle'],
       'isBeta': true,
       'visibility': 'private',
+      'version': '1.0',
     },
     {
       'id': 'f7b3a2e1-0d5c-4c6c-9c4d-1a3d8f7e9f5d',
@@ -20,9 +21,10 @@ function mockModulixLcmsContent() {
       'filename': 'bien-ecrire-son-adresse-mail.json',
       'level': 'novice',
       'duration': 10,
-      'objectives': 'Reconnaître les différentes parties d’une adresse mail et les identifier sur des exemples, Associer chaque partie d‘une adresse mail à sa fonction, Écrire une adresse mail correctement, en évitant les erreurs courantes',
+      'objectives': ['Reconnaître les différentes parties d’une adresse mail et les identifier sur des exemples', 'Associer chaque partie d‘une adresse mail à sa fonction', 'Écrire une adresse mail correctement, en évitant les erreurs courantes'],
       'isBeta': true,
       'visibility': 'public',
+      'version': '2.1',
     },
     {
       'id': '01151659-77c1-41cc-8724-89091357af3d',
@@ -32,9 +34,10 @@ function mockModulixLcmsContent() {
       'filename': 'chatgpt-vraiment-neutre.json',
       'level': 'advanced',
       'duration': 10,
-      'objectives': '<p>Connaître les origines des biais des LLM</p>, <p>Générer et analyser des résultats biaisés de LLM</p>, <p>Comparer les résultats de différents LLM</p>',
+      'objectives': ['<p>Connaître les origines des biais des LLM</p>, <p>Générer et analyser des résultats biaisés de LLM</p>, <p>Comparer les résultats de différents LLM</p>'],
       'isBeta': true,
       'visibility': 'public',
+      'version': '2.7',
     } ];
 }
 

@@ -1,3 +1,5 @@
+import { mockModulixLcmsContent } from './mock-modulix-lcms-content.js';
+
 export function mockLearningContentData() {
   return {
     'frameworks': [
@@ -934,6 +936,7 @@ export function mockLearningContentData() {
         ],
       },
     ],
+    'modules': mockModulixLcmsContent(),
     'missions': [
       {
         id: 123456789,

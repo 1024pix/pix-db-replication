@@ -171,6 +171,12 @@ describe('Acceptance | fullReplicationAndEnrichment', function() {
       expect(result).to.equal(fullLearningContent.missions.length);
     });
 
+    it('should import modules ', async function() {
+      // then
+      const result = await getCountFromTable({ targetDatabase, tableName: 'modules' });
+      expect(result).to.equal(fullLearningContent.modules.length);
+    });
+
     it('should import translations ', async function() {
       // then
       const result = await getCountFromTable({ targetDatabase, tableName: 'learning-content-translations' });
