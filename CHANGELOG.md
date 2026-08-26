@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.71.0 (26/08/2026)
+
+
+### :coffee: Autre
+- [#366](https://github.com/1024pix/pix-db-replication/pull/366) Ajouter le champs version pour la table learningcontent.modules (PIX-23821).
+
 ## v2.70.0 (04/08/2026)
 
 
