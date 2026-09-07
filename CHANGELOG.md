@@ -1,5 +1,12 @@
 # pix-db-replication Changelog
 
+## v2.72.0 (07/09/2026)
+
+
+### :building_construction: Tech
+- [#378](https://github.com/1024pix/pix-db-replication/pull/378) [TECH] Logger la taille du dump lors du process de réplication.
+- [#372](https://github.com/1024pix/pix-db-replication/pull/372) [TECH] Utiliser la configuration Renovate js-project.
+
 ## v2.71.0 (26/08/2026)
 
 
