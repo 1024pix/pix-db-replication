@@ -1,6 +1,7 @@
 'use strict';
 
 import fs from 'node:fs';
+import { stat } from 'node:fs/promises';
 
 import { getTablesWithReplicationModes, REPLICATION_MODE } from '../../config/index.js';
 import { exec, execStdOut } from '../../exec.js';
@@ -90,7 +91,9 @@ async function createBackup(configuration, dependencies = { exec: exec }) {
   logger.info('Backup will be created');
 
   await dependencies.exec('pg_dump', dumpOptions);
-  logger.info('End create Backup');
+  const stats = await stat(backupFilename);
+
+  logger.info(`End create Backup. Dump size : ${stats.size}`);
   return backupFilename;
 }
 
