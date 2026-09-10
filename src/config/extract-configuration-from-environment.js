@@ -41,6 +41,7 @@ const extractConfigurationFromEnvironmentVariable = function() {
     MAX_ATTEMPT_NB: extractInteger(process.env.MAX_ATTEMPT_NB) || 10,
     DROP_TIMEOUT_MS: extractInteger(process.env.DROP_TIMEOUT_MS) || 5 * 60 * 1000, // timeout for drop commands - 5min by default
     PG_RESTORE_JOBS: extractInteger(process.env.PG_RESTORE_JOBS) || 4,
+    PAGE_CACHE_DROP_INTERVAL_MS: extractIntegerWithDefault(process.env.PAGE_CACHE_DROP_INTERVAL_MS, 10 * 1000), // 0 pour désactiver
     RESTORE_FK_CONSTRAINTS: process.env.RESTORE_FK_CONSTRAINTS || 'true',
     BACKUP_MODE,
     SOURCE_DATABASE_URL: process.env.SOURCE_DATABASE_URL || 'postgresql://source_user@localhost/source_database',
@@ -60,5 +61,11 @@ const extractConfigurationFromEnvironmentVariable = function() {
 
 const extractInteger = function(arg) {
   return parseInt(arg, 10);
+};
+
+// Contrairement à `extractInteger() || defaut`, laisse passer la valeur 0.
+const extractIntegerWithDefault = function(arg, defaultValue) {
+  const value = parseInt(arg, 10);
+  return isNaN(value) ? defaultValue : value;
 };
 export { extractConfigurationFromEnvironment };

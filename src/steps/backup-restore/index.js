@@ -6,11 +6,13 @@ import { stat } from 'node:fs/promises';
 import { getTablesWithReplicationModes, REPLICATION_MODE } from '../../config/index.js';
 import { exec, execStdOut } from '../../exec.js';
 import { logger } from '../../logger.js';
+import { startDroppingPageCache } from '../../page-cache.js';
 import * as enrichment from './enrichment.js';
 
 import { createViewForMissingTables } from './create-views-for-missing-tables.js';
 
 const RESTORE_LIST_FILENAME = 'restore.list';
+const BACKUP_FILENAME = './dump.pgsql';
 
 async function dropCurrentObjects(configuration) {
   const tablesToKeep = getTablesWithReplicationModes(configuration, [REPLICATION_MODE.INCREMENTAL, REPLICATION_MODE.TO_EXCLUDE]);
@@ -36,7 +38,7 @@ async function writeListFileForReplication({ backupFile, configuration }) {
   const backupObjectList = await execStdOut('pg_restore', [backupFile, '-l']);
   const backupObjectLines = backupObjectList.split('\n');
   const filteredObjectLines = filterObjectLines(backupObjectLines, configuration);
-  logger.info(`Writing list file for replication ${filteredObjectLines}`);
+  logger.info(`Writing list file for replication: ${filteredObjectLines.length} objects kept out of ${backupObjectLines.length}`);
   fs.writeFileSync(RESTORE_LIST_FILENAME, filteredObjectLines.join('\n'));
 }
 
@@ -65,8 +67,6 @@ async function restoreBackup({ backupFile, databaseUrl, configuration }) {
 
 async function createBackup(configuration, dependencies = { exec: exec }) {
   logger.info('Start create Backup');
-  const backupFilename = './dump.pgsql';
-
   let excludeOptions = [];
   const tablesToExcludeFromBackup = getTablesWithReplicationModes(configuration, [REPLICATION_MODE.INCREMENTAL, REPLICATION_MODE.TO_EXCLUDE]);
   if (tablesToExcludeFromBackup.length > 0) {
@@ -84,17 +84,17 @@ async function createBackup(configuration, dependencies = { exec: exec }) {
     '--exclude-schema',
     'information_schema',
     '--exclude-schema', '\'^pg_*\'',
-    '--file', backupFilename,
+    '--file', BACKUP_FILENAME,
     ...verboseOptions,
     ...excludeOptions,
   ];
   logger.info('Backup will be created');
 
   await dependencies.exec('pg_dump', dumpOptions);
-  const stats = await stat(backupFilename);
+  const stats = await stat(BACKUP_FILENAME);
 
   logger.info(`End create Backup. Dump size : ${stats.size}`);
-  return backupFilename;
+  return BACKUP_FILENAME;
 }
 
 async function dropObjectAndRestoreBackup(backupFile, configuration) {
@@ -125,8 +125,13 @@ async function addEnrichment(configuration) {
 }
 
 async function backupAndRestore(configuration) {
-  const backup = await createBackup(configuration);
-  await dropObjectAndRestoreBackup(backup, configuration);
+  const stopDroppingPageCache = startDroppingPageCache(BACKUP_FILENAME, configuration.PAGE_CACHE_DROP_INTERVAL_MS);
+  try {
+    const backup = await createBackup(configuration);
+    await dropObjectAndRestoreBackup(backup, configuration);
+  } finally {
+    stopDroppingPageCache();
+  }
 }
 
 async function fullReplicationAndEnrichment(configuration) {
@@ -161,8 +166,8 @@ function filterObjectLines(objectLines, configuration) {
   }
 
   const patternToRegexMatcher = (pattern) => ` ${pattern} | ${pattern}_.*_seq | ${pattern}_.*_index `;
-  const regexp = patternsToFilter.map(patternToRegexMatcher).join('|');
-  return objectLines.filter((line) => !new RegExp(regexp).test(line));
+  const regexp = new RegExp(patternsToFilter.map(patternToRegexMatcher).join('|'));
+  return objectLines.filter((line) => !regexp.test(line));
 }
 
 const run = fullReplicationAndEnrichment;
