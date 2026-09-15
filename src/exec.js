@@ -33,7 +33,7 @@ async function execShell(cmdline) {
 
 async function exec(cmd, args, timeout) {
   try {
-    const { stdout } = await execa({ stdout: [transform], timeout }) `${cmd} ${args}`;
+    const { stdout } = await execa({ stdout: [transform], stderr: 'inherit', timeout }) `${cmd} ${args}`;
     return stdout;
   } catch (error) {
     if (error.timedOut) {
