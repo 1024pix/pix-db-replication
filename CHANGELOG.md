@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.73.0 (15/09/2026)
+
+
+### :building_construction: Tech
+- [#379](https://github.com/1024pix/pix-db-replication/pull/379) [TECH] Purger le page cache du dump pour ne plus saturer la mémoire du conteneur.
+
 ## v2.72.0 (07/09/2026)
 
 
