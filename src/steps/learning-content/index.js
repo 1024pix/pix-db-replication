@@ -15,6 +15,7 @@ const tables = [{
   name: 'areas',
   fields: [
     { name: 'name', type: 'text' },
+    { name: 'frameworkId', type: 'text' },
   ],
   indexes: [],
 }, {
