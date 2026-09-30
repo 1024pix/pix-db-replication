@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.74.0 (30/09/2026)
+
+
+### :rocket: Amélioration
+- [#381](https://github.com/1024pix/pix-db-replication/pull/381) [FEATURE] Ajout de l'identifiant de référentiel aux domaines dans la synchro du LCMS (PIX-22461).
+
 ## v2.73.0 (15/09/2026)
 
 
