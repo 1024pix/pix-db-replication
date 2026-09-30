@@ -32,6 +32,7 @@ export function mockLearningContentData() {
         'name': '1. Savoirs essentiels',
         'titleEnUs': ' Essential knowledge',
         'titleFrFr': 'Savoirs essentiels',
+        'frameworkId': 'recAv45f8Zfez',
       },
       {
         'code': '2',
@@ -48,6 +49,7 @@ export function mockLearningContentData() {
         'name': '2. Savoirs moins essentiels',
         'titleEnUs': 'Less essential knowledge',
         'titleFrFr': 'Savoirs moins essentiels',
+        'frameworkId': 'recHivr8rzejHu',
       },
     ],
     'competences': [
