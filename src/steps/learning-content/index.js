@@ -184,6 +184,7 @@ const tables = [{
     { name: 'shortId', type: 'text' },
     { name: 'slug', type: 'text' },
     { name: 'title', type: 'text' },
+    { name: 'internalTitle', type: 'text' },
     { name: 'level', type: 'text' },
     { name: 'duration', type: 'varchar(10)' },
     { name: 'objectives', type: 'text []', isArray: true },
