@@ -1,5 +1,11 @@
 # pix-db-replication Changelog
 
+## v2.75.0 (07/10/2026)
+
+
+### :rocket: Amélioration
+- [#383](https://github.com/1024pix/pix-db-replication/pull/383) [FEATURE] Ajouter le champs internalTitle pour la table learningcontent.modules (PIX-24453).
+
 ## v2.74.0 (30/09/2026)
 
 
