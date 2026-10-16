@@ -46,13 +46,13 @@
     "pg-format": "1.0.4"
   },
   "devDependencies": {
-    "@eslint/js": "9.39.2",
+    "@eslint/js": "9.39.5",
     "@stylistic/eslint-plugin-js": "4.4.1",
     "chai": "6.0.1",
     "chai-as-promised": "8.0.2",
-    "eslint": "9.39.2",
+    "eslint": "9.39.5",
     "eslint-plugin-mocha": "10.5.0",
-    "eslint-plugin-n": "17.21.3",
+    "eslint-plugin-n": "17.24.0",
     "eslint-plugin-yml": "1.19.1",
     "husky": "9.1.7",
     "mocha": "11.7.1",
