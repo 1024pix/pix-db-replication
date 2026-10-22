@@ -31,7 +31,7 @@
   },
   "homepage": "https://github.com/1024pix/pix-db-replication/blob/master/README.md",
   "dependencies": {
-    "@sentry/node": "10.76.2",
+    "@sentry/node": "11.8.0",
     "axios": "1.20.0",
     "bull": "4.16.5",
     "bull-repl": "1.10.2",
