@@ -31,7 +31,7 @@ executors:
   node-postgres:
     docker:
       - image: cimg/node:22.23.3
-      - image: postgres:16.9-alpine
+      - image: postgres:17-alpine
         environment:
           POSTGRES_USER: postgres
           POSTGRES_HOST_AUTH_METHOD: trust
@@ -67,7 +67,7 @@ jobs:
       - run :
           name : Install PostgreSQL client package
           command: |
-            sudo apt install postgresql-client-16
+            sudo apt install postgresql-client-17
       - run :
           name : Checking pg_dump version
           command: |

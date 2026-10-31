@@ -33,7 +33,7 @@ const extractConfigurationFromEnvironmentVariable = function() {
   }
 
   return {
-    PG_CLIENT_VERSION: process.env.PG_CLIENT_VERSION || 16,
+    PG_CLIENT_VERSION: process.env.PG_CLIENT_VERSION || 17,
     LCMS_API_KEY: process.env.LCMS_API_KEY || '',
     LCMS_API_URL: process.env.LCMS_API_URL || '',
     LCMS_OAUTH2_PROXY_BASIC_TOKEN: process.env.LCMS_OAUTH2_PROXY_BASIC_TOKEN || '',
