@@ -1,5 +1,33 @@
 # pix-db-replication Changelog
 
+## v2.76.0 (31/10/2026)
+
+
+### :building_construction: Tech
+- [#404](https://github.com/1024pix/pix-db-replication/pull/404) [TECH] Upgrade to pg17.
+- [#384](https://github.com/1024pix/pix-db-replication/pull/384) [TECH] Update Renovate configuration to use local extends.
+
+### :arrow_up: Montée de version
+- [#403](https://github.com/1024pix/pix-db-replication/pull/403) [BUMP] Update dependency dotenv to v18.0.9 (dossier racine).
+- [#402](https://github.com/1024pix/pix-db-replication/pull/402) [BUMP] Update dependency eslint-plugin-n to v18 (dossier racine).
+- [#398](https://github.com/1024pix/pix-db-replication/pull/398) [BUMP] Update dependency dotenv to v18 (dossier racine).
+- [#392](https://github.com/1024pix/pix-db-replication/pull/392) [BUMP] Update dependency dotenv to v17.4.2 (dossier racine).
+- [#391](https://github.com/1024pix/pix-db-replication/pull/391) [BUMP] Update dependency @sentry/node to v10.76.2 (dossier racine).
+- [#396](https://github.com/1024pix/pix-db-replication/pull/396) [BUMP] Update node.
+- [#393](https://github.com/1024pix/pix-db-replication/pull/393) [BUMP] Update dependency pg to v8.23.1 (dossier racine).
+- [#394](https://github.com/1024pix/pix-db-replication/pull/394) [BUMP] Update dependency pg-connection-string to v2.14.1 (dossier racine).
+- [#395](https://github.com/1024pix/pix-db-replication/pull/395) [BUMP] Update JS test packages (dossier racine).
+- [#390](https://github.com/1024pix/pix-db-replication/pull/390) [BUMP] Update linters (dossier racine).
+- [#389](https://github.com/1024pix/pix-db-replication/pull/389) [BUMP] Pin dependencies (dossier racine).
+- [#386](https://github.com/1024pix/pix-db-replication/pull/386) [BUMP] Pin dependencies (dossier racine).
+- [#382](https://github.com/1024pix/pix-db-replication/pull/382) [BUMP] Update dependency moment to ^2.31.0 (dossier racine) [SECURITY].
+- [#388](https://github.com/1024pix/pix-db-replication/pull/388) [BUMP] Update dependency execa to v9.6.1 (dossier racine).
+- [#373](https://github.com/1024pix/pix-db-replication/pull/373) [BUMP] Pin 1024pix/pix-actions action to v0.23.11 (workflows).
+- [#387](https://github.com/1024pix/pix-db-replication/pull/387) [BUMP] Pin dependencies (dossier racine).
+- [#358](https://github.com/1024pix/pix-db-replication/pull/358) [BUMP] Update dependency lodash to ^4.18.1 (dossier racine) [SECURITY].
+- [#355](https://github.com/1024pix/pix-db-replication/pull/355) [BUMP] Update dependency axios to ^1.20.0 (dossier racine) [SECURITY].
+- [#385](https://github.com/1024pix/pix-db-replication/pull/385) [BUMP] Pin dependencies (dossier racine).
+
 ## v2.75.0 (07/10/2026)
 
 
