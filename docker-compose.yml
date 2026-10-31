@@ -1,7 +1,7 @@
 services:
   database:
     container_name: database
-    image: postgres:16.9-alpine
+    image: postgres:17-alpine
     environment:
       POSTGRES_HOST_AUTH_METHOD: trust
     restart: unless-stopped
