@@ -30,7 +30,7 @@ workflows:
 executors:
   node-postgres:
     docker:
-      - image: cimg/node:22.23.3
+      - image: cimg/node:22.23.4
       - image: postgres:17-alpine
         environment:
           POSTGRES_USER: postgres
